@@ -1,0 +1,7 @@
+# Folder Arsip Lama
+_ARSIP_PROJECT_LAMA/
+
+# Temporary / System Files
+Thumbs.db
+*.tmp
+*.bak

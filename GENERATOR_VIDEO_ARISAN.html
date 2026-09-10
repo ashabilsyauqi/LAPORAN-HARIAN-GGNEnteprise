@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator Video Screensaver Arisan Rumah Bolon (36 Peserta)</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-cultural { font-family: 'Cinzel', serif; }
+    .glow-gold { box-shadow: 0 0 35px rgba(230, 168, 23, 0.45); }
+    .glow-crimson { box-shadow: 0 0 35px rgba(158, 18, 18, 0.5); }
+    .gorga-strip {
+      height: 6px;
+      background: repeating-linear-gradient(45deg, #800000 0, #800000 12px, #e6a817 12px, #e6a817 18px, #0a0d14 18px, #0a0d14 30px, #ffffff 30px, #ffffff 36px);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-between p-3 sm:p-5 select-none">
+
+  <div class="w-full max-w-6xl gorga-strip rounded-full mb-3"></div>
+
+  <!-- HEADER -->
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-700 via-rose-600 to-amber-500 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-red-950/60">
+        <i class="fa-solid fa-film text-xl text-white"></i>
+      </div>
+      <div>
+        <h1 class="text-lg sm:text-xl font-cultural font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500 tracking-wide flex items-center gap-2">
+          <span>GENERATOR VIDEO ARISAN RUMAH BOLON</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-sans font-bold">HD 60 FPS</span>
+        </h1>
+        <p class="text-xs text-slate-400 font-sans">
+          36 Peserta &bull; 3 Pemenang/Bulan &bull; Pemutaran: Tanggal 10 &bull; Pengingat H-2: Tanggal 8
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Buttons -->
+    <div class="flex items-center gap-2">
+      <a href="ARISAN_RUMAH_BOLON.html" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 text-xs font-bold border border-amber-500/40 flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Buka Aplikasi Utama</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- CONTROL BAR -->
+  <section class="w-full max-w-6xl bg-slate-900/90 border border-slate-800 rounded-2xl p-4 my-3 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+    <div class="flex flex-wrap items-center gap-4">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Periode Pemutaran</label>
+        <select id="selectPeriod" onchange="onPeriodChange()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
+          <option value="1" selected>Bulan ke-1 (10 Januari)</option>
+          <option value="2">Bulan ke-2 (10 Februari)</option>
+          <option value="3">Bulan ke-3 (10 Maret)</option>
+          <option value="4">Bulan ke-4 (10 April)</option>
+          <option value="5">Bulan ke-5 (10 Mei)</option>
+          <option value="6">Bulan ke-6 (10 Juni)</option>
+          <option value="7">Bulan ke-7 (10 Juli)</option>
+          <option value="8">Bulan ke-8 (10 Agustus)</option>
+          <option value="9">Bulan ke-9 (10 September)</option>
+          <option value="10">Bulan ke-10 (10 Oktober)</option>
+          <option value="11">Bulan ke-11 (10 November)</option>
+          <option value="12">Bulan ke-12 (10 Desember)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Mode Perekaman</label>
+        <select id="selectRecordMode" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
+          <option value="all3" selected>Rekam 3 Pemenang Sekaligus (~20 Detik)</option>
+          <option value="single">Rekam 1 Pemenang Tunggal (~7 Detik)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Action Recording Button -->
+    <div class="flex items-center gap-3">
+      <button id="btnStartRecord" onclick="startAutomatedVideoRecording()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-700 via-rose-600 to-amber-500 hover:from-red-600 hover:to-amber-400 text-white font-black text-xs sm:text-sm shadow-xl shadow-red-950/60 transition transform hover:scale-105 active:scale-95 cursor-pointer">
+        <span class="w-3 h-3 rounded-full bg-white animate-ping"></span>
+        <i class="fa-solid fa-record-vinyl text-base"></i>
+        <span id="recordButtonLabel">MULAI REKAM & EKSPOR VIDEO HD</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- STAGE VIDEO CANVAS (1280x720 HD) -->
+  <main class="w-full max-w-6xl relative bg-slate-900 border-2 border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col items-center justify-center p-4 sm:p-6 my-2 glow-gold">
+    
+    <!-- Recording Indicator Badge -->
+    <div id="recordingBadge" class="absolute top-5 right-5 z-40 bg-red-600/90 text-white px-3 py-1.5 rounded-full text-xs font-black flex items-center gap-2 shadow-lg border border-red-400 hidden animate-pulse">
+      <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+      <span id="recordingTimerText">REC: 00:00</span>
+    </div>
+
+    <!-- Composite HD Canvas where everything is rendered and recorded -->
+    <div class="relative w-full aspect-[16/9] max-h-[580px] flex items-center justify-center rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a0d14] via-[#121722] to-[#200b0b] border border-bolon-gold/30">
+      
+      <!-- Live Stage Canvas -->
+      <canvas id="videoCompositeCanvas" width="1280" height="720" class="w-full h-full object-contain"></canvas>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: VIDEO DOWNLOAD READY -->
+  <div id="modalVideoDownload" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-bolon-gold/60 rounded-3xl max-w-xl w-full p-6 text-center shadow-2xl relative animate-scale-up">
+      <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-500/40 mb-3">
+        <i class="fa-solid fa-circle-check text-2xl"></i>
+      </div>
+
+      <h3 class="text-xl font-black text-white">Video Undian Berhasil Direkam!</h3>
+      <p class="text-xs text-slate-300 mt-1">Video screensaver Arisan Rumah Bolon siap dibagikan ke anggota atau status WhatsApp.</p>
+
+      <!-- Video Preview Player -->
+      <div class="my-4 bg-black rounded-2xl overflow-hidden border border-slate-700 aspect-[16/9]">
+        <video id="previewVideoPlayer" controls class="w-full h-full object-contain"></video>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2.5 mt-4">
+        <a id="btnDownloadVideoLink" download="VIDEO_UNDIAN_ARISAN_RUMAH_BOLON.webm" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 cursor-pointer transition-all">
+          <i class="fa-solid fa-download"></i>
+          <span>Unduh File Video</span>
+        </a>
+        <button onclick="closeVideoModal()" class="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition-all">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full max-w-6xl text-center text-xs text-slate-500 pt-3 border-t border-slate-800">
+    Arisan Rumah Bolon (36 Peserta &bull; 3 Pemenang/Bulan) &bull; Pemutaran Tanggal 10 &bull; Pengingat H-2 Tanggal 8
+  </footer>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    const TOTAL_PARTICIPANTS = 36;
+    const DEFAULT_PARTICIPANTS = [
+      '01. Bertha Purba', '02. Dologman Purba', '03. Herman Sipayung', '04. Henri Jupliaman',
+      '05. Erlianna Purba', '06. Ida Munthe', '07. Ide Hormaliani 1', '08. Ide Hormaliani 2',
+      '09. Jan Haonangan', '10. Jan Wenson', '11. Jenwarita Damanik', '12. Jansen / Elkianna',
+      '13. Lisbeth', '14. Lertina', '15. Naikman 1 Malau', '16. Naikman 2 Malau',
+      '17. Nellawaty', '18. Rohmaulina', '19. Romasni Saragih', '20. Robensius',
+      '21. Robert Napitu', '22. Rosenta Damanik', '23. Rosita Saragih', '24. Sahat Simarmata',
+      '25. Sanni Rista', '26. Sunim Saragih', '27. Sarpiani Damanik', '28. Swanto #1',
+      '29. Swanto #2', '30. Timoraya', '31. Torando Purba', '32. Peserta 32',
+      '33. Peserta 33', '34. Peserta 34', '35. Peserta 35', '36. Peserta 36'
+    ];
+
+    let currentPeriod = 1;
+    let canvas, ctx;
+    let wheelAngle = 0;
+    let isRecording = false;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let currentWinnersList = [];
+    let activeCelebrationName = null;
+    let activeCelebrationSlot = 0;
+
+    // Web Audio Synthesizer
+    let audioCtx = null;
+    let audioStreamDest = null;
+    function getAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioStreamDest = audioCtx.createMediaStreamDestination();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playTick() {
+      try {
+        const a = getAudio();
+        const osc = a.createOscillator();
+        const g = a.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(550, a.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, a.currentTime + 0.04);
+        g.gain.setValueAtTime(0.2, a.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.04);
+        osc.connect(g);
+        g.connect(a.destination);
+        if (audioStreamDest) g.connect(audioStreamDest);
+        osc.start();
+        osc.stop(a.currentTime + 0.04);
+      } catch (e) {}
+    }
+
+    function playBoom() {
+      try {
+        const a = getAudio();
+        const now = a.currentTime;
+        const sub = a.createOscillator();
+        const subG = a.createGain();
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(160, now);
+        sub.frequency.exponentialRampToValueAtTime(30, now + 1.2);
+        subG.gain.setValueAtTime(0.9, now);
+        subG.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+        sub.connect(subG);
+        subG.connect(a.destination);
+        if (audioStreamDest) subG.connect(audioStreamDest);
+        sub.start(now);
+        sub.stop(now + 1.5);
+
+        // Fanfare
+        [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+          const osc = a.createOscillator();
+          const g = a.createGain();
+          const t = now + 0.2 + (i * 0.1);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, t);
+          g.gain.setValueAtTime(0.3, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+          osc.connect(g);
+          g.connect(a.destination);
+          if (audioStreamDest) g.connect(audioStreamDest);
+          osc.start(t);
+          osc.stop(t + 0.7);
+        });
+      } catch (e) {}
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      canvas = document.getElementById('videoCompositeCanvas');
+      ctx = canvas.getContext('2d');
+      onPeriodChange();
+      animateFrame();
+    });
+
+    function onPeriodChange() {
+      currentPeriod = parseInt(document.getElementById('selectPeriod').value, 10);
+      currentWinnersList = [];
+      activeCelebrationName = null;
+    }
+
+    function animateFrame() {
+      drawStage();
+      requestAnimationFrame(animateFrame);
+    }
+
+    function drawStage() {
+      if (!ctx) return;
+      const W = 1280, H = 720;
+      
+      // 1. Background Gradient
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, '#0a0d14');
+      grad.addColorStop(0.5, '#121722');
+      grad.addColorStop(1, '#240808');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. Gorga Border Strip Atas & Bawah
+      ctx.fillStyle = '#800000';
+      ctx.fillRect(0, 0, W, 8);
+      ctx.fillRect(0, H - 8, W, 8);
+      ctx.fillStyle = '#e6a817';
+      ctx.fillRect(0, 8, W, 3);
+      ctx.fillRect(0, H - 11, W, 3);
+
+      // 3. Header Text
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#e6a817';
+      ctx.font = 'bold 16px Plus Jakarta Sans';
+      ctx.fillText('★ ARISAN RUMAH BOLON • 36 PESERTA ★', W / 2, 45);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 32px Cinzel, serif';
+      ctx.fillText(`PENGUNDIAN RESMI BULAN KE-${currentPeriod}`, W / 2, 85);
+
+      ctx.font = 'bold 14px Plus Jakarta Sans';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('Pemutaran Rutin: Tanggal 10 Setiap Bulan • Hak Kotor: Rp 1.200.000 • Kas: Rp 200.000 • Bersih: Rp 1.000.000', W / 2, 115);
+
+      // 4. Roda Putar di Sisi Kiri
+      const wheelX = 380, wheelY = 430, wheelR = 240;
+      drawWheelCircle(wheelX, wheelY, wheelR);
+
+      // Pointer Roda
+      ctx.save();
+      ctx.translate(wheelX, wheelY - wheelR);
+      ctx.beginPath();
+      ctx.moveTo(-16, -10);
+      ctx.lineTo(16, -10);
+      ctx.lineTo(0, 26);
+      ctx.closePath();
+      ctx.fillStyle = '#e6a817';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+
+      // 5. Panel Pemenang di Sisi Kanan (Slot 1, 2, 3)
+      drawWinnersPanel(750, 160, 480, 500);
+
+      // 6. Overlay Popup jika ada pemenang aktif terpilih
+      if (activeCelebrationName) {
+        drawCelebrationCard(W / 2, H / 2);
+      }
+    }
+
+    function drawWheelCircle(cx, cy, r) {
+      const n = DEFAULT_PARTICIPANTS.length;
+      const arc = (2 * Math.PI) / n;
+      const colors = ['#800000', '#121722', '#9e1212', '#1a2232', '#6b0000', '#243048'];
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(wheelAngle);
+
+      for (let i = 0; i < n; i++) {
+        const angle = i * arc;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, r, angle, angle + arc);
+        ctx.closePath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = '#e6a817';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Nama
+        ctx.save();
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = (i % 2 === 0) ? '#fed766' : '#ffffff';
+        ctx.font = 'bold 9px Plus Jakarta Sans';
+        let txt = DEFAULT_PARTICIPANTS[i];
+        if (txt.length > 17) txt = txt.substring(0, 15) + '..';
+        ctx.fillText(txt, r - 15, 3);
+        ctx.restore();
+      }
+
+      // Outer gold ring
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI);
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#e6a817';
+      ctx.stroke();
+
+      // Inner center hub
+      ctx.beginPath();
+      ctx.arc(0, 0, 32, 0, 2 * Math.PI);
+      ctx.fillStyle = '#800000';
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#e6a817';
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawWinnersPanel(x, y, w, h) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(18, 23, 34, 0.85)';
+      ctx.strokeStyle = '#e6a817';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fed766';
+      ctx.font = 'bold 16px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`3 PEMENANG BULAN KE-${currentPeriod}`, x + w / 2, y + 36);
+
+      ctx.strokeStyle = 'rgba(230, 168, 23, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x + 20, y + 50);
+      ctx.lineTo(x + w - 20, y + 50);
+      ctx.stroke();
+
+      // 3 Kartu Slot
+      for (let s = 1; s <= 3; s++) {
+        const slotY = y + 70 + (s - 1) * 135;
+        const winner = currentWinnersList[s - 1];
+
+        ctx.fillStyle = winner ? 'rgba(128, 0, 0, 0.35)' : 'rgba(10, 13, 20, 0.6)';
+        ctx.strokeStyle = winner ? '#e6a817' : '#334155';
+        ctx.lineWidth = winner ? 2 : 1;
+        ctx.beginPath();
+        ctx.roundRect(x + 18, slotY, w - 36, 115, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        // Slot Title
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#e6a817';
+        ctx.font = 'bold 12px Plus Jakarta Sans';
+        ctx.fillText(`PEMENANG KE-${s} (SLOT #${s})`, x + 35, slotY + 28);
+
+        // Winner Name
+        ctx.fillStyle = winner ? '#ffffff' : '#64748b';
+        ctx.font = winner ? '900 20px Plus Jakarta Sans' : 'italic 16px Plus Jakarta Sans';
+        ctx.fillText(winner ? winner.name : 'Menunggu putaran undian...', x + 35, slotY + 62);
+
+        // Net Prize
+        ctx.textAlign = 'right';
+        ctx.fillStyle = winner ? '#34d399' : '#475569';
+        ctx.font = 'bold 13px Plus Jakarta Sans';
+        ctx.fillText(winner ? 'Diterima Bersih: Rp 1.000.000' : 'Rp 1.000.000 Bersih', x + w - 35, slotY + 95);
+      }
+
+      ctx.restore();
+    }
+
+    function drawCelebrationCard(cx, cy) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(10, 13, 20, 0.82)';
+      ctx.fillRect(0, 0, 1280, 720);
+
+      const cw = 700, ch = 340;
+      const x = cx - cw / 2, y = cy - ch / 2;
+
+      ctx.fillStyle = '#1c1313';
+      ctx.strokeStyle = '#e6a817';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(x, y, cw, ch, 24);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#fed766';
+      ctx.font = 'bold 18px Cinzel, serif';
+      ctx.fillText(`★ SELAMAT KEPADA PEMENANG KE-${activeCelebrationSlot} ★`, cx, y + 50);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 36px Plus Jakarta Sans';
+      ctx.fillText(activeCelebrationName, cx, y + 125);
+
+      ctx.strokeStyle = 'rgba(230, 168, 23, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x + 40, y + 165);
+      ctx.lineTo(x + cw - 40, y + 165);
+      ctx.stroke();
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 16px Plus Jakarta Sans';
+      ctx.fillText('Hak Kotor: Rp 1.200.000 • Kas Rumah Bolon: Rp 200.000', cx, y + 210);
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = '900 28px Plus Jakarta Sans';
+      ctx.fillText('TOTAL DITERIMA BERSIH: Rp 1.000.000', cx, y + 265);
+
+      ctx.fillStyle = '#e6a817';
+      ctx.font = 'bold 13px Plus Jakarta Sans';
+      ctx.fillText(`Periode Bulan ke-${currentPeriod} • Pemutaran Tanggal 10`, cx, y + 305);
+
+      ctx.restore();
+    }
+
+    // Perekaman Video Otomatis
+    async function startAutomatedVideoRecording() {
+      if (isRecording) return;
+      isRecording = true;
+
+      const btn = document.getElementById('btnStartRecord');
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      const badge = document.getElementById('recordingBadge');
+      const timerText = document.getElementById('recordingTimerText');
+      badge.classList.remove('hidden');
+
+      let recSeconds = 0;
+      const recTimer = setInterval(() => {
+        recSeconds++;
+        const mm = String(Math.floor(recSeconds / 60)).padStart(2, '0');
+        const ss = String(recSeconds % 60).padStart(2, '0');
+        timerText.textContent = `REC: ${mm}:${ss}`;
+      }, 1000);
+
+      // Siapkan Recorder
+      recordedChunks = [];
+      const canvasStream = canvas.captureStream(60); // 60 FPS
+      const tracks = [...canvasStream.getVideoTracks()];
+
+      const audio = getAudio();
+      if (audioStreamDest && audioStreamDest.stream) {
+        const audioTracks = audioStreamDest.stream.getAudioTracks();
+        if (audioTracks.length > 0) tracks.push(audioTracks[0]);
+      }
+
+      const stream = new MediaStream(tracks);
+      let mime = 'video/webm;codecs=vp9,opus';
+      if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm;codecs=vp8,opus';
+      if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
+
+      mediaRecorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+      mediaRecorder.start(100);
+
+      const mode = document.getElementById('selectRecordMode').value;
+      const countToSpin = (mode === 'single') ? 1 : 3;
+      currentWinnersList = [];
+
+      for (let s = 1; s <= countToSpin; s++) {
+        await spinOneWinner(s);
+        await new Promise(r => setTimeout(r, 2200));
+        activeCelebrationName = null;
+      }
+
+      clearInterval(recTimer);
+      badge.classList.add('hidden');
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        document.getElementById('previewVideoPlayer').src = url;
+        document.getElementById('btnDownloadVideoLink').href = url;
+        document.getElementById('btnDownloadVideoLink').download = `VIDEO_UNDIAN_ARISAN_RUMAH_BOLON_BULAN_${currentPeriod}.webm`;
+        document.getElementById('modalVideoDownload').classList.remove('hidden');
+        isRecording = false;
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      };
+
+      mediaRecorder.stop();
+    }
+
+    function spinOneWinner(slotNumber) {
+      return new Promise(resolve => {
+        const candidates = DEFAULT_PARTICIPANTS.filter(name => !currentWinnersList.some(w => w.name === name));
+        const pickedName = candidates[Math.floor(Math.random() * candidates.length)];
+        
+        const duration = 4000;
+        const start = performance.now();
+        const startAngle = wheelAngle;
+        const totalRotations = (4 + Math.random() * 2) * 2 * Math.PI;
+        let lastTick = startAngle;
+
+        function step(now) {
+          const elapsed = now - start;
+          const p = Math.min(elapsed / duration, 1);
+          const easeOut = 1 - Math.pow(1 - p, 3);
+          wheelAngle = startAngle + totalRotations * easeOut;
+
+          if (Math.abs(wheelAngle - lastTick) > (2 * Math.PI / TOTAL_PARTICIPANTS)) {
+            playTick();
+            lastTick = wheelAngle;
+          }
+
+          if (p < 1) {
+            requestAnimationFrame(step);
+          } else {
+            playBoom();
+            currentWinnersList.push({ slot: slotNumber, name: pickedName });
+            activeCelebrationName = pickedName;
+            activeCelebrationSlot = slotNumber;
+            resolve();
+          }
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    function closeVideoModal() {
+      document.getElementById('modalVideoDownload').classList.add('hidden');
+      const v = document.getElementById('previewVideoPlayer');
+      if (v) v.pause();
+    }
+  </script>
+</body>
+</html>

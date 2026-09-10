@@ -1,0 +1,244 @@
+/* CariKos & JuraganKos Integrated Modern Web App Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary: #10b981;
+  --accent: #f59e0b;
+  --dark-bg: #0f172a;
+  --dark-card: #1e293b;
+  --radius-xl: 1rem;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+/* Leaflet Map Custom Marker Styles */
+.custom-kos-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  border: 2px solid #2563eb;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.custom-kos-marker:hover, .custom-kos-marker.active-marker {
+  background: #2563eb;
+  color: #ffffff;
+  transform: scale(1.15) translateY(-3px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+  z-index: 1000 !important;
+}
+
+.custom-kos-marker.type-putri {
+  border-color: #ec4899;
+}
+.custom-kos-marker.type-putri:hover, .custom-kos-marker.type-putri.active-marker {
+  background: #ec4899;
+  box-shadow: 0 8px 20px rgba(236, 72, 153, 0.4);
+}
+
+.custom-kos-marker.type-putra {
+  border-color: #0284c7;
+}
+.custom-kos-marker.type-putra:hover, .custom-kos-marker.type-putra.active-marker {
+  background: #0284c7;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+}
+
+.custom-kos-marker.type-pasutri {
+  border-color: #8b5cf6;
+}
+.custom-kos-marker.type-pasutri:hover, .custom-kos-marker.type-pasutri.active-marker {
+  background: #8b5cf6;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Card Hover Elevation */
+.kos-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kos-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.12);
+}
+
+/* Room Status Matrix Card for Owner Portal */
+.room-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.room-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
+}
+
+.room-occupied {
+  border-left: 5px solid #10b981;
+}
+
+.room-available {
+  border-left: 5px solid #3b82f6;
+}
+
+.room-maintenance {
+  border-left: 5px solid #94a3b8;
+}
+
+.room-due-soon {
+  border-left: 5px solid #f59e0b;
+}
+
+.room-overdue {
+  border-left: 5px solid #ef4444;
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+/* Modal Smooth Fade */
+.modal-backdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  transform: scale(0.95) translateY(10px);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-backdrop.active .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+/* Range Slider Styling */
+input[type=range] {
+  accent-color: #2563eb;
+}
+
+/* Image Aspect Ratio Placeholder */
+.img-aspect-cover {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+/* Badge Glows */
+.badge-promo {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: white;
+}
+
+.badge-verified {
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: white;
+}
+
+/* Map sticky height */
+#leaflet-map {
+  height: calc(100vh - 170px);
+  min-height: 480px;
+  width: 100%;
+  border-radius: 1rem;
+  z-index: 10;
+}
+
+/* Hide scrollbar for category pills */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Print Receipt Styling */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printableReceipt, #printableReceipt * {
+    visibility: visible;
+  }
+  #printableReceipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    background: white;
+    color: black;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

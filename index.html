@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Bagi Hasil Mesin Cetak KM - Swanto & Gunawan</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        font-size: 11pt;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen antialiased">
+
+  <!-- Header Banner -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white text-lg shadow-inner">
+          KM
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">
+            Kalkulator Pembagian Bagi Hasil
+          </h1>
+          <p class="text-xs text-slate-400">Kerjasama Operasional Mesin KM (Swanto 68% : Gunawan 32%)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 no-print">
+        <button onclick="resetToStandard()" class="px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Reset
+        </button>
+        <button onclick="window.print()" class="px-3.5 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow transition flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Cetak / PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Quick Presets Bar (No Print) -->
+    <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Simulasi:</span>
+        <button onclick="loadDataTerbaru()" class="px-3 py-1 text-xs font-semibold bg-emerald-50 text-emerald-900 border border-emerald-300 hover:bg-emerald-100 rounded-lg transition">
+          📊 Data Terbaru (Rp 44.135.076)
+        </button>
+        <button onclick="loadMaret2026()" class="px-3 py-1 text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 rounded-lg transition">
+          📊 Data Maret (Rp 30.788.945)
+        </button>
+        <button onclick="loadStandar45Jt()" class="px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-900 border border-blue-300 hover:bg-blue-100 rounded-lg transition">
+          📈 Data Standar (Rp 45.000.000)
+        </button>
+      </div>
+      <div class="text-xs text-slate-600 font-medium">
+        Rumus: <code class="bg-slate-100 px-2 py-0.5 rounded text-blue-800 font-mono font-bold">Hasil Bersih = Hasil Kerja Mesin - Klikcharge - Biaya Operasional</code>
+      </div>
+    </div>
+
+    <!-- Main Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT: INPUT CONTROLS (5 cols) -->
+      <div class="lg:col-span-5 space-y-5">
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 print-shadow-none">
+          
+          <h2 class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd" />
+              </svg>
+              Input Data Periode
+            </span>
+          </h2>
+
+          <div class="space-y-4 text-sm">
+
+            <!-- Periode Laporan -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Periode</label>
+              <input type="text" id="inputPeriode" value="BULAN MARET 2026 (SD TGL 16)"
+                class="w-full px-3.5 py-2 text-sm font-medium border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+            </div>
+
+            <!-- Pemasukan / Hasil Cetak Mesin -->
+            <div class="p-3.5 bg-sky-50/60 rounded-xl border border-sky-100">
+              <label class="block text-xs font-bold text-sky-950 mb-1 flex items-center justify-between">
+                <span>1. Hasil Kerja Cetak Mesin (Pemasukan)</span>
+                <span class="text-[11px] font-normal text-sky-700 bg-sky-200/60 px-2 py-0.5 rounded-full">Variabel</span>
+              </label>
+              <div class="relative mt-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold">
+                  Rp
+                </div>
+                <input type="text" id="inputOmzet" value="44.135.076"
+                  class="w-full pl-11 pr-4 py-2.5 text-base font-bold text-slate-900 bg-white border border-sky-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  oninput="handleCurrencyInput(this); calculate();" />
+              </div>
+            </div>
+
+            <!-- Klick Charge -->
+            <div class="p-3.5 bg-amber-50/60 rounded-xl border border-amber-100">
+              <label class="block text-xs font-bold text-amber-950 mb-1 flex items-center justify-between">
+                <span>2. Klick Charge (Tagihan Vendor)</span>
+                <span class="text-[11px] font-normal text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full">Variabel</span>
+              </label>
+              <div class="relative mt-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold">
+                  Rp
+                </div>
+                <input type="text" id="inputClickCharge" value="17.213.850"
+                  class="w-full pl-11 pr-4 py-2.5 text-base font-bold text-slate-900 bg-white border border-amber-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  oninput="handleCurrencyInput(this); calculate();" />
+              </div>
+            </div>
+
+            <!-- Biaya Operasional Swanto -->
+            <div class="p-3.5 bg-blue-50/60 rounded-xl border border-blue-100">
+              <label class="block text-xs font-bold text-blue-950 mb-1 flex items-center justify-between">
+                <span>3. Biaya Operasional / Overhead</span>
+                <span class="text-[11px] font-normal text-blue-800 bg-blue-200/60 px-2 py-0.5 rounded-full">Fixed Swanto</span>
+              </label>
+              <div class="relative mt-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-semibold">
+                  Rp
+                </div>
+                <input type="text" id="inputOperasional" value="14.916.667"
+                  class="w-full pl-11 pr-4 py-2 text-sm font-bold text-slate-900 bg-white border border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  oninput="handleCurrencyInput(this); calculate();" />
+              </div>
+            </div>
+
+            <!-- Biaya Penyusutan Gunawan -->
+            <div class="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-100">
+              <label class="block text-xs font-bold text-emerald-950 mb-1 flex items-center justify-between">
+                <span>4. Biaya Penyusutan Mesin</span>
+                <span class="text-[11px] font-normal text-emerald-800 bg-emerald-200/60 px-2 py-0.5 rounded-full">Fixed Gunawan</span>
+              </label>
+              <div class="relative mt-1">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-semibold">
+                  Rp
+                </div>
+                <input type="text" id="inputPenyusutan" value="4.750.000"
+                  class="w-full pl-11 pr-4 py-2 text-sm font-bold text-slate-900 bg-white border border-emerald-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  oninput="handleCurrencyInput(this); calculate();" />
+              </div>
+            </div>
+
+            <!-- Rasio Persentase Bagi Hasil -->
+            <div class="pt-1">
+              <label class="block text-xs font-bold text-slate-700 mb-2">Persentase Bagi Hasil Bersih (%)</label>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-2.5 bg-blue-50/80 rounded-xl border border-blue-200">
+                  <span class="text-[11px] font-bold text-blue-900 block">SWANTO</span>
+                  <div class="flex items-center gap-1 mt-1">
+                    <input type="number" id="inputPersenSwanto" value="68" min="0" max="100"
+                      class="w-16 px-2 py-1 text-sm font-black text-blue-900 bg-white border border-blue-300 rounded-lg text-center"
+                      oninput="updateRatio('swanto'); calculate();" />
+                    <span class="text-xs font-bold text-blue-900">%</span>
+                  </div>
+                </div>
+                <div class="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-200">
+                  <span class="text-[11px] font-bold text-emerald-900 block">WAHYU GUNAWAN</span>
+                  <div class="flex items-center gap-1 mt-1">
+                    <input type="number" id="inputPersenGunawan" value="32" min="0" max="100"
+                      class="w-16 px-2 py-1 text-sm font-black text-emerald-900 bg-white border border-emerald-300 rounded-lg text-center"
+                      oninput="updateRatio('gunawan'); calculate();" />
+                    <span class="text-xs font-bold text-emerald-900">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: OUTPUT RESULTS (7 cols) -->
+      <div class="lg:col-span-7 space-y-5">
+
+        <!-- KARTU HASIL PEMBAYARAN AKHIR (HERO CARDS) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <!-- KARTU SWANTO -->
+          <div class="bg-gradient-to-br from-blue-900 to-blue-950 text-white rounded-2xl p-5 shadow-sm border border-blue-800 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-blue-200 bg-blue-800/80 px-2.5 py-0.5 rounded-full">
+                SWANTO (<span id="cardPersenSwanto">68%</span>)
+              </span>
+              <span class="text-xs text-blue-300">Pengelola</span>
+            </div>
+            <div class="text-xs text-blue-300">Total Pembayaran / Kas Diterima:</div>
+            <div id="cardTotalSwanto" class="text-2xl sm:text-3xl font-black text-white mt-1 tracking-tight">
+              Rp 0
+            </div>
+            <div class="mt-4 pt-3 border-t border-blue-800/80 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-blue-300 block text-[11px]">Beban Operasional:</span>
+                <span id="cardOpSwanto" class="font-bold text-white">Rp 0</span>
+              </div>
+              <div>
+                <span class="text-blue-300 block text-[11px]">Porsi Laba (68%):</span>
+                <span id="cardLabaSwanto" class="font-bold text-emerald-400">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KARTU GUNAWAN -->
+          <div class="bg-gradient-to-br from-emerald-900 to-emerald-950 text-white rounded-2xl p-5 shadow-sm border border-emerald-800 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-200 bg-emerald-800/80 px-2.5 py-0.5 rounded-full">
+                WAHYU GUNAWAN (<span id="cardPersenGunawan">32%</span>)
+              </span>
+              <span class="text-xs text-emerald-300">Pemilik Mesin</span>
+            </div>
+            <div class="text-xs text-emerald-300">Total Pembayaran / Kas Diterima:</div>
+            <div id="cardTotalGunawan" class="text-2xl sm:text-3xl font-black text-white mt-1 tracking-tight">
+              Rp 0
+            </div>
+            <div class="mt-4 pt-3 border-t border-emerald-800/80 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-emerald-300 block text-[11px]">Penyusutan Mesin:</span>
+                <span id="cardPenyusutanGunawan" class="font-bold text-white">Rp 0</span>
+              </div>
+              <div>
+                <span class="text-emerald-300 block text-[11px]">Porsi Laba (32%):</span>
+                <span id="cardLabaGunawan" class="font-bold text-emerald-400">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TABEL 1: PERHITUNGAN SISA HASIL USAHA (HASIL BERSIH) -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 print-shadow-none">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+              Perhitungan Hasil Bersih (Sisa Hasil Usaha)
+            </h3>
+            <span class="text-xs font-bold text-slate-600" id="badgeDisplayPeriode">-</span>
+          </div>
+
+          <table class="w-full text-xs sm:text-sm mt-3">
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-2.5 text-slate-700 font-semibold">Hasil Kerja Cetak Mesin (Pemasukan)</td>
+                <td class="py-2.5 text-right font-bold text-slate-900" id="rowOmzet">Rp 0</td>
+              </tr>
+              <tr class="text-rose-600">
+                <td class="py-2.5">1. Klick Charge (Tagihan Vendor)</td>
+                <td class="py-2.5 text-right font-medium" id="rowClickCharge">- Rp 0</td>
+              </tr>
+              <tr class="text-rose-600">
+                <td class="py-2.5">2. Biaya Operasional / Overhead</td>
+                <td class="py-2.5 text-right font-medium" id="rowOperasional">- Rp 0</td>
+              </tr>
+              <tr class="bg-slate-50 font-bold border-t border-slate-200 text-slate-800">
+                <td class="py-2.5 px-2">Total Pengeluaran / Beban</td>
+                <td class="py-2.5 px-2 text-right text-rose-700" id="rowTotalPengeluaran">Rp 0</td>
+              </tr>
+              <tr class="bg-blue-50 font-extrabold border-t-2 border-blue-300 text-blue-950">
+                <td class="py-3 px-2 text-sm sm:text-base">SISA HASIL USAHA (HASIL BERSIH)</td>
+                <td class="py-3 px-2 text-right text-sm sm:text-base text-blue-900" id="rowLabaBersih">Rp 0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- TABEL 2: RINCIAN PEMBAGIAN HASIL & PEMBAYARAN KAS -->
+        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 print-shadow-none">
+          <div class="pb-3 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+              Rincian Pembagian &amp; Pembayaran Kas Masuk
+            </h3>
+          </div>
+
+          <div class="overflow-x-auto mt-3">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="bg-slate-50 text-slate-600 font-bold border-y border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Penerima</th>
+                  <th class="py-2.5 px-3 text-right">Pengembalian / Biaya</th>
+                  <th class="py-2.5 px-3 text-right">Porsi Hasil Bersih</th>
+                  <th class="py-2.5 px-3 text-right font-black text-slate-900">Total Pembayaran</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-blue-50/40">
+                  <td class="py-3 px-3 font-bold text-blue-900">
+                    SWANTO (<span id="tblPersenSwanto">68%</span>)
+                  </td>
+                  <td class="py-3 px-3 text-right text-slate-600" id="tblSwantoFixed">Rp 0</td>
+                  <td class="py-3 px-3 text-right font-semibold text-blue-700" id="tblSwantoProfit">Rp 0</td>
+                  <td class="py-3 px-3 text-right font-black text-blue-950 bg-blue-50/60" id="tblSwantoTotal">Rp 0</td>
+                </tr>
+                <tr class="hover:bg-emerald-50/40">
+                  <td class="py-3 px-3 font-bold text-emerald-900">
+                    WAHYU GUNAWAN (<span id="tblPersenGunawan">32%</span>)
+                  </td>
+                  <td class="py-3 px-3 text-right text-slate-600" id="tblGunawanFixed">Rp 0</td>
+                  <td class="py-3 px-3 text-right font-semibold text-emerald-700" id="tblGunawanProfit">Rp 0</td>
+                  <td class="py-3 px-3 text-right font-black text-emerald-950 bg-emerald-50/60" id="tblGunawanTotal">Rp 0</td>
+                </tr>
+                <tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-slate-950">
+                  <td class="py-3 px-3">TOTAL PEMBAYARAN</td>
+                  <td class="py-3 px-3 text-right" id="tblTotalFixed">Rp 0</td>
+                  <td class="py-3 px-3 text-right" id="tblTotalProfit">Rp 0</td>
+                  <td class="py-3 px-3 text-right text-sm sm:text-base text-slate-900" id="tblGrandTotal">Rp 0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Kolom Tanda Tangan (Saat Cetak) -->
+        <div class="hidden print:grid grid-cols-2 gap-8 pt-10 text-center text-xs">
+          <div>
+            <p class="font-semibold text-slate-700">Pihak Pertama (Pengelola),</p>
+            <div class="h-20"></div>
+            <p class="font-bold text-slate-900 underline">SWANTO</p>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-700">Pihak Kedua (Pemilik Mesin),</p>
+            <div class="h-20"></div>
+            <p class="font-bold text-slate-900 underline">WAHYU GUNAWAN</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Script Logika Perhitungan -->
+  <script>
+    function formatRupiah(number) {
+      if (isNaN(number)) return "Rp 0";
+      const isNegative = number < 0;
+      const abs = Math.abs(Math.round(number));
+      const str = abs.toLocaleString("id-ID");
+      return isNegative ? `-Rp ${str}` : `Rp ${str}`;
+    }
+
+    function parseRupiahInput(value) {
+      if (!value) return 0;
+      const cleaned = value.toString().replace(/[^0-9]/g, "");
+      return parseInt(cleaned, 10) || 0;
+    }
+
+    function handleCurrencyInput(el) {
+      const raw = parseRupiahInput(el.value);
+      el.value = raw.toLocaleString("id-ID");
+    }
+
+    function updateRatio(source) {
+      const swantoInput = document.getElementById("inputPersenSwanto");
+      const gunawanInput = document.getElementById("inputPersenGunawan");
+
+      let swanto = parseFloat(swantoInput.value) || 0;
+      let gunawan = parseFloat(gunawanInput.value) || 0;
+
+      if (source === "swanto") {
+        swanto = Math.min(100, Math.max(0, swanto));
+        swantoInput.value = swanto;
+        gunawanInput.value = 100 - swanto;
+      } else {
+        gunawan = Math.min(100, Math.max(0, gunawan));
+        gunawanInput.value = gunawan;
+        swantoInput.value = 100 - gunawan;
+      }
+    }
+
+    function loadDataTerbaru() {
+      document.getElementById("inputPeriode").value = "BULAN MARET 2026 (SD TGL 16)";
+      document.getElementById("inputOmzet").value = (44135076).toLocaleString("id-ID");
+      document.getElementById("inputClickCharge").value = (17213850).toLocaleString("id-ID");
+      document.getElementById("inputOperasional").value = (14916667).toLocaleString("id-ID");
+      document.getElementById("inputPenyusutan").value = (4750000).toLocaleString("id-ID");
+      document.getElementById("inputPersenSwanto").value = 68;
+      document.getElementById("inputPersenGunawan").value = 32;
+      calculate();
+    }
+
+    function loadMaret2026() {
+      document.getElementById("inputPeriode").value = "BULAN MARET 2026";
+      document.getElementById("inputOmzet").value = (30788945).toLocaleString("id-ID");
+      document.getElementById("inputClickCharge").value = (10560040).toLocaleString("id-ID");
+      document.getElementById("inputOperasional").value = (14916667).toLocaleString("id-ID");
+      document.getElementById("inputPenyusutan").value = (4750000).toLocaleString("id-ID");
+      document.getElementById("inputPersenSwanto").value = 68;
+      document.getElementById("inputPersenGunawan").value = 32;
+      calculate();
+    }
+
+    function loadStandar45Jt() {
+      document.getElementById("inputPeriode").value = "BULAN BERJALAN (STANDAR)";
+      document.getElementById("inputOmzet").value = (45000000).toLocaleString("id-ID");
+      document.getElementById("inputClickCharge").value = (0).toLocaleString("id-ID");
+      document.getElementById("inputOperasional").value = (14916667).toLocaleString("id-ID");
+      document.getElementById("inputPenyusutan").value = (4750000).toLocaleString("id-ID");
+      document.getElementById("inputPersenSwanto").value = 68;
+      document.getElementById("inputPersenGunawan").value = 32;
+      calculate();
+    }
+
+    function resetToStandard() {
+      loadDataTerbaru();
+    }
+
+    function calculate() {
+      // 1. Ambil nilai input
+      const omzet = parseRupiahInput(document.getElementById("inputOmzet").value);
+      const clickCharge = parseRupiahInput(document.getElementById("inputClickCharge").value);
+      const operasional = parseRupiahInput(document.getElementById("inputOperasional").value);
+      const penyusutan = parseRupiahInput(document.getElementById("inputPenyusutan").value);
+
+      const persenSwanto = parseFloat(document.getElementById("inputPersenSwanto").value) || 0;
+      const persenGunawan = parseFloat(document.getElementById("inputPersenGunawan").value) || 0;
+      const periode = document.getElementById("inputPeriode").value || "-";
+
+      // 2. Rumus Hasil Bersih: Hasil Kerja Mesin - Klikcharge - Biaya Operasional
+      const totalPengeluaran = clickCharge + operasional;
+      const hasilBersih = omzet - totalPengeluaran;
+
+      // 3. Porsi Pembagian Hasil Bersih
+      const labaSwanto = (persenSwanto / 100) * hasilBersih;
+      const labaGunawan = (persenGunawan / 100) * hasilBersih;
+
+      // 4. Pembayaran Kas Akhir
+      // Wahyu Gunawan menerima Porsi Laba (32%) + Penyusutan Mesin
+      const totalBayarGunawan = penyusutan + labaGunawan;
+      // Vendor menerima Tagihan Klick Charge
+      const totalBayarVendor = clickCharge;
+      // Swanto menerima Sisa Kas
+      const totalBayarSwanto = omzet - totalBayarGunawan - totalBayarVendor;
+      const totalKas = totalBayarSwanto + totalBayarGunawan + totalBayarVendor;
+
+      // 5. Update Badge & Labels
+      document.getElementById("badgeDisplayPeriode").innerText = periode;
+      document.getElementById("cardPersenSwanto").innerText = `${persenSwanto}%`;
+      document.getElementById("cardPersenGunawan").innerText = `${persenGunawan}%`;
+      document.getElementById("tblPersenSwanto").innerText = `${persenSwanto}%`;
+      document.getElementById("tblPersenGunawan").innerText = `${persenGunawan}%`;
+
+      // 6. Update Hero Cards
+      document.getElementById("cardTotalSwanto").innerText = formatRupiah(totalBayarSwanto);
+      document.getElementById("cardOpSwanto").innerText = formatRupiah(operasional);
+      document.getElementById("cardLabaSwanto").innerText = formatRupiah(labaSwanto);
+
+      document.getElementById("cardTotalGunawan").innerText = formatRupiah(totalBayarGunawan);
+      document.getElementById("cardPenyusutanGunawan").innerText = formatRupiah(penyusutan);
+      document.getElementById("cardLabaGunawan").innerText = formatRupiah(labaGunawan);
+
+      // 7. Update Tabel 1 (Hasil Bersih / Sisa Hasil Usaha)
+      document.getElementById("rowOmzet").innerText = formatRupiah(omzet);
+      document.getElementById("rowClickCharge").innerText = `- ${formatRupiah(clickCharge)}`;
+      document.getElementById("rowOperasional").innerText = `- ${formatRupiah(operasional)}`;
+      document.getElementById("rowTotalPengeluaran").innerText = formatRupiah(totalPengeluaran);
+      
+      const labaBersihEl = document.getElementById("rowLabaBersih");
+      labaBersihEl.innerText = formatRupiah(hasilBersih);
+      if (hasilBersih < 0) {
+        labaBersihEl.className = "py-3 px-2 text-right text-sm sm:text-base text-rose-600 font-extrabold";
+      } else {
+        labaBersihEl.className = "py-3 px-2 text-right text-sm sm:text-base text-blue-900 font-extrabold";
+      }
+
+      // 8. Update Tabel 2 (Rincian Pembayaran Kas)
+      document.getElementById("tblSwantoFixed").innerText = formatRupiah(operasional - penyusutan);
+      document.getElementById("tblSwantoProfit").innerText = formatRupiah(labaSwanto);
+      document.getElementById("tblSwantoTotal").innerText = formatRupiah(totalBayarSwanto);
+
+      document.getElementById("tblGunawanFixed").innerText = formatRupiah(penyusutan);
+      document.getElementById("tblGunawanProfit").innerText = formatRupiah(labaGunawan);
+      document.getElementById("tblGunawanTotal").innerText = formatRupiah(totalBayarGunawan);
+
+      document.getElementById("tblTotalFixed").innerText = formatRupiah(operasional);
+      document.getElementById("tblTotalProfit").innerText = formatRupiah(hasilBersih);
+      document.getElementById("tblGrandTotal").innerText = formatRupiah(totalBayarSwanto + totalBayarGunawan);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadDataTerbaru();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CariKos ID & JuraganKos - Ekosistem Rumah Kos Indonesia</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="kos_style.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
+
+  <!-- TOP NAVBAR WITH INTEGRATED MODE SWITCHER -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchAppMode('seeker'); resetAllFilters();">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 text-xl font-black">
+          <i class="fa-solid fa-house-circle-check"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">CariKos</span>
+            <span class="text-xs bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-bold px-1.5 py-0.5 rounded">ID</span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Pencari & Pengelola Kos Terpadu</p>
+        </div>
+      </div>
+
+      <!-- MAIN MODE SWITCHER (PENCARI vs PEMILIK) -->
+      <div class="flex items-center p-1.5 bg-slate-200/80 dark:bg-slate-800 rounded-2xl border border-slate-300/60 dark:border-slate-700 shadow-inner">
+        <button id="modeBtnSeeker" onclick="switchAppMode('seeker')" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-compass"></i>
+          <span>Mode Pencari Kos</span>
+        </button>
+        <button id="modeBtnOwner" onclick="switchAppMode('owner')" class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 font-semibold text-xs transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-key"></i>
+          <span>Portal Pemilik Kos</span>
+        </button>
+      </div>
+
+      <!-- Action & Utility Buttons -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Budget Calculator Button -->
+        <button onclick="openCalculatorForKos(null)" title="Kalkulator Budget Kos" 
+                class="hidden md:flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all">
+          <i class="fa-solid fa-calculator text-blue-500"></i>
+          <span class="hidden lg:inline">Kalkulator</span>
+        </button>
+
+        <!-- Favorites Button -->
+        <button onclick="showFavoritesOnly()" title="Lihat Favorit" 
+                class="relative p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all">
+          <i class="fa-solid fa-heart text-red-500 text-base"></i>
+          <span id="favCounterBadge" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md">
+            0
+          </span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" onclick="toggleDarkMode()" title="Ubah Tema" 
+                class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+          <i class="fa-solid fa-moon text-slate-600 text-base"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- ==================== 1. SEEKER MODE ==================== -->
+  <!-- ======================================================== -->
+  <div id="seekerAppSection">
+    
+    <!-- HERO BANNER SECTION -->
+    <section class="relative bg-gradient-to-b from-blue-600 via-indigo-700 to-indigo-900 text-white pt-10 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div class="absolute -top-24 -left-24 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute top-1/2 -right-24 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto relative z-10">
+        <div class="text-center max-w-3xl mx-auto mb-8">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-blue-200 mb-3 border border-white/10">
+            <i class="fa-solid fa-sparkles text-amber-300"></i> Platform Pencarian Kos Terlengkap di Indonesia
+          </span>
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight mb-3">
+            Temukan Kos Idaman Tanpa Ribet
+          </h1>
+          <p class="text-slate-200 text-sm sm:text-base font-normal max-w-2xl mx-auto">
+            Cari kamar sewa putra, putri, pasutri, hingga kos eksklusif dekat kampus & stasiun dengan harga transparan dan kontak langsung ke pemilik.
+          </p>
+        </div>
+
+        <!-- MAIN SEARCH BAR & FILTER HERO CARD -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 max-w-5xl mx-auto">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 mb-4">
+            <!-- City Selector (4 cols) -->
+            <div class="lg:col-span-4">
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
+                <i class="fa-solid fa-city text-blue-500 mr-1"></i> Pilih Kota / Wilayah
+              </label>
+              <select id="cityFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                <option value="Semua Kota">🌐 Semua Kota (Seluruh Indonesia)</option>
+                
+                <optgroup label="📍 DKI Jakarta (UI Salemba, Trisakti, UNJ, Binus, Atma Jaya)">
+                  <option value="Jakarta Selatan">Jakarta Selatan (Tebet, Kuningan, Setiabudi, Mampang)</option>
+                  <option value="Jakarta Barat">Jakarta Barat (Grogol, Trisakti, Untar, Binus)</option>
+                  <option value="Jakarta Pusat">Jakarta Pusat (Salemba, Menteng, Cempaka Putih)</option>
+                  <option value="Jakarta Timur">Jakarta Timur (Rawamangun, UNJ, UKI)</option>
+                  <option value="Jakarta Utara">Jakarta Utara (Kelapa Gading, Pluit)</option>
+                </optgroup>
+
+                <optgroup label="📍 Jawa Barat & Banten (ITB, Unpad, IPB, UI Depok)">
+                  <option value="Bandung">Bandung (ITB, Unpad, Telkom, Parahyangan, UPI)</option>
+                  <option value="Depok">Depok (Universitas Indonesia, Gunadarma, PNJ)</option>
+                  <option value="Bogor">Bogor (Institut Pertanian Bogor / IPB, Pakuan)</option>
+                  <option value="Tangerang">Tangerang / BSD (Prasetiya Mulya, UMN, Binus Alam Sutera)</option>
+                  <option value="Bekasi">Bekasi (Unisma, President University)</option>
+                  <option value="Jatinangor">Jatinangor / Sumedang (Unpad, ITB Jatinangor, IPDN)</option>
+                </optgroup>
+
+                <optgroup label="📍 D.I. Yogyakarta (Kota Pelajar - UGM, UNY, UII, UMY)">
+                  <option value="Yogyakarta">Yogyakarta (UGM, UNY, UIN Sunan Kalijaga, ISI)</option>
+                  <option value="Sleman">Sleman (Pogung, Gejayan, Seturan, UPN, UII, Atma Jaya, YKPN)</option>
+                  <option value="Bantul">Bantul (UMY, ISI Yogyakarta, Alma Ata)</option>
+                </optgroup>
+
+                <optgroup label="📍 Jawa Tengah (Undip, UNS, Unnes, UMS, Unsoed)">
+                  <option value="Semarang">Semarang (Universitas Diponegoro / Undip, Unnes, Unissula, Udinus)</option>
+                  <option value="Surakarta / Solo">Surakarta / Solo (Universitas Sebelas Maret / UNS, UMS)</option>
+                  <option value="Purwokerto">Purwokerto (Universitas Jenderal Soedirman / Unsoed)</option>
+                  <option value="Salatiga">Salatiga (UKSW Salatiga)</option>
+                </optgroup>
+
+                <optgroup label="📍 Jawa Timur (ITS, Unair, UB Malang, UM, UNEJ)">
+                  <option value="Surabaya">Surabaya (ITS Sukolilo, UNAIR A/B/C, Unesa, UPN Jatim, Petra)</option>
+                  <option value="Malang">Malang (Universitas Brawijaya / UB, UM, UMM, Polinema, UIN Malang)</option>
+                  <option value="Jember">Jember (Universitas Jember / UNEJ)</option>
+                </optgroup>
+
+                <optgroup label="📍 Bali & Nusa Tenggara (Udayana, Undiksha, Unram)">
+                  <option value="Bali">Bali (Denpasar, Jimbaran - Universitas Udayana, Warmadewa, Undiknas)</option>
+                  <option value="Mataram">Mataram (Universitas Mataram / Unram Lombok)</option>
+                </optgroup>
+
+                <optgroup label="📍 Sumatera (USU, Unand, Unsri, Unsyiah, Unila)">
+                  <option value="Medan">Medan (Universitas Sumatera Utara / USU, Unimed, UMSU)</option>
+                  <option value="Padang">Padang (Universitas Andalas / Unand, UNP Padang)</option>
+                  <option value="Palembang">Palembang (Universitas Sriwijaya / Unsri, UIN Raden Fatah)</option>
+                  <option value="Bandar Lampung">Bandar Lampung (Universitas Lampung / Unila, Itera)</option>
+                  <option value="Pekanbaru">Pekanbaru (Universitas Riau / UNRI, UIN Suska)</option>
+                  <option value="Banda Aceh">Banda Aceh (Universitas Syiah Kuala / USK, UIN Ar-Raniry)</option>
+                </optgroup>
+
+                <optgroup label="📍 Sulawesi (Unhas, UNM, Unsrat, Tadulako)">
+                  <option value="Makassar">Makassar (Universitas Hasanuddin / Unhas, UNM, UIN Alauddin)</option>
+                  <option value="Manado">Manado (Universitas Sam Ratulangi / Unsrat)</option>
+                </optgroup>
+
+                <optgroup label="📍 Kalimantan (Unmul, Untan, ULM)">
+                  <option value="Samarinda">Samarinda (Universitas Mulawarman / Unmul)</option>
+                  <option value="Pontianak">Pontianak (Universitas Tanjungpura / Untan)</option>
+                  <option value="Banjarmasin">Banjarmasin (Universitas Lambung Mangkurat / ULM)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Type Selector (3 cols) -->
+            <div class="lg:col-span-3">
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wider">
+                <i class="fa-solid fa-user-group text-blue-500 mr-1"></i> Tipe Penghuni
+              </label>
+              <select id="typeFilterHero" onchange="AppState.activeFilters.type = this.value; applyFilters();" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                <option value="all">Semua Tipe (Putra / Putri / Campur)</option>
+                <option value="Putri">Khusus Putri</option>
+                <option value="Putra">Khusus Putra</option>
+                <option value="Campur">Kos Campur</option>
+                <option value="Pasutri">Pasutri / Suami Istri</option>
+              </select>
+            </div>
+
+            <!-- Max Price Slider (3 cols) -->
+            <div class="lg:col-span-3">
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <i class="fa-solid fa-tag text-blue-500 mr-1"></i> Maks. Budget Bulanan
+                </label>
+                <span id="priceSliderValue" class="text-xs font-extrabold text-blue-600 dark:text-blue-400">Rp 5.000.000</span>
+              </div>
+              <input type="range" id="priceRangeSlider" min="500000" max="5000000" step="50000" value="5000000" 
+                     class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600">
+              <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                <span>Rp 500 rb</span>
+                <span>Rp 2.5 jt</span>
+                <span>Rp 5 jt+</span>
+              </div>
+            </div>
+
+            <!-- Search Action Button (2 cols) -->
+            <div class="lg:col-span-2 flex items-end">
+              <button onclick="triggerHeroSearch()" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all duration-200 active:scale-95">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Cari Kos</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Campus Quick Tags -->
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 font-medium">Kampus Populer:</span>
+            <button onclick="selectPopularCampus('UGM', 'Yogyakarta', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 UGM Jogja
+            </button>
+            <button onclick="selectPopularCampus('ITB', 'Bandung', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 ITB Bandung
+            </button>
+            <button onclick="selectPopularCampus('UI', 'Depok', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 UI Depok
+            </button>
+            <button onclick="selectPopularCampus('ITS', 'Surabaya', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 ITS Surabaya
+            </button>
+            <button onclick="selectPopularCampus('UB', 'Malang', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 UB Malang
+            </button>
+            <button onclick="selectPopularCampus('Undip', 'Semarang', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 Undip Semarang
+            </button>
+            <button onclick="selectPopularCampus('UNS', 'Surakarta / Solo', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 UNS Solo
+            </button>
+            <button onclick="selectPopularCampus('Udayana', 'Bali', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 Udayana Bali
+            </button>
+            <button onclick="selectPopularCampus('Unhas', 'Makassar', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 Unhas Makassar
+            </button>
+            <button onclick="selectPopularCampus('USU', 'Medan', this)" class="campus-chip px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-medium transition-all shadow-sm">
+              🎓 USU Medan
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK CATEGORY CHIPS BAR -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
+      <div class="bg-white dark:bg-slate-800 p-2 sm:p-3 rounded-2xl shadow-lg border border-slate-200/80 dark:border-slate-700 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+        
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="selectQuickCategory('all', this)" class="cat-chip px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-md transition-all">
+            <i class="fa-solid fa-list-ul mr-1.5"></i>Semua Kategori
+          </button>
+          <button onclick="selectQuickCategory('Dekat Kampus', this)" class="cat-chip px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">
+            <i class="fa-solid fa-graduation-cap text-blue-500 mr-1.5"></i>Dekat Kampus
+          </button>
+          <button onclick="selectQuickCategory('Eksklusif', this)" class="cat-chip px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">
+            <i class="fa-solid fa-crown text-amber-500 mr-1.5"></i>Kos Eksklusif
+          </button>
+          <button onclick="selectQuickCategory('Kos Murah', this)" class="cat-chip px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">
+            <i class="fa-solid fa-wallet text-emerald-500 mr-1.5"></i>Kos Murah &lt; 1 Juta
+          </button>
+          <button onclick="selectQuickCategory('Bebas 24 Jam', this)" class="cat-chip px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">
+            <i class="fa-solid fa-key text-purple-500 mr-1.5"></i>Bebas 24 Jam
+          </button>
+        </div>
+
+        <button onclick="resetAllFilters()" class="text-xs font-bold text-slate-500 hover:text-red-500 px-3 py-2 shrink-0 transition-colors">
+          <i class="fa-solid fa-rotate-left mr-1"></i>Reset
+        </button>
+
+      </div>
+    </section>
+
+    <!-- MAIN LISTING & MAP SECTION -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 id="resultsCount" class="text-xl font-extrabold text-slate-900 dark:text-white">
+            Memuat Kos...
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Menampilkan hunian pilihan terbaik siap huni</p>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-500 hidden sm:inline">Urutkan:</span>
+            <select id="sortSelect" class="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="popular">Paling Populer & Rating</option>
+              <option value="price_asc">Harga Termurah</option>
+              <option value="price_desc">Harga Tertinggi</option>
+              <option value="rating">Rating Tertinggi</option>
+              <option value="reviews">Ulasan Terbanyak</option>
+            </select>
+          </div>
+
+          <div class="flex items-center p-1 bg-slate-200/80 dark:bg-slate-800 rounded-xl">
+            <button id="viewSplitBtn" title="Split Map View" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow transition-all">
+              <i class="fa-solid fa-map-location-dot mr-1"></i>Peta & List
+            </button>
+            <button id="viewGridBtn" title="Grid View" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all">
+              <i class="fa-solid fa-grid-2 mr-1"></i>Grid Penuh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div id="cardsColumn" class="lg:col-span-7 space-y-6">
+          <div id="kosContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <div id="mapColumn" class="lg:col-span-5">
+          <div class="sticky top-28 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-2 overflow-hidden">
+            <div class="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
+              <span><i class="fa-solid fa-map-pin text-blue-500 mr-1.5"></i>Peta Interaktif Kos</span>
+              <span class="text-[11px] text-slate-400 font-normal">Klik pin harga untuk detail</span>
+            </div>
+            <div id="leaflet-map"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- ==================== 2. OWNER PORTAL ================== -->
+  <!-- ======================================================= -->
+  <div id="ownerAppSection" class="hidden flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    
+    <!-- Owner Header Bar -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-gradient-to-r from-blue-700 via-indigo-800 to-slate-900 text-white rounded-3xl shadow-xl mb-8">
+      <div>
+        <span class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-blue-500/30 text-blue-200 text-xs font-bold mb-1 border border-blue-400/30">
+          <i class="fa-solid fa-crown text-amber-300"></i> Portal Pemilik Kos
+        </span>
+        <h2 id="ownerDashPropertyName" class="text-2xl font-black">Kos Graha Asri Tebet</h2>
+        <p class="text-xs text-blue-200">Kelola kamar, data penyewa, tagihan WA, dan pembukuan arus kas</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openCheckInModal(null)" class="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-user-plus"></i> + Check-In Baru
+        </button>
+        <button onclick="openModal('addTransactionModal')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-plus-circle"></i> + Catat Kas
+        </button>
+      </div>
+    </div>
+
+    <!-- Owner Navigation Tabs -->
+    <div class="flex items-center gap-2 p-1.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 mb-8 overflow-x-auto no-scrollbar shadow-sm">
+      <button onclick="switchOwnerTab('dash')" data-tab="dash" class="owner-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md transition-all">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard
+      </button>
+      <button onclick="switchOwnerTab('kamar')" data-tab="kamar" class="owner-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all">
+        <i class="fa-solid fa-door-open"></i> Denah Kamar
+      </button>
+      <button onclick="switchOwnerTab('penyewa')" data-tab="penyewa" class="owner-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all">
+        <i class="fa-solid fa-users"></i> Data Penyewa (CRM)
+      </button>
+      <button onclick="switchOwnerTab('keuangan')" data-tab="keuangan" class="owner-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all">
+        <i class="fa-solid fa-wallet"></i> Buku Kas
+      </button>
+      <button onclick="switchOwnerTab('keluhan')" data-tab="keluhan" class="owner-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all">
+        <i class="fa-solid fa-screwdriver-wrench"></i> Servis & Keluhan
+      </button>
+      <button onclick="switchOwnerTab('publik')" data-tab="publik" class="owner-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all">
+        <i class="fa-solid fa-bullhorn text-amber-500"></i> Properti Publik (Iklan)
+      </button>
+      <button onclick="switchOwnerTab('pengaturan')" data-tab="pengaturan" class="owner-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold text-xs transition-all">
+        <i class="fa-solid fa-gear"></i> Pengaturan Properti
+      </button>
+    </div>
+
+    <!-- OWNER VIEW 1: DASHBOARD -->
+    <div id="owner-view-dash" class="owner-tab-view space-y-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Keterisian Kamar</span>
+            <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-2 mb-2">
+              <span id="ownerStatOccupancyRate" class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">0%</span>
+              <span class="text-xs text-slate-400">(Total <span id="ownerStatTotalRooms">0</span> Kamar)</span>
+            </div>
+            <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+              <div id="ownerStatOccupancyBar" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pemasukan Bulan Ini</span>
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-arrow-down-left"></i>
+            </div>
+          </div>
+          <div>
+            <div id="ownerStatIncomeMonth" class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">Rp 0</div>
+            <span class="text-[11px] text-slate-400">Total sewa kamar masuk</span>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pengeluaran Operasional</span>
+            <div class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-arrow-up-right"></i>
+            </div>
+          </div>
+          <div>
+            <div id="ownerStatExpenseMonth" class="text-xl sm:text-2xl font-black text-red-600 dark:text-red-400">Rp 0</div>
+            <span class="text-[11px] text-slate-400">Listrik, WiFi, Servis & Gaji</span>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Laba Bersih</span>
+            <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+          </div>
+          <div>
+            <div id="ownerStatNetProfit" class="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400">Rp 0</div>
+            <span class="text-[11px] text-slate-400">Net cashflow bulan ini</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-black text-lg text-slate-900 dark:text-white">Peringatan Tagihan Sewa</h3>
+              <p class="text-xs text-slate-400">Anak kos yang perlu ditagih atau segera jatuh tempo</p>
+            </div>
+            <div class="text-right">
+              <span id="ownerStatUnpaidAmount" class="font-extrabold text-sm text-red-600 dark:text-red-400">Rp 0</span>
+              <span id="ownerStatUnpaidCount" class="block text-[11px] text-slate-400">0 Penyewa</span>
+            </div>
+          </div>
+          <div id="ownerDueAlertsContainer" class="space-y-3"></div>
+        </div>
+
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">Riwayat Transaksi Terkini</h4>
+              <button onclick="switchOwnerTab('keuangan')" class="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</button>
+            </div>
+            <div id="ownerRecentTransactionsContainer" class="space-y-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWNER VIEW 2: KAMAR -->
+    <div id="owner-view-kamar" class="owner-tab-view hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div>
+          <h3 class="font-black text-xl text-slate-900 dark:text-white">Denah & Manajemen Kamar</h3>
+          <p class="text-xs text-slate-400">Pantau ketersediaan, status sewa, dan lakukan check-in penyewa</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex p-1 bg-slate-200/70 dark:bg-slate-800 rounded-xl text-xs font-bold">
+            <button onclick="filterOwnerRooms('floor', 'all', this)" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white shadow">Semua Lantai</button>
+            <button onclick="filterOwnerRooms('floor', '1', this)" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300">Lantai 1</button>
+            <button onclick="filterOwnerRooms('floor', '2', this)" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300">Lantai 2</button>
+          </div>
+        </div>
+      </div>
+      <div id="ownerRoomsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+    </div>
+
+    <!-- OWNER VIEW 3: PENYEWA -->
+    <div id="owner-view-penyewa" class="owner-tab-view hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div>
+          <h3 class="font-black text-xl text-slate-900 dark:text-white">Buku Data Penyewa Kos</h3>
+          <p class="text-xs text-slate-400">Data lengkap anak kos, jatuh tempo sewa, dan kontak WhatsApp</p>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <th class="p-4 w-12">No</th>
+                <th class="p-4">Nama Penyewa & KTP</th>
+                <th class="p-4">Kamar</th>
+                <th class="p-4">Harga Sewa</th>
+                <th class="p-4">Jatuh Tempo</th>
+                <th class="p-4">Status</th>
+                <th class="p-4">Aksi Cepat</th>
+              </tr>
+            </thead>
+            <tbody id="ownerTenantsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWNER VIEW 4: KEUANGAN -->
+    <div id="owner-view-keuangan" class="owner-tab-view hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div>
+          <h3 class="font-black text-xl text-slate-900 dark:text-white">Buku Kas & Keuangan</h3>
+          <p class="text-xs text-slate-400">Pencatatan arus kas masuk & keluar operasional kos</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportFinanceToCSV()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all">
+            <i class="fa-solid fa-file-excel text-emerald-500 mr-1.5"></i>Ekspor CSV
+          </button>
+          <button onclick="openModal('addTransactionModal')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition-all">
+            + Catat Transaksi
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-5 bg-emerald-50 dark:bg-emerald-950/40 rounded-3xl border border-emerald-200 dark:border-emerald-900/40">
+          <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">Total Pemasukan</span>
+          <div id="ownerFinTotalIncome" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">Rp 0</div>
+        </div>
+        <div class="p-5 bg-red-50 dark:bg-red-950/40 rounded-3xl border border-red-200 dark:border-red-900/40">
+          <span class="text-xs font-bold text-red-800 dark:text-red-300 uppercase tracking-wider">Total Pengeluaran</span>
+          <div id="ownerFinTotalExpense" class="text-2xl font-black text-red-600 dark:text-red-400 mt-1">Rp 0</div>
+        </div>
+        <div class="p-5 bg-blue-50 dark:bg-blue-950/40 rounded-3xl border border-blue-200 dark:border-blue-900/40">
+          <span class="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Saldo / Laba Bersih</span>
+          <div id="ownerFinNetBalance" class="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">Rp 0</div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <th class="p-4 w-12">No</th>
+                <th class="p-4">Tanggal</th>
+                <th class="p-4">Jenis</th>
+                <th class="p-4">Kategori</th>
+                <th class="p-4">Keterangan</th>
+                <th class="p-4">Kamar</th>
+                <th class="p-4 text-right">Nominal</th>
+              </tr>
+            </thead>
+            <tbody id="ownerFinanceTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWNER VIEW 5: KELUHAN -->
+    <div id="owner-view-keluhan" class="owner-tab-view hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div>
+          <h3 class="font-black text-xl text-slate-900 dark:text-white">Tiket Keluhan & Pemeliharaan</h3>
+          <p class="text-xs text-slate-400">Pantau dan tindak lanjuti perbaikan fasilitas kamar & area kos</p>
+        </div>
+        <button onclick="openModal('addComplaintModal')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition-all">
+          + Tambah Laporan Servis
+        </button>
+      </div>
+      <div id="ownerComplaintsContainer" class="space-y-3"></div>
+    </div>
+
+    <!-- OWNER VIEW 6: PENGATURAN -->
+    <div id="owner-view-pengaturan" class="owner-tab-view hidden space-y-6 max-w-3xl">
+      <div class="pb-4 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="font-black text-xl text-slate-900 dark:text-white">Profil & Pengaturan Properti Kos</h3>
+        <p class="text-xs text-slate-400">Data rekening transfer untuk tagihan WhatsApp dan kwitansi resmi</p>
+      </div>
+
+      <form onsubmit="handleSaveSettings(event)" class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm space-y-4 text-left">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Kos / Properti *</label>
+            <input type="text" required id="setPropName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Pemilik / Pengelola *</label>
+            <input type="text" required id="setOwnerName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">No. WhatsApp Pengelola *</label>
+            <input type="tel" required id="setPhone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Bank Transfer *</label>
+            <input type="text" required id="setBankName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none" placeholder="BCA / Mandiri / BRI">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nomor Rekening *</label>
+            <input type="text" required id="setBankAccount" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Atas Nama Rekening (A/N) *</label>
+          <input type="text" required id="setBankHolder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Alamat Lengkap Kos</label>
+          <input type="text" id="setAddress" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Catatan Tagihan / Aturan Sewa</label>
+          <textarea id="setRules" rows="2" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none"></textarea>
+        </div>
+
+        <div class="pt-4 flex justify-between items-center">
+          <button type="button" onclick="if(confirm('Reset data pemilik ke default?')) { loadJuraganDefaults(); renderOwnerDashboard(); showToast('Data pemilik di-reset.'); }" class="text-xs font-bold text-red-500 hover:underline">
+            Reset Data Pemilik
+          </button>
+          <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-md transition-all">
+            Simpan Perubahan
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- OWNER VIEW 7: PROPERTI PUBLIK (IKLAN TAYANG) -->
+    <div id="owner-view-publik" class="owner-tab-view hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="font-black text-xl text-slate-900 dark:text-white">Properti yang Ditawarkan ke Publik</h3>
+            <span id="ownerPublicBadgeCount" class="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 font-bold text-xs">
+              0 Listing Tayang
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Kelola listing iklan properti Anda yang tampil di halaman pencarian publik CariKos ID</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="switchAppMode('seeker')" class="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 border border-slate-200 dark:border-slate-700">
+            <i class="fa-solid fa-eye text-blue-500"></i> Lihat Tampilan Publik
+          </button>
+          <button onclick="openAddPublicKosModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-plus-circle"></i> + Pasang Listing Baru
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Summary Cards for Public Properties -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-5 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-globe"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Status Iklan Publik</span>
+            <h4 class="text-base font-black text-slate-900 dark:text-white mt-0.5">Aktif & Siap Disewa</h4>
+          </div>
+        </div>
+
+        <div class="p-5 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-door-open"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Kamar Kosong</span>
+            <h4 id="ownerPublicAvailRoomsCount" class="text-base font-black text-blue-600 dark:text-blue-400 mt-0.5">0 Kamar Tersedia</h4>
+          </div>
+        </div>
+
+        <div class="p-5 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-comments"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kanal Booking Masuk</span>
+            <h4 class="text-base font-black text-slate-900 dark:text-white mt-0.5">Langsung ke WhatsApp</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- Public Properties Grid Container -->
+      <div id="ownerPublicPropertiesContainer" class="space-y-4"></div>
+    </div>
+
+  </div>
+
+  <!-- FLOATING COMPARISON DRAWER -->
+  <div id="compareDrawer" class="fixed bottom-0 inset-x-0 z-40 transform translate-y-full transition-transform duration-300 pointer-events-none">
+    <div class="max-w-xl mx-auto p-4 pointer-events-auto">
+      <div class="glass-panel bg-slate-900/90 text-white p-4 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-code-compare"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm leading-tight">Perbandingan Kos</h4>
+            <p class="text-xs text-slate-300"><span id="compareCount" class="font-bold text-blue-400">0</span> dari 3 kos terpilih</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="AppState.comparisonList = []; updateComparisonCounter(); renderKosCards();" class="px-3 py-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors">
+            Batal
+          </button>
+          <button onclick="openComparisonModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all">
+            Bandingkan Sekarang
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-16 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        
+        <div class="md:col-span-1 space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black">
+              <i class="fa-solid fa-house-circle-check"></i>
+            </div>
+            <span class="text-lg font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">CariKos ID</span>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Platform pencarian dan pengelolaan hunian kos modern di Indonesia dengan integrasi portal pemilik, penagihan WhatsApp, dan peta interaktif.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-3">Kota Populer</h4>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li><a href="#" onclick="AppState.activeFilters.city='Jakarta Selatan'; applyFilters();" class="hover:text-blue-600">Kos Jakarta Selatan</a></li>
+            <li><a href="#" onclick="AppState.activeFilters.city='Bandung'; applyFilters();" class="hover:text-blue-600">Kos Bandung (Dago & ITB)</a></li>
+            <li><a href="#" onclick="AppState.activeFilters.city='Yogyakarta'; applyFilters();" class="hover:text-blue-600">Kos Jogja (Pogung & Seturan)</a></li>
+            <li><a href="#" onclick="AppState.activeFilters.city='Surabaya'; applyFilters();" class="hover:text-blue-600">Kos Surabaya (Gubeng & ITS)</a></li>
+            <li><a href="#" onclick="AppState.activeFilters.city='Depok'; applyFilters();" class="hover:text-blue-600">Kos Depok (UI & PNJ)</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-3">Tipe & Kategori</h4>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li><a href="#" onclick="AppState.activeFilters.type='Putri'; applyFilters();" class="hover:text-blue-600">Kos Khusus Putri</a></li>
+            <li><a href="#" onclick="AppState.activeFilters.type='Putra'; applyFilters();" class="hover:text-blue-600">Kos Khusus Putra</a></li>
+            <li><a href="#" onclick="AppState.activeFilters.type='Campur'; applyFilters();" class="hover:text-blue-600">Kos Campur</a></li>
+            <li><a href="#" onclick="AppState.activeFilters.type='Pasutri'; applyFilters();" class="hover:text-blue-600">Kos Pasutri / Apartemen</a></li>
+            <li><a href="#" onclick="selectQuickCategory('Eksklusif');" class="hover:text-blue-600">Kos Eksklusif AC & KM Dalam</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-3">Untuk Pemilik Kos</h4>
+          <p class="text-xs text-slate-500 mb-3">Gunakan Portal Pemilik terintegrasi untuk mengelola kamar, tagihan WA otomatis, dan buku kas kos Anda.</p>
+          <button onclick="switchAppMode('owner')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-md">
+            <i class="fa-solid fa-key mr-1.5"></i>Buka Portal Pemilik Kos
+          </button>
+        </div>
+
+      </div>
+
+      <div class="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <p>&copy; 2026 CariKos ID • Developed by <span class="font-bold text-slate-700 dark:text-slate-200">Rengga swana Herlambang</span></p>
+        <div class="flex items-center gap-4">
+          <a href="#" class="hover:text-blue-500">Syarat & Ketentuan</a>
+          <a href="#" class="hover:text-blue-500">Kebijakan Privasi</a>
+          <a href="#" class="hover:text-blue-500">Pusat Bantuan</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- ==================== MODALS UNIFIED ==================== -->
+  <!-- ======================================================== -->
+
+  <!-- 1. KOS DETAIL MODAL -->
+  <div id="detailModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <span class="text-sm font-bold text-slate-500">Detail Informasi Hunian Kos</span>
+        <button onclick="closeModal('detailModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="detailModalBody" class="p-6 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- 2. SIDE-BY-SIDE COMPARISON MODAL -->
+  <div id="compareModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-5xl max-h-[90vh] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-code-compare text-blue-600 text-lg"></i>
+          <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Komparasi Pilihan Kos</h3>
+        </div>
+        <button onclick="closeModal('compareModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="compareTableContainer" class="p-6 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- 3. BUDGET CALCULATOR MODAL -->
+  <div id="calculatorModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-calculator text-blue-600 text-lg"></i>
+          <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Kalkulator Estimasi Biaya Kos</h3>
+        </div>
+        <button onclick="closeModal('calculatorModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Harga Sewa Kamar / Bln</label>
+            <input type="number" id="calcRent" value="1500000" oninput="calculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-blue-600 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Deposit Masuk (Sekali Awal)</label>
+            <input type="number" id="calcDeposit" value="300000" oninput="calculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold outline-none">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Perkiraan Token Listrik / Bln</label>
+            <input type="number" id="calcElectricity" value="150000" oninput="calculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Parkir Mobil/Motor / Bln</label>
+            <input type="number" id="calcParking" value="50000" oninput="calculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold outline-none">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Estimasi Laundry / Bln</label>
+            <input type="number" id="calcLaundry" value="120000" oninput="calculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Budget Makan & Harian / Bln</label>
+            <input type="number" id="calcFood" value="1500000" oninput="calculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold outline-none">
+          </div>
+        </div>
+        <div class="mt-6 p-4 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-700 text-white space-y-3">
+          <div class="flex justify-between items-center pb-2 border-b border-white/20">
+            <span class="text-xs text-blue-100 font-medium">Total Pengeluaran Rutin / Bulan:</span>
+            <span id="calcTotalMonthly" class="text-lg font-black">Rp 3.320.000</span>
+          </div>
+          <div class="flex justify-between items-center pb-2 border-b border-white/20">
+            <span class="text-xs text-blue-100 font-medium">Bulan Pertama (Termasuk Deposit):</span>
+            <span id="calcTotalFirstMonth" class="text-base font-bold text-amber-300">Rp 3.620.000</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-blue-100 font-medium">Estimasi 1 Tahun:</span>
+            <span id="calcTotalYearly" class="text-sm font-bold">Rp 40.140.000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. BOOKING MODAL -->
+  <div id="bookingModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Formulir Pengajuan Sewa</h3>
+        <button onclick="closeModal('bookingModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="bookingModalBody" class="p-6"></div>
+    </div>
+  </div>
+
+  <!-- 5. CHECK-IN PENYEWA MODAL (FOR OWNER) -->
+  <div id="checkInModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Check-In Penyewa Baru</h3>
+        <button onclick="closeModal('checkInModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="checkInModalBody" class="p-6"></div>
+    </div>
+  </div>
+
+  <!-- 6. KWITANSI / RECEIPT MODAL (FOR OWNER) -->
+  <div id="receiptModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 no-print">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Kwitansi Digital Pembayaran Sewa</h3>
+        <button onclick="closeModal('receiptModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="receiptModalBody" class="p-6"></div>
+    </div>
+  </div>
+
+  <!-- 7. ADD TRANSACTION MODAL (FOR OWNER) -->
+  <div id="addTransactionModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Catat Arus Kas Baru</h3>
+        <button onclick="closeModal('addTransactionModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <form onsubmit="handleAddTransactionSubmit(event)" class="space-y-4 text-left">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Jenis *</label>
+              <select id="txType" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none font-bold">
+                <option value="income">🟢 Pemasukan (+)</option>
+                <option value="expense">🔴 Pengeluaran (-)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori *</label>
+              <select id="txCategory" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none">
+                <option value="Sewa Kamar">Sewa Kamar</option>
+                <option value="Listrik PLN">Listrik PLN</option>
+                <option value="Air PDAM">Air PDAM</option>
+                <option value="Internet & WiFi">Internet & WiFi</option>
+                <option value="Gaji & Kebersihan">Gaji & Kebersihan</option>
+                <option value="Pemeliharaan / Perbaikan">Pemeliharaan / Perbaikan</option>
+                <option value="Lain-lain">Lain-lain</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nominal (Rp) *</label>
+            <input type="number" required id="txAmount" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-base font-black text-blue-600 outline-none" placeholder="Contoh: 500000">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tanggal *</label>
+              <input type="date" required id="txDate" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kamar (Opsional)</label>
+              <input type="text" id="txRoomNumber" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="101 / All">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Keterangan</label>
+            <textarea id="txNote" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="Beli token / servis..."></textarea>
+          </div>
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition-all">
+            Simpan Transaksi
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. ADD COMPLAINT MODAL (FOR OWNER) -->
+  <div id="addComplaintModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Laporan Keluhan & Servis</h3>
+        <button onclick="closeModal('addComplaintModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <form onsubmit="handleAddComplaintSubmit(event)" class="space-y-4 text-left">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">No. Kamar *</label>
+              <input type="text" required id="cmpRoom" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="102">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Pelapor</label>
+              <input type="text" id="cmpTenant" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="Nama anak kos">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori Masalah *</label>
+            <select id="cmpCategory" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none">
+              <option value="AC & Elektronik">AC & Elektronik</option>
+              <option value="Kamar Mandi / Air">Kamar Mandi / Pipa Air</option>
+              <option value="WiFi / Internet">WiFi / Internet</option>
+              <option value="Kunci & Pintu">Kunci & Pintu</option>
+              <option value="Lain-lain">Lain-lain</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Detail Kerusakan *</label>
+            <textarea required id="cmpDesc" rows="3" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="Jelaskan kendala..."></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Estimasi Biaya Perbaikan (Rp)</label>
+            <input type="number" id="cmpCost" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="0">
+          </div>
+          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-md transition-all">
+            Daftarkan Tiket Keluhan
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. ADD / EDIT PUBLIC KOS MODAL (FOR OWNER) -->
+  <div id="publicKosModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[92vh] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-bullhorn text-blue-600"></i>
+          <h3 id="publicKosModalTitle" class="font-extrabold text-base text-slate-800 dark:text-white">Pasang Iklan Properti ke Publik</h3>
+        </div>
+        <button onclick="closeModal('publicKosModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto">
+        <form id="publicKosForm" onsubmit="handleSavePublicKosSubmit(event)" class="space-y-4 text-left">
+          <input type="hidden" id="pubKosId" value="">
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Kos / Judul Iklan *</label>
+            <input type="text" required id="pubKosName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold outline-none" placeholder="Contoh: Kos Graha Asri Tebet">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kota / Wilayah *</label>
+              <select id="pubKosCity" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold outline-none">
+                <optgroup label="📍 DKI Jakarta">
+                  <option value="Jakarta Selatan">Jakarta Selatan (Tebet, Kuningan, Mampang)</option>
+                  <option value="Jakarta Barat">Jakarta Barat (Grogol, Untar, Trisakti, Binus)</option>
+                  <option value="Jakarta Pusat">Jakarta Pusat (Salemba, Menteng)</option>
+                  <option value="Jakarta Timur">Jakarta Timur (Rawamangun, UNJ)</option>
+                  <option value="Jakarta Utara">Jakarta Utara (Kelapa Gading, Pluit)</option>
+                </optgroup>
+
+                <optgroup label="📍 Jawa Barat & Banten">
+                  <option value="Bandung">Bandung (ITB, Unpad, Telkom, Parahyangan)</option>
+                  <option value="Depok">Depok (Universitas Indonesia, Gunadarma)</option>
+                  <option value="Bogor">Bogor (IPB University, Pakuan)</option>
+                  <option value="Tangerang">Tangerang / BSD (UMN, Prasetiya Mulya, Binus)</option>
+                  <option value="Bekasi">Bekasi (President University, Unisma)</option>
+                  <option value="Jatinangor">Jatinangor / Sumedang (Unpad, ITB, IPDN)</option>
+                </optgroup>
+
+                <optgroup label="📍 D.I. Yogyakarta">
+                  <option value="Yogyakarta">Yogyakarta (UGM, UNY, UIN Suka)</option>
+                  <option value="Sleman">Sleman (Pogung, Seturan, UPN, UII, Atma Jaya)</option>
+                  <option value="Bantul">Bantul (UMY, ISI Yogyakarta)</option>
+                </optgroup>
+
+                <optgroup label="📍 Jawa Tengah">
+                  <option value="Semarang">Semarang (Undip, Unnes, Udinus, Unissula)</option>
+                  <option value="Surakarta / Solo">Surakarta / Solo (UNS, UMS)</option>
+                  <option value="Purwokerto">Purwokerto (Unsoed Purwokerto)</option>
+                  <option value="Salatiga">Salatiga (UKSW Salatiga)</option>
+                </optgroup>
+
+                <optgroup label="📍 Jawa Timur">
+                  <option value="Surabaya">Surabaya (ITS, UNAIR, Unesa, Petra)</option>
+                  <option value="Malang">Malang (Universitas Brawijaya / UB, UM, UMM, Polinema)</option>
+                  <option value="Jember">Jember (Universitas Jember / UNEJ)</option>
+                </optgroup>
+
+                <optgroup label="📍 Bali & Nusa Tenggara">
+                  <option value="Bali">Bali (Denpasar, Jimbaran - Universitas Udayana, Warmadewa)</option>
+                  <option value="Mataram">Mataram (Universitas Mataram / Unram)</option>
+                </optgroup>
+
+                <optgroup label="📍 Sumatera">
+                  <option value="Medan">Medan (Universitas Sumatera Utara / USU, Unimed)</option>
+                  <option value="Padang">Padang (Universitas Andalas / Unand, UNP)</option>
+                  <option value="Palembang">Palembang (Universitas Sriwijaya / Unsri)</option>
+                  <option value="Bandar Lampung">Bandar Lampung (Universitas Lampung / Unila, Itera)</option>
+                  <option value="Pekanbaru">Pekanbaru (Universitas Riau / UNRI)</option>
+                  <option value="Banda Aceh">Banda Aceh (Universitas Syiah Kuala / USK)</option>
+                </optgroup>
+
+                <optgroup label="📍 Sulawesi">
+                  <option value="Makassar">Makassar (Universitas Hasanuddin / Unhas, UNM)</option>
+                  <option value="Manado">Manado (Universitas Sam Ratulangi / Unsrat)</option>
+                </optgroup>
+
+                <optgroup label="📍 Kalimantan">
+                  <option value="Samarinda">Samarinda (Universitas Mulawarman / Unmul)</option>
+                  <option value="Pontianak">Pontianak (Universitas Tanjungpura / Untan)</option>
+                  <option value="Banjarmasin">Banjarmasin (Universitas Lambung Mangkurat / ULM)</option>
+                </optgroup>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kecamatan / Area</label>
+              <input type="text" id="pubKosDistrict" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none" placeholder="Contoh: Tebet">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tipe Penghuni *</label>
+              <select id="pubKosType" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold outline-none">
+                <option value="Campur">Campur</option>
+                <option value="Putri">Khusus Putri</option>
+                <option value="Putra">Khusus Putra</option>
+                <option value="Pasutri">Pasutri / Keluarga</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Alamat Lengkap *</label>
+            <input type="text" required id="pubKosAddress" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none" placeholder="Jl. Tebet Barat Dalam VII No. 18">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Patokan / Kampus / Stasiun Terdekat</label>
+              <input type="text" id="pubKosNearCampus" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none" placeholder="Contoh: Dekat Stasiun Tebet & Univ. Sahid">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori Listing *</label>
+              <select id="pubKosCategory" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold outline-none">
+                <option value="Eksklusif">Eksklusif</option>
+                <option value="Dekat Kampus">Dekat Kampus</option>
+                <option value="Kos Murah">Kos Murah &lt; 1 Juta</option>
+                <option value="Bebas 24 Jam">Bebas 24 Jam</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Harga Bulanan (Rp) *</label>
+              <input type="number" required id="pubKosPrice" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-black text-blue-600 outline-none" placeholder="2300000">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Harga Harian (Rp)</label>
+              <input type="number" id="pubKosPriceDaily" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold outline-none" placeholder="175000">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Harga Tahunan (Rp)</label>
+              <input type="number" id="pubKosPriceYearly" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold outline-none" placeholder="25000000">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Ukuran Kamar</label>
+              <input type="text" id="pubKosSize" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none" placeholder="3.5 x 4.5 m">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Uang Deposit (Rp)</label>
+              <input type="number" id="pubKosDeposit" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold outline-none" placeholder="500000">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kamar Kosong / Total Kamar *</label>
+              <div class="flex items-center gap-2">
+                <input type="number" required id="pubKosAvailable" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-emerald-600 outline-none" placeholder="Sisa (misal 3)">
+                <span class="text-xs font-bold text-slate-400">/</span>
+                <input type="number" id="pubKosTotalRooms" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold outline-none" placeholder="Total (12)">
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Pemilik / Pengelola *</label>
+              <input type="text" required id="pubKosOwner" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">No. WhatsApp Pemilik (Untuk Calon Penyewa) *</label>
+              <input type="tel" required id="pubKosPhone" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs outline-none" placeholder="0812xxxxxxx">
+            </div>
+          </div>
+
+          <!-- Opsional Tag Promo & Termasuk Listrik -->
+          <div class="p-3.5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="pubKosElectricity" class="w-4 h-4 rounded accent-blue-600 cursor-pointer">
+              <label for="pubKosElectricity" class="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+                ⚡ Biaya Listrik Sudah Termasuk (Gratis Listrik)
+              </label>
+            </div>
+            <div>
+              <input type="text" id="pubKosPromoText" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold outline-none" placeholder="Teks Promo (misal: Diskon 10% Bulan Pertama)">
+            </div>
+          </div>
+
+          <!-- Multi-Photo Upload Section (Minimal 6 Foto dengan Kategori) -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <i class="fa-solid fa-images text-blue-500 mr-1"></i> Galeri Foto Properti & Kamar (Wajib Minimal 6 Foto) *
+                </label>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                  Tentukan <b>kategori setiap foto</b> agar calon penyewa mendapatkan informasi visual yang jelas & terverifikasi.
+                </p>
+              </div>
+              <div id="pubPhotoCounterBadge" class="self-start sm:self-auto px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="pubPhotoCountText">0 / 6 Foto (Kurang 6)</span>
+              </div>
+            </div>
+
+            <!-- Category Guide Tags -->
+            <div class="p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5">
+              <div class="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-camera-retro"></i> Rekomendasi 6 Kategori Foto Wajib:
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-[10px] font-semibold text-slate-700 dark:text-slate-200">🏢 Tampak Depan / Gedung</span>
+                <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-[10px] font-semibold text-slate-700 dark:text-slate-200">🛏️ Kamar Tidur Utama</span>
+                <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-[10px] font-semibold text-slate-700 dark:text-slate-200">🚿 Kamar Mandi</span>
+                <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-[10px] font-semibold text-slate-700 dark:text-slate-200">🍳 Dapur Bersama / Pantry</span>
+                <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-[10px] font-semibold text-slate-700 dark:text-slate-200">🛵 Area Parkir Motor / Mobil</span>
+                <span class="px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 text-[10px] font-semibold text-slate-700 dark:text-slate-200">✨ Fasilitas Bersama / Ruang Tamu</span>
+              </div>
+            </div>
+
+            <!-- Drag and drop / file picker zone -->
+            <div id="pubKosUploadZone" onclick="document.getElementById('pubKosFileInput').click()" class="border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-500 rounded-2xl p-5 text-center cursor-pointer bg-white dark:bg-slate-900/60 transition-all hover:bg-blue-50/20 group">
+              <input type="file" id="pubKosFileInput" accept="image/*" multiple onchange="handleMultipleKosPhotoUpload(event)" class="hidden">
+              <div class="flex flex-col items-center justify-center gap-1.5">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/40 group-hover:bg-blue-600 text-blue-600 group-hover:text-white transition-all flex items-center justify-center text-xl shadow-sm">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-100">
+                  Klik untuk Pilih Foto Sekaligus atau Drag & Drop
+                </div>
+                <p class="text-[11px] text-slate-400">Pilih minimal 6 file (JPG, PNG, WEBP). Maks 5MB per foto.</p>
+              </div>
+            </div>
+
+            <!-- Multi-Photo Grid Gallery Container with Category Selectors -->
+            <div id="pubKosGalleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1"></div>
+
+            <!-- Direct URL Adder with Category (Optional alternative) -->
+            <div class="pt-1">
+              <details class="text-[11px] text-slate-400">
+                <summary class="cursor-pointer font-semibold hover:text-blue-500 select-none flex items-center gap-1">
+                  <i class="fa-solid fa-link text-blue-500"></i> Atau tambah foto satu per satu via URL Gambar & Kategori
+                </summary>
+                <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                  <select id="pubKosUrlCategorySingle" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-700 dark:text-slate-200 outline-none font-semibold">
+                    <option value="Tampak Depan">🏢 Tampak Depan / Gedung</option>
+                    <option value="Kamar Tidur">🛏️ Kamar Tidur</option>
+                    <option value="Kamar Mandi">🚿 Kamar Mandi</option>
+                    <option value="Dapur">🍳 Dapur / Pantry</option>
+                    <option value="Area Parkir">🛵 Area Parkir</option>
+                    <option value="Fasilitas Bersama">✨ Fasilitas Bersama</option>
+                    <option value="Lainnya">📷 Lainnya</option>
+                  </select>
+                  <input type="url" id="pubKosUrlInputSingle" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-700 dark:text-slate-200 outline-none" placeholder="https://images.unsplash.com/photo-...">
+                  <button type="button" onclick="addPhotoByUrl()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition-all">
+                    + Tambah
+                  </button>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Fasilitas yang Disediakan</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="AC" class="rounded accent-blue-600">
+                <span>AC</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="WiFi Cepat" checked class="rounded accent-blue-600">
+                <span>WiFi Cepat</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Kamar Mandi Dalam" checked class="rounded accent-blue-600">
+                <span>KM Dalam</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Kasur Springbed" checked class="rounded accent-blue-600">
+                <span>Kasur Springbed</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Lemari Pakaian" checked class="rounded accent-blue-600">
+                <span>Lemari</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Meja Belajar" class="rounded accent-blue-600">
+                <span>Meja Belajar</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Water Heater" class="rounded accent-blue-600">
+                <span>Water Heater</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Dapur Bersama" class="rounded accent-blue-600">
+                <span>Dapur Bersama</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Parkir Motor" checked class="rounded accent-blue-600">
+                <span>Parkir Motor</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Parkir Mobil" class="rounded accent-blue-600">
+                <span>Parkir Mobil</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="CCTV 24 Jam" class="rounded accent-blue-600">
+                <span>CCTV 24 Jam</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+                <input type="checkbox" name="pubFacility" value="Bebas 24 Jam" class="rounded accent-blue-600">
+                <span>Bebas 24 Jam</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Peraturan Kos (Pisahkan dengan baris baru)</label>
+              <textarea id="pubKosRules" rows="3" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none" placeholder="Contoh:&#10;Tamu dilarang menginap tanpa izin&#10;Dilarang merokok di kamar AC&#10;Gerbang kunci 24 jam"></textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Deskripsi Iklan Menarik *</label>
+              <textarea id="pubKosDesc" rows="3" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none" placeholder="Jelaskan keunggulan, kenyamanan, dan akses kos Anda..."></textarea>
+            </div>
+          </div>
+
+          <div class="pt-2 flex items-center justify-end gap-2">
+            <button type="button" onclick="closeModal('publicKosModal')" class="px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold">
+              Batal
+            </button>
+            <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition-all">
+              Simpan & Tayangkan ke Publik 🚀
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="kos_data.js"></script>
+  <script src="juragan_data.js"></script>
+  <script src="kos_app.js"></script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JuraganKos ID - Dashboard Manajemen & Pengelola Kos</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="juragan_style.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex transition-colors duration-200">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700/80 p-5 flex flex-col justify-between hidden md:flex shrink-0 transition-colors">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 text-lg font-black">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">JuraganKos</h1>
+          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Owner Dashboard</span>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="space-y-1.5">
+        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-tab-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl bg-blue-600 text-white font-bold text-sm shadow-md transition-all">
+          <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+          <span>Dashboard</span>
+        </button>
+        <button onclick="switchTab('kamar')" data-tab="kamar" class="nav-tab-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 font-semibold text-sm transition-all">
+          <i class="fa-solid fa-door-open w-5 text-center"></i>
+          <span>Manajemen Kamar</span>
+        </button>
+        <button onclick="switchTab('penyewa')" data-tab="penyewa" class="nav-tab-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 font-semibold text-sm transition-all">
+          <i class="fa-solid fa-users w-5 text-center"></i>
+          <span>Data Penyewa</span>
+        </button>
+        <button onclick="switchTab('keuangan')" data-tab="keuangan" class="nav-tab-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 font-semibold text-sm transition-all">
+          <i class="fa-solid fa-wallet w-5 text-center"></i>
+          <span>Keuangan & Kas</span>
+        </button>
+        <button onclick="switchTab('keluhan')" data-tab="keluhan" class="nav-tab-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 font-semibold text-sm transition-all">
+          <i class="fa-solid fa-screwdriver-wrench w-5 text-center"></i>
+          <span>Keluhan & Servis</span>
+        </button>
+        <button onclick="switchTab('pengaturan')" data-tab="pengaturan" class="nav-tab-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 font-semibold text-sm transition-all">
+          <i class="fa-solid fa-gear w-5 text-center"></i>
+          <span>Pengaturan Kos</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Sidebar Footer / CariKos App Link -->
+    <div class="pt-6 border-t border-slate-100 dark:border-slate-700 space-y-3">
+      <a href="cari_kos.html" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-300 font-bold text-xs hover:bg-blue-100 transition-colors">
+        <span><i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i>Buka CariKos App</span>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+      </a>
+      <div class="text-[11px] text-slate-400 text-center space-y-0.5">
+        <div>JuraganKos v1.0 • Offline Ready</div>
+        <div class="font-bold text-slate-500 dark:text-slate-400">Developed by <span class="text-blue-600 dark:text-blue-400">Rengga swana Herlambang</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    
+    <!-- TOP HEADER -->
+    <header class="h-20 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 px-4 sm:px-8 flex items-center justify-between gap-4 transition-colors">
+      
+      <!-- Mobile Menu & Title -->
+      <div class="flex items-center gap-3">
+        <div class="md:hidden">
+          <button onclick="switchTab('dashboard')" class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+            <i class="fa-solid fa-key"></i>
+          </button>
+        </div>
+        <div>
+          <h2 id="dashPropertyName" class="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">Kos Graha Asri Tebet</h2>
+          <p id="dashOwnerName" class="text-xs text-slate-400">Dikelola oleh: Bpk. Swanto</p>
+        </div>
+      </div>
+
+      <!-- Header Action Buttons -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
+        <!-- Quick Check-In Button -->
+        <button onclick="switchTab('kamar')" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-500/20 transition-all">
+          <i class="fa-solid fa-user-plus text-xs"></i>
+          <span class="hidden sm:inline">+ Check-In Baru</span>
+        </button>
+
+        <!-- Quick Add Transaction -->
+        <button onclick="openModal('addTransactionModal')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all">
+          <i class="fa-solid fa-plus-circle text-xs"></i>
+          <span class="hidden sm:inline">+ Catat Kas</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" onclick="toggleDarkMode()" title="Ubah Tema" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition-colors">
+          <i class="fa-solid fa-moon text-base"></i>
+        </button>
+      </div>
+
+    </header>
+
+    <!-- MOBILE TABS BAR -->
+    <div class="md:hidden flex items-center justify-around bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-2 overflow-x-auto text-xs font-bold text-slate-500">
+      <button onclick="switchTab('dashboard')" class="px-3 py-1.5 rounded-lg hover:text-blue-600"><i class="fa-solid fa-chart-pie mr-1"></i>Dash</button>
+      <button onclick="switchTab('kamar')" class="px-3 py-1.5 rounded-lg hover:text-blue-600"><i class="fa-solid fa-door-open mr-1"></i>Kamar</button>
+      <button onclick="switchTab('penyewa')" class="px-3 py-1.5 rounded-lg hover:text-blue-600"><i class="fa-solid fa-users mr-1"></i>Penyewa</button>
+      <button onclick="switchTab('keuangan')" class="px-3 py-1.5 rounded-lg hover:text-blue-600"><i class="fa-solid fa-wallet mr-1"></i>Kas</button>
+      <button onclick="switchTab('keluhan')" class="px-3 py-1.5 rounded-lg hover:text-blue-600"><i class="fa-solid fa-wrench mr-1"></i>Keluhan</button>
+    </div>
+
+    <!-- MAIN BODY CONTAINER -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-8">
+      
+      <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+      <div id="view-dashboard" class="tab-view space-y-8">
+        
+        <!-- TOP STATS CARDS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          
+          <!-- Occupancy Rate -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tingkat Keterisian</span>
+              <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-baseline gap-2 mb-2">
+                <span id="statOccupancyRate" class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">0%</span>
+                <span class="text-xs text-slate-400">(<span id="statOccupiedRooms">0</span>/<span id="statTotalRooms">0</span> Kamar)</span>
+              </div>
+              <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                <div id="statOccupancyBar" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pemasukan Bulan Ini -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pemasukan Bulan Ini</span>
+              <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-arrow-down-left"></i>
+              </div>
+            </div>
+            <div>
+              <div id="statIncomeMonth" class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">Rp 0</div>
+              <span class="text-[11px] text-slate-400">Total penerimaan sewa & kas</span>
+            </div>
+          </div>
+
+          <!-- Pengeluaran Bulan Ini -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pengeluaran Operasional</span>
+              <div class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-arrow-up-right"></i>
+              </div>
+            </div>
+            <div>
+              <div id="statExpenseMonth" class="text-xl sm:text-2xl font-black text-red-600 dark:text-red-400">Rp 0</div>
+              <span class="text-[11px] text-slate-400">Listrik, WiFi, Gaji & Perbaikan</span>
+            </div>
+          </div>
+
+          <!-- Laba Bersih -->
+          <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estimasi Laba Bersih</span>
+              <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-sack-dollar"></i>
+              </div>
+            </div>
+            <div>
+              <div id="statNetProfit" class="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400">Rp 0</div>
+              <span class="text-[11px] text-slate-400">Net profit bulan berjalan</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2 COLUMNS: DUE SOON / OVERDUE ALERTS & RECENT TRANSACTIONS -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <!-- Left: Tagihan Jatuh Tempo & Menunggak -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-black text-lg text-slate-900 dark:text-white">Peringatan Tagihan Sewa</h3>
+                <p class="text-xs text-slate-400">Penyewa yang perlu ditagih atau segera jatuh tempo</p>
+              </div>
+              <div class="text-right">
+                <span id="statUnpaidAmount" class="font-extrabold text-sm text-red-600 dark:text-red-400">Rp 0</span>
+                <span id="statUnpaidCount" class="block text-[11px] text-slate-400">0 Penyewa</span>
+              </div>
+            </div>
+
+            <div id="dueAlertsContainer" class="space-y-3">
+              <!-- Rendered by juragan_app.js -->
+            </div>
+          </div>
+
+          <!-- Right: Status Kamar Ringkas & Transaksi Terkini -->
+          <div class="lg:col-span-5 space-y-6">
+            
+            <!-- Quick Room Status Pill -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm space-y-3">
+              <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">Kondisi Kamar Saat Ini</h4>
+              <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-100 dark:border-emerald-900/40">
+                  <div class="font-black text-emerald-600 dark:text-emerald-400 text-lg" id="statOccupiedRooms">0</div>
+                  <span class="text-emerald-700 dark:text-emerald-300 font-bold text-[11px]">Terisi</span>
+                </div>
+                <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-100 dark:border-blue-900/40">
+                  <div class="font-black text-blue-600 dark:text-blue-400 text-lg" id="statAvailableRooms">0</div>
+                  <span class="text-blue-700 dark:text-blue-300 font-bold text-[11px]">Kosong</span>
+                </div>
+                <div class="p-3 bg-slate-100 dark:bg-slate-700 rounded-2xl border border-slate-200 dark:border-slate-600">
+                  <div class="font-black text-slate-600 dark:text-slate-300 text-lg" id="statMaintenanceRooms">0</div>
+                  <span class="text-slate-600 dark:text-slate-300 font-bold text-[11px]">Perbaikan</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">Aktivitas Transaksi Terkini</h4>
+                <button onclick="switchTab('keuangan')" class="text-xs font-bold text-blue-600 hover:underline">Lihat Semua</button>
+              </div>
+              <div id="recentTransactionsContainer" class="space-y-2">
+                <!-- Rendered by juragan_app.js -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ==================== VIEW 2: MANAJEMEN KAMAR ==================== -->
+      <div id="view-kamar" class="tab-view hidden space-y-6">
+        
+        <!-- Controls Bar -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <h3 class="font-black text-xl text-slate-900 dark:text-white">Denah & Manajemen Kamar</h3>
+            <p class="text-xs text-slate-400">Pantau ketersediaan, status sewa, dan lakukan check-in penyewa</p>
+          </div>
+
+          <!-- Floor & Status Filters -->
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex p-1 bg-slate-200/70 dark:bg-slate-800 rounded-xl text-xs font-bold">
+              <button onclick="filterRooms('floor', 'all', this)" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white shadow">Semua Lantai</button>
+              <button onclick="filterRooms('floor', '1', this)" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300">Lantai 1</button>
+              <button onclick="filterRooms('floor', '2', this)" class="px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-300">Lantai 2</button>
+            </div>
+            <button onclick="openModal('addRoomModal')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition-all">
+              + Tambah Kamar
+            </button>
+          </div>
+        </div>
+
+        <!-- Room Matrix Grid -->
+        <div id="roomsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <!-- Rendered by juragan_app.js -->
+        </div>
+
+      </div>
+
+      <!-- ==================== VIEW 3: DATA PENYEWA ==================== -->
+      <div id="view-penyewa" class="tab-view hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <h3 class="font-black text-xl text-slate-900 dark:text-white">Buku Data Penyewa Kos</h3>
+            <p class="text-xs text-slate-400">Data lengkap anak kos, jatuh tempo sewa, dan kontak darurat</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select onchange="JuraganState.activeFilterTenantStatus = this.value; renderTenants();" class="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold outline-none">
+              <option value="all">Semua Status Bayar</option>
+              <option value="overdue">Menunggak</option>
+              <option value="due_soon">Segera Jatuh Tempo</option>
+              <option value="paid">Lunas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <th class="p-4 w-12">No</th>
+                  <th class="p-4">Nama Penyewa & KTP</th>
+                  <th class="p-4">Kamar</th>
+                  <th class="p-4">Harga Sewa</th>
+                  <th class="p-4">Jatuh Tempo</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4">Aksi Cepat</th>
+                </tr>
+              </thead>
+              <tbody id="tenantsTableBody">
+                <!-- Rendered by juragan_app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==================== VIEW 4: KEUANGAN & KAS ==================== -->
+      <div id="view-keuangan" class="tab-view hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <h3 class="font-black text-xl text-slate-900 dark:text-white">Buku Kas & Keuangan</h3>
+            <p class="text-xs text-slate-400">Pencatatan arus kas masuk & keluar operasional kos</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="exportFinanceToCSV()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all">
+              <i class="fa-solid fa-file-excel text-emerald-500 mr-1.5"></i>Ekspor CSV
+            </button>
+            <button onclick="openModal('addTransactionModal')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition-all">
+              + Catat Transaksi
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="p-5 bg-emerald-50 dark:bg-emerald-950/40 rounded-3xl border border-emerald-200 dark:border-emerald-900/40">
+            <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">Total Pemasukan</span>
+            <div id="finTotalIncome" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">Rp 0</div>
+          </div>
+          <div class="p-5 bg-red-50 dark:bg-red-950/40 rounded-3xl border border-red-200 dark:border-red-900/40">
+            <span class="text-xs font-bold text-red-800 dark:text-red-300 uppercase tracking-wider">Total Pengeluaran</span>
+            <div id="finTotalExpense" class="text-2xl font-black text-red-600 dark:text-red-400 mt-1">Rp 0</div>
+          </div>
+          <div class="p-5 bg-blue-50 dark:bg-blue-950/40 rounded-3xl border border-blue-200 dark:border-blue-900/40">
+            <span class="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Saldo / Laba Bersih</span>
+            <div id="finNetBalance" class="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">Rp 0</div>
+          </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <th class="p-4 w-12">No</th>
+                  <th class="p-4">Tanggal</th>
+                  <th class="p-4">Jenis</th>
+                  <th class="p-4">Kategori</th>
+                  <th class="p-4">Keterangan</th>
+                  <th class="p-4">Kamar</th>
+                  <th class="p-4 text-right">Nominal</th>
+                </tr>
+              </thead>
+              <tbody id="financeTableBody">
+                <!-- Rendered by juragan_app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==================== VIEW 5: KELUHAN & SERVIS ==================== -->
+      <div id="view-keluhan" class="tab-view hidden space-y-6">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <h3 class="font-black text-xl text-slate-900 dark:text-white">Tiket Keluhan & Pemeliharaan</h3>
+            <p class="text-xs text-slate-400">Pantau dan tindak lanjuti perbaikan fasilitas kamar & area kos</p>
+          </div>
+
+          <button onclick="openModal('addComplaintModal')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition-all">
+            + Tambah Laporan Servis
+          </button>
+        </div>
+
+        <div id="complaintsContainer" class="space-y-3">
+          <!-- Rendered by juragan_app.js -->
+        </div>
+
+      </div>
+
+      <!-- ==================== VIEW 6: PENGATURAN KOS ==================== -->
+      <div id="view-pengaturan" class="tab-view hidden space-y-6 max-w-3xl">
+        
+        <div class="pb-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 class="font-black text-xl text-slate-900 dark:text-white">Profil & Pengaturan Properti Kos</h3>
+          <p class="text-xs text-slate-400">Data rekening transfer untuk tagihan WhatsApp dan kwitansi resmi</p>
+        </div>
+
+        <form onsubmit="handleSaveSettings(event)" class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-700 shadow-sm space-y-4 text-left">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Kos / Properti *</label>
+              <input type="text" required id="setPropName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Pemilik / Pengelola *</label>
+              <input type="text" required id="setOwnerName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">No. WhatsApp Pengelola *</label>
+              <input type="tel" required id="setPhone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Bank Transfer *</label>
+              <input type="text" required id="setBankName" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none" placeholder="BCA / Mandiri / BRI">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nomor Rekening *</label>
+              <input type="text" required id="setBankAccount" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Atas Nama Rekening (A/N) *</label>
+            <input type="text" required id="setBankHolder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Alamat Lengkap Kos</label>
+            <input type="text" id="setAddress" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Catatan Tagihan / Aturan Sewa</label>
+            <textarea id="setRules" rows="2" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm outline-none"></textarea>
+          </div>
+
+          <div class="pt-4 flex justify-between items-center">
+            <button type="button" onclick="if(confirm('Reset semua data ke data contoh bawaan?')) { loadDefaults(); renderDashboard(); showToast('Data berhasil di-reset.'); }" class="text-xs font-bold text-red-500 hover:underline">
+              Reset ke Data Contoh
+            </button>
+            <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-md transition-all">
+              Simpan Perubahan
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+      <!-- BOTTOM FOOTER -->
+      <div class="pt-8 mt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+        <p>&copy; 2026 JuraganKos ID • Developed by <span class="font-bold text-slate-700 dark:text-slate-200">Rengga swana Herlambang</span></p>
+        <span class="text-[11px]">Sistem Manajemen Kos Modern & Terintegrasi</span>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. CHECK-IN MODAL -->
+  <div id="checkInModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Check-In Penyewa Baru</h3>
+        <button onclick="closeModal('checkInModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="checkInModalBody" class="p-6">
+        <!-- Rendered by juragan_app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. KWITANSI / RECEIPT MODAL -->
+  <div id="receiptModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 no-print">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Kwitansi Digital Pembayaran Sewa</h3>
+        <button onclick="closeModal('receiptModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div id="receiptModalBody" class="p-6">
+        <!-- Rendered by juragan_app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ADD TRANSACTION MODAL -->
+  <div id="addTransactionModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Catat Arus Kas Baru</h3>
+        <button onclick="closeModal('addTransactionModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <form onsubmit="handleAddTransactionSubmit(event)" class="space-y-4 text-left">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Jenis Transaksi *</label>
+              <select id="txType" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none font-bold">
+                <option value="income">🟢 Pemasukan (+)</option>
+                <option value="expense">🔴 Pengeluaran (-)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori *</label>
+              <select id="txCategory" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none">
+                <option value="Sewa Kamar">Sewa Kamar</option>
+                <option value="Listrik PLN">Listrik PLN</option>
+                <option value="Air PDAM">Air PDAM</option>
+                <option value="Internet & WiFi">Internet & WiFi</option>
+                <option value="Gaji & Kebersihan">Gaji & Kebersihan</option>
+                <option value="Pemeliharaan / Perbaikan">Pemeliharaan / Perbaikan</option>
+                <option value="Lain-lain">Lain-lain</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nominal (Rp) *</label>
+            <input type="number" required id="txAmount" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-base font-black text-blue-600 outline-none" placeholder="Contoh: 500000">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tanggal *</label>
+              <input type="date" required id="txDate" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">No. Kamar (Opsional)</label>
+              <input type="text" id="txRoomNumber" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="101 / All">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Catatan / Keterangan</label>
+            <textarea id="txNote" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="Beli token listrik / bayar wifi..."></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition-all">
+            Simpan Transaksi
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. ADD COMPLAINT MODAL -->
+  <div id="addComplaintModal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden my-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <h3 class="font-extrabold text-base text-slate-800 dark:text-white">Laporan Keluhan & Servis</h3>
+        <button onclick="closeModal('addComplaintModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <form onsubmit="handleAddComplaintSubmit(event)" class="space-y-4 text-left">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">No. Kamar *</label>
+              <input type="text" required id="cmpRoom" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="102">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Pelapor</label>
+              <input type="text" id="cmpTenant" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="Nama anak kos">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori Masalah *</label>
+            <select id="cmpCategory" required class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none">
+              <option value="AC & Elektronik">AC & Elektronik</option>
+              <option value="Kamar Mandi / Air">Kamar Mandi / Pipa Air</option>
+              <option value="WiFi / Internet">WiFi / Internet</option>
+              <option value="Kunci & Pintu">Kunci & Pintu</option>
+              <option value="Lain-lain">Lain-lain</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Detail Kerusakan *</label>
+            <textarea required id="cmpDesc" rows="3" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="Jelaskan kendala..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Estimasi Biaya Perbaikan (Rp)</label>
+            <input type="number" id="cmpCost" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none" placeholder="0">
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-md transition-all">
+            Daftarkan Tiket Keluhan
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="juragan_data.js"></script>
+  <script src="juragan_app.js"></script>
+</body>
+</html>

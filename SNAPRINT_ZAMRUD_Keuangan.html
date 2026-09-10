@@ -1,0 +1,2988 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GIGIN SWANTO ENTERPRISE - Sistem Keuangan 3 Cabang Usaha</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              500: '#10b981', // Zamrud Emerald
+              600: '#059669',
+              700: '#047857',
+            },
+            dark: {
+              bg: '#0b0f19',
+              card: '#131b2e',
+              card2: '#1a243b',
+              border: '#23304b',
+              input: '#0d1424'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      min-height: 100vh;
+    }
+    
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #23304b; border-radius: 4px; }
+
+    .card-box {
+      background: #131b2e;
+      border: 1px solid #23304b;
+      border-radius: 16px;
+    }
+
+    .setting-tab.active {
+      background-color: #10b981;
+      color: white;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printArea, #printArea * {
+        visibility: visible;
+      }
+      #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white !important;
+        color: black !important;
+        padding: 20px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased pb-12">
+
+  <!-- ================= NOTIFIKASI TOAST ================= -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ================= HALAMAN LOGIN & REGISTER (DENGAN 3 PILIHAN CABANG USAHA) ================= -->
+  <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0f19]/95 p-4 overflow-y-auto">
+    <div class="card-box w-full max-w-md p-6 sm:p-8 shadow-2xl border-emerald-500/30 my-auto">
+      
+      <!-- Logo Header Resmi -->
+      <div class="text-center mb-5">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl mb-3 overflow-hidden p-0.5">
+          <img src="snaprint_logo.jpg" alt="Logo SNAPRINT" class="w-full h-full object-cover rounded-xl">
+        </div>
+        <h1 class="text-2xl font-black text-white tracking-tight">GIGIN SWANTO <span class="text-emerald-400">ENTERPRISE</span></h1>
+        <p class="text-xs text-slate-400 mt-0.5">Shop & Drive Grand Wisata • SNAPRINT GW • SNAPRINT Zamrud</p>
+      </div>
+
+      <!-- Tab Masuk / Daftar -->
+      <div class="grid grid-cols-2 bg-dark-input p-1 rounded-xl mb-4 border border-dark-border">
+        <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow">
+          Masuk (Login)
+        </button>
+        <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white">
+          Daftar (Register)
+        </button>
+      </div>
+
+      <!-- Form Login -->
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3.5">
+        
+        <!-- Pilihan Cabang Usaha -->
+        <div>
+          <label class="block text-xs font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+            <i data-lucide="store" class="w-3.5 h-3.5"></i> Pilih Cabang Usaha
+          </label>
+          <select id="loginBranch" required class="w-full bg-dark-input border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white font-bold focus:outline-none focus:border-emerald-400">
+            <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
+            <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
+            <option value="snp_zamrud" selected>🖨️ SNAPRINT Zamrud</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Username</label>
+          <input type="text" id="loginUsername" required placeholder="Contoh: owner / manager_snd / kasir1" 
+            class="w-full bg-dark-input border border-dark-border rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Kata Sandi (Password)</label>
+          <input type="password" id="loginPassword" required placeholder="Masukkan kata sandi" 
+            class="w-full bg-dark-input border border-dark-border rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center gap-2 mt-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Masuk ke Cabang
+        </button>
+
+        <!-- Pilihan Akun Cepat (Sesuai Cabang Tugas) -->
+        <div class="mt-4 pt-3 border-t border-dark-border text-center">
+          <p class="text-[11px] text-slate-400 mb-2 font-medium">Klik untuk login cepat (Akun Standar & Manager):</p>
+          <div class="flex flex-wrap justify-center gap-1.5 text-xs">
+            <button type="button" onclick="quickFillLogin('boss_01', 'boss123', 'snp_zamrud')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/50 hover:bg-amber-500/30 font-black shadow-sm">👑 boss_01 (Semua Cabang)</button>
+            <button type="button" onclick="quickFillLogin('snap_001', 'snap123', 'snp_gw')" class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/50 hover:bg-sky-500/30 font-bold shadow-sm">🖨️ Snap_001 (SNAPRINT GW)</button>
+            <button type="button" onclick="quickFillLogin('manager_snd', 'manager123', 'snd_gw')" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 font-bold">🚗 Mgr Shop & Drive</button>
+            <button type="button" onclick="quickFillLogin('manager_zmr', 'manager123', 'snp_zamrud')" class="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500/20 font-bold">🖨️ Mgr Zamrud</button>
+            <button type="button" onclick="quickFillLogin('kasir1', 'kasir123', 'snp_zamrud')" class="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/30 hover:bg-blue-500/20 font-bold">💻 Kasir Zamrud</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Form Register -->
+      <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Nama Lengkap</label>
+          <input type="text" id="regFullName" required placeholder="Contoh: Budi Santoso" 
+            class="w-full bg-dark-input border border-dark-border rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Username</label>
+          <input type="text" id="regUsername" required placeholder="Huruf kecil tanpa spasi" 
+            class="w-full bg-dark-input border border-dark-border rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Jabatan / Akses</label>
+            <select id="regRole" required class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="manager">👔 Manager Cabang</option>
+              <option value="kasir">💻 Kasir Harian</option>
+              <option value="operator">🛠️ Operator Produksi/Mekanik</option>
+              <option value="owner">👑 Owner (Semua Cabang)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-emerald-400 mb-1">Cabang Penempatan</label>
+            <select id="regBranch" required class="w-full bg-dark-input border border-emerald-500/50 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-emerald-400">
+              <option value="snd_gw">🚗 Shop & Drive GW</option>
+              <option value="snp_gw">🖨️ SNAPRINT GW</option>
+              <option value="snp_zamrud" selected>🖨️ SNAPRINT Zamrud</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Kata Sandi</label>
+          <input type="password" id="regPassword" required minlength="4" placeholder="Minimal 4 karakter" 
+            class="w-full bg-dark-input border border-dark-border rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow-lg transition-all text-xs flex items-center justify-center gap-2 mt-2">
+          <i data-lucide="user-plus" class="w-4 h-4"></i> Daftarkan Akun
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= APLIKASI UTAMA (DASHBOARD MULTI-CABANG) ================= -->
+  <div id="mainApp" class="min-h-screen flex flex-col">
+    
+    <!-- HEADER ATAS DENGAN PILIHAN CABANG & TOMBOL SETTING -->
+    <header class="sticky top-0 z-40 bg-[#131b2e] border-b border-dark-border shadow-md">
+      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        
+        <!-- Logo & Switcher Cabang Usaha -->
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-slate-900 border border-emerald-500/40 flex items-center justify-center overflow-hidden shadow-lg p-0.5 shrink-0">
+            <img src="snaprint_logo.jpg" alt="Logo SNAPRINT" class="w-full h-full object-contain rounded-xl">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-xl font-black tracking-tight text-white leading-tight" id="headerStoreName">SNAPRINT ZAMRUD</h1>
+            </div>
+            
+            <!-- Quick Branch Switcher Dropdown di Header (Terkunci jika bukan Owner) -->
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-[10px] text-slate-400 font-semibold hidden sm:inline" id="headerBranchLabel">Cabang:</span>
+              
+              <!-- Dropdown aktif untuk Owner -->
+              <select id="headerBranchSelect" onchange="switchActiveBranch(this.value)" 
+                class="bg-dark-input text-[11px] font-extrabold text-emerald-400 border border-emerald-500/40 rounded-lg px-2 py-0.5 focus:outline-none cursor-pointer">
+                <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
+                <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
+                <option value="snp_zamrud">🖨️ SNAPRINT Zamrud</option>
+                <option value="all">🏢 Konsolidasi Gigin Swanto Enterprise</option>
+              </select>
+
+              <!-- Badge Terkunci untuk Manager / Kasir / Operator -->
+              <div id="headerBranchLockedBadge" class="hidden text-[11px] font-extrabold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                <i data-lucide="lock" class="w-3 h-3 text-emerald-400"></i>
+                <span id="lockedBranchNameText">Cabang Tugas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Pengguna, Tombol Setting & Logout -->
+        <div class="flex items-center gap-2 sm:gap-2.5">
+          <div class="bg-dark-input px-3 py-1.5 rounded-xl border border-dark-border flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div class="text-left">
+              <span id="currentUserName" class="text-xs font-bold text-white block leading-tight">User</span>
+              <span id="currentUserRoleBadge" class="text-[10px] text-emerald-400 font-semibold block leading-none">Jabatan</span>
+            </div>
+          </div>
+
+          <!-- Tombol Setting -->
+          <button id="btnSetting" onclick="openSettingModal()" title="Pengaturan Sistem" 
+            class="p-2 sm:px-3 sm:py-2 rounded-xl bg-dark-card border border-dark-border hover:border-emerald-500 text-slate-200 hover:text-white transition-all flex items-center gap-1.5 text-xs font-bold shadow">
+            <i data-lucide="settings" class="w-4 h-4 text-emerald-400"></i>
+            <span class="hidden sm:inline">Setting</span>
+          </button>
+
+          <!-- Tombol Logout -->
+          <button onclick="handleLogout()" title="Keluar dari Akun (Logout)" 
+            class="p-2 sm:px-3 sm:py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 hover:bg-rose-600 hover:text-white transition-all flex items-center gap-1.5 text-xs font-bold shadow-sm">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- KONTEN UTAMA DASHBOARD -->
+    <main class="max-w-6xl mx-auto px-4 pt-5 flex-1 w-full space-y-6">
+
+      <!-- BANNER INDIKATOR CABANG AKTIF -->
+      <div id="branchBanner" class="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-dark-card to-dark-card border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <div id="branchIconBox" class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+            <i data-lucide="store" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block" id="branchBannerTag">CABANG AKTIF</span>
+            <h2 class="text-sm sm:text-base font-extrabold text-white" id="branchBannerTitle">SNAPRINT ZAMRUD</h2>
+          </div>
+        </div>
+        <div class="text-[11px] text-slate-400 font-medium" id="currentDateDisplay">
+          Memuat tanggal...
+        </div>
+      </div>
+
+      <!-- ================= 2 TOMBOL BESAR AKSI CEPAT ================= -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- Tombol Tambah Pemasukan -->
+        <button id="btnOpenIncome" onclick="openTransactionModal('pemasukan')" 
+          class="p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-base sm:text-lg shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-3 transition-all transform hover:-translate-y-0.5">
+          <i data-lucide="plus-circle" class="w-6 h-6"></i>
+          <span id="labelBtnIncome">+ CATAT PEMASUKAN</span>
+        </button>
+
+        <!-- Tombol Tambah Pengeluaran -->
+        <button onclick="openTransactionModal('pengeluaran')" 
+          class="p-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-base sm:text-lg shadow-lg shadow-rose-600/20 flex items-center justify-center gap-3 transition-all transform hover:-translate-y-0.5">
+          <i data-lucide="minus-circle" class="w-6 h-6"></i>
+          <span id="labelBtnExpense">- CATAT PENGELUARAN</span>
+        </button>
+      </div>
+
+      <!-- ================= 1. TIGA KARTU UTAMA FINANSIAL (RUMUS AKTIF 100%) ================= -->
+      <div>
+        <div class="flex items-center justify-between mb-2.5">
+          <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i data-lucide="wallet-cards" class="w-4 h-4 text-emerald-400"></i>
+            1. Ringkasan Keuangan Cabang
+          </h2>
+          <button onclick="confirmClearTodayData()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-semibold">
+            <i data-lucide="eraser" class="w-3.5 h-3.5"></i> Kosongkan Hari Ini (Cabang Ini)
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- 1. HARI INI -->
+          <div class="card-box p-5 border-l-4 border-l-emerald-500">
+            <div class="flex items-center justify-between pb-3 border-b border-dark-border">
+              <span class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
+                📅 HARI INI
+              </span>
+              <span id="todayTxBadge" class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">0 Transaksi</span>
+            </div>
+            
+            <div class="mt-3 space-y-2 text-xs">
+              <div class="flex justify-between text-slate-300">
+                <span>Pemasukan:</span>
+                <span id="todayIncome" class="font-bold text-emerald-400 text-sm">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Pengeluaran:</span>
+                <span id="todayExpense" class="font-bold text-rose-400 text-sm">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-dark-border flex justify-between items-center font-bold">
+                <span class="text-slate-200">Sisa Kas Hari Ini:</span>
+                <span id="todayNet" class="text-base text-white font-extrabold">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. s/d KEMARIN (SALDO AWAL) -->
+          <div class="card-box p-5 border-l-4 border-l-amber-500">
+            <div class="flex items-center justify-between pb-3 border-b border-dark-border">
+              <span class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
+                ⏪ s/d KEMARIN
+              </span>
+              <span class="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">Saldo Awal</span>
+            </div>
+            
+            <div class="mt-3 space-y-2 text-xs">
+              <div class="flex justify-between text-slate-300">
+                <span>Total Masuk Lalu:</span>
+                <span id="pastIncome" class="font-bold text-amber-300 text-sm">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Total Keluar Lalu:</span>
+                <span id="pastExpense" class="font-bold text-rose-300 text-sm">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-dark-border flex justify-between items-center font-bold">
+                <span class="text-slate-200">Saldo Awal Kas:</span>
+                <span id="pastNet" class="text-base text-amber-300 font-extrabold">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. TOTAL KUMULATIF (GRAND TOTAL) -->
+          <div class="card-box p-5 border-l-4 border-l-sky-500 bg-[#152238]">
+            <div class="flex items-center justify-between pb-3 border-b border-dark-border">
+              <span class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
+                📊 TOTAL KAS (KUMULATIF)
+              </span>
+              <span id="cumTxBadge" class="text-[11px] font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded">0 Total</span>
+            </div>
+            
+            <div class="mt-3 space-y-2 text-xs">
+              <div class="flex justify-between text-slate-300">
+                <span>Grand Total Masuk:</span>
+                <span id="cumIncome" class="font-bold text-sky-300 text-sm">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Grand Total Keluar:</span>
+                <span id="cumExpense" class="font-bold text-rose-400 text-sm">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-dark-border flex justify-between items-center font-bold">
+                <span class="text-white font-extrabold">Total Uang Bersih:</span>
+                <span id="cumNet" class="text-lg text-emerald-400 font-black">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= 2. TIGA CARA PEMBAYARAN / SUMBER DANA ================= -->
+      <div>
+        <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 mb-2.5 flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i>
+          2. Rincian Saldo Saluran Kas (Tunai, QRIS, & Rekening BCA)
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- 1. UANG TUNAI DI LACI -->
+          <div class="card-box p-4 border-emerald-500/40">
+            <div class="flex items-center justify-between pb-2 border-b border-dark-border">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">💵</span>
+                <h3 class="text-xs font-bold text-white uppercase">Kas Tunai (Fisik di Laci)</h3>
+              </div>
+              <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">Uang Fisik</span>
+            </div>
+            <div class="mt-2.5 space-y-1 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>Masuk Hari Ini:</span>
+                <span id="cashInToday" class="font-bold text-emerald-400">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Keluar Hari Ini (Cash):</span>
+                <span id="cashOutToday" class="font-bold text-rose-400">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-dark-border flex justify-between items-center font-bold">
+                <span class="text-slate-200">Sisa Fisik Tunai:</span>
+                <span id="cashBalance" class="text-emerald-400 text-sm font-black">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. QRIS -->
+          <div class="card-box p-4 border-purple-500/40">
+            <div class="flex items-center justify-between pb-2 border-b border-dark-border">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📱</span>
+                <h3 class="text-xs font-bold text-white uppercase">QRIS</h3>
+              </div>
+              <span class="text-[10px] text-purple-400 font-bold bg-purple-500/10 px-2 py-0.5 rounded">QR & E-Wallet</span>
+            </div>
+            <div class="mt-2.5 space-y-1 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>Masuk Hari Ini:</span>
+                <span id="qrisInToday" class="font-bold text-purple-400">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Keluar Hari Ini:</span>
+                <span id="qrisOutToday" class="font-bold text-rose-400">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-dark-border flex justify-between items-center font-bold">
+                <span class="text-slate-200">Total Saldo QRIS:</span>
+                <span id="qrisBalance" class="text-purple-400 text-sm font-black">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. TRANSFER BCA -->
+          <div class="card-box p-4 border-sky-500/40">
+            <div class="flex items-center justify-between pb-2 border-b border-dark-border">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🏦</span>
+                <h3 class="text-xs font-bold text-white uppercase">Rekening BCA</h3>
+              </div>
+              <span class="text-[10px] text-sky-400 font-bold bg-sky-500/10 px-2 py-0.5 rounded">Bank BCA</span>
+            </div>
+            <div class="mt-2.5 space-y-1 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>Masuk Hari Ini:</span>
+                <span id="bcaInToday" class="font-bold text-sky-400">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Keluar Hari Ini (BCA):</span>
+                <span id="bcaOutToday" class="font-bold text-rose-400">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-dark-border flex justify-between items-center font-bold">
+                <span class="text-slate-200">Saldo di BCA:</span>
+                <span id="bcaBalance" class="text-sky-400 text-sm font-black">Rp 0</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= 3. TABEL RIWAYAT TRANSAKSI ================= -->
+      <div class="card-box p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-dark-border">
+          <div>
+            <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+              <i data-lucide="list" class="w-4 h-4 text-emerald-400"></i>
+              3. Catatan Transaksi <span id="txTableBranchBadge" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Cabang</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Daftar pesanan masuk dan pengeluaran</p>
+          </div>
+
+          <!-- Tombol Ekspor & Cetak Laporan -->
+          <div class="flex items-center gap-2">
+            <button onclick="exportToExcel()" class="px-3 py-1.5 rounded-xl bg-dark-card2 border border-dark-border hover:border-emerald-500 text-slate-300 text-xs font-bold flex items-center gap-1.5">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i> Download Excel
+            </button>
+            <button onclick="printFinancialReport()" class="px-3 py-1.5 rounded-xl bg-dark-card2 border border-dark-border hover:border-sky-500 text-slate-300 text-xs font-bold flex items-center gap-1.5">
+              <i data-lucide="printer" class="w-3.5 h-3.5 text-sky-400"></i> Cetak Laporan A4
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Sederhana -->
+        <div class="flex flex-wrap items-center gap-2 pt-3.5">
+          <!-- Search -->
+          <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Cari pelanggan / pesanan / barang..." 
+            class="bg-dark-input border border-dark-border rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-44 sm:w-56">
+
+          <!-- Filter Tipe -->
+          <select id="filterType" onchange="applyFilters()" class="bg-dark-input border border-dark-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+            <option value="all">Semua Tipe</option>
+            <option value="pemasukan">Hanya Pemasukan</option>
+            <option value="pengeluaran">Hanya Pengeluaran</option>
+          </select>
+
+          <!-- Filter Cara Bayar / Sumber Dana -->
+          <select id="filterMethod" onchange="applyFilters()" class="bg-dark-input border border-dark-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+            <option value="all">Semua Cara Bayar / Sumber Dana</option>
+            <option value="cash">💵 Hanya Cash / Tunai</option>
+            <option value="qris">📱 Hanya QRIS</option>
+            <option value="bca">🏦 Hanya Rekening BCA</option>
+          </select>
+
+          <!-- Filter Waktu -->
+          <select id="filterPeriod" onchange="applyFilters()" class="bg-dark-input border border-dark-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+            <option value="all">Semua Tanggal</option>
+            <option value="today">Hari Ini Saja</option>
+            <option value="yesterday">s/d Kemarin</option>
+            <option value="this_month">Bulan Ini</option>
+          </select>
+        </div>
+
+        <!-- Tabel Transaksi -->
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-dark-input text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr>
+                <th class="py-2.5 px-3">Tanggal & Waktu</th>
+                <th class="py-2.5 px-3">Pelanggan / Keterangan</th>
+                <th class="py-2.5 px-3">Cabang</th>
+                <th class="py-2.5 px-3">Kategori</th>
+                <th class="py-2.5 px-3">Cara Bayar / Sumber Dana</th>
+                <th class="py-2.5 px-3 text-right">Jumlah Uang</th>
+                <th class="py-2.5 px-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="txTableBody" class="divide-y divide-dark-border font-medium">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+
+          <div id="emptyTableState" class="py-12 text-center text-slate-400 text-xs">
+            <div class="w-12 h-12 rounded-2xl bg-dark-input border border-dark-border flex items-center justify-center mx-auto mb-2.5 text-slate-500">
+              <i data-lucide="inbox" class="w-6 h-6"></i>
+            </div>
+            <p class="font-bold text-slate-300">Belum ada transaksi di cabang ini.</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Silakan klik tombol <strong>+ CATAT PEMASUKAN</strong> atau <strong>- CATAT PENGELUARAN</strong> di atas.</p>
+          </div>
+        </div>
+
+        <!-- Total di Bawah Tabel -->
+        <div class="mt-4 pt-3 border-t border-dark-border flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+          <div>
+            Menampilkan <span id="displayedCount" class="font-bold text-white">0</span> transaksi
+          </div>
+          <div class="flex items-center gap-4 font-bold text-xs">
+            <span class="text-emerald-400">Total Masuk: <span id="sumTableIncome">Rp 0</span></span>
+            <span class="text-rose-400">Total Keluar: <span id="sumTableExpense">Rp 0</span></span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ================= MODAL SETTING / PENGATURAN LENGKAP ================= -->
+  <div id="settingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0f19]/85 p-4 hidden overflow-y-auto">
+    <div class="card-box w-full max-w-2xl p-6 border-dark-border shadow-2xl my-auto text-xs">
+      
+      <!-- Header Setting -->
+      <div class="flex items-center justify-between pb-3 border-b border-dark-border mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white">Pengaturan Cabang & Sistem</h3>
+            <p class="text-[11px] text-slate-400">Konfigurasi profil cabang, struk nota, rekening, kategori & akun tim</p>
+          </div>
+        </div>
+        <button onclick="closeModal('settingModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Pilih Cabang yang Ingin Diatur (Dibatasi untuk non-owner) -->
+      <div class="p-2.5 bg-dark-input rounded-xl border border-dark-border mb-3 flex items-center justify-between">
+        <span class="font-bold text-slate-300">Pengaturan Untuk Cabang:</span>
+        <select id="settingBranchSelect" onchange="loadBranchSettings(this.value)" class="bg-dark-card border border-emerald-500/40 rounded-lg px-2.5 py-1 text-emerald-400 font-bold focus:outline-none">
+          <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
+          <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
+          <option value="snp_zamrud">🖨️ SNAPRINT Zamrud</option>
+        </select>
+      </div>
+
+      <!-- Navigation Tabs inside Settings -->
+      <div class="flex flex-wrap gap-1.5 bg-dark-input p-1.5 rounded-xl border border-dark-border mb-4">
+        <button onclick="switchSettingTab('store')" id="setTabStore" class="setting-tab active px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <i data-lucide="store" class="w-3.5 h-3.5"></i> Profil & Struk
+        </button>
+        <button onclick="switchSettingTab('bank')" id="setTabBank" class="setting-tab px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> Rekening BCA
+        </button>
+        <button onclick="switchSettingTab('categories')" id="setTabCategories" class="setting-tab px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <i data-lucide="tags" class="w-3.5 h-3.5"></i> Kategori Produk/Biaya
+        </button>
+        <button onclick="switchSettingTab('roles')" id="setTabRoles" class="setting-tab px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Bagan Akses Jabatan
+        </button>
+        <button onclick="switchSettingTab('security')" id="setTabSecurity" class="setting-tab px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Ganti Password
+        </button>
+        <button onclick="switchSettingTab('database')" id="setTabDatabase" class="setting-tab px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <i data-lucide="database" class="w-3.5 h-3.5"></i> Backup & Tim
+        </button>
+      </div>
+
+      <!-- TAB 1: PROFIL TOKO & STRUK -->
+      <div id="setSectionStore" class="space-y-3">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nama Usaha / Cabang</label>
+          <input type="text" id="setStoreName" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Slogan / Keterangan Cabang</label>
+          <input type="text" id="setStoreTagline" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nomor WhatsApp / Telepon (Muncul di Struk)</label>
+          <input type="text" id="setStorePhone" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Pesan Terima Kasih di Nota / Struk</label>
+          <input type="text" id="setStoreFooter" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <button onclick="saveStoreSettings()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow mt-2">
+          Simpan Profil Cabang
+        </button>
+      </div>
+
+      <!-- TAB 2: REKENING BCA -->
+      <div id="setSectionBank" class="space-y-3 hidden">
+        <div class="p-3 bg-dark-input border border-dark-border rounded-xl">
+          <h4 class="font-bold text-white mb-1 flex items-center gap-1.5"><i data-lucide="building" class="w-4 h-4 text-sky-400"></i> Rekening BCA Utama Cabang</h4>
+          <p class="text-slate-400 text-[11px] mb-3">Informasi rekening BCA untuk menerima transfer di cabang ini.</p>
+          <div class="space-y-2.5">
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">Nomor Rekening BCA</label>
+              <input type="text" id="setBcaNumber" placeholder="Contoh: 1234567890" class="w-full bg-dark-card border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">Atas Nama Rekening</label>
+              <input type="text" id="setBcaHolder" placeholder="Contoh: PT USAHA BERSAMA / H. SWANTO" class="w-full bg-dark-card border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+        <button onclick="saveBankSettings()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow">
+          Simpan Rekening BCA Cabang
+        </button>
+      </div>
+
+      <!-- TAB 3: KATEGORI CETAK & PENGELUARAN -->
+      <div id="setSectionCategories" class="space-y-3 hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Kategori Pemasukan -->
+          <div class="p-3 bg-dark-input border border-dark-border rounded-xl">
+            <h4 class="font-bold text-emerald-400 mb-1.5 flex items-center gap-1">+ Kategori Pemasukan / Produk</h4>
+            <div class="flex gap-1.5 mb-2">
+              <input type="text" id="newIncomeCat" placeholder="Nama Kategori..." class="w-full bg-dark-card border border-dark-border rounded-lg px-2.5 py-1 text-white text-[11px]">
+              <button onclick="addCustomCategory('pemasukan')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold">+</button>
+            </div>
+            <ul id="incomeCatList" class="space-y-1 max-h-40 overflow-y-auto pr-1"></ul>
+          </div>
+
+          <!-- Kategori Pengeluaran -->
+          <div class="p-3 bg-dark-input border border-dark-border rounded-xl">
+            <h4 class="font-bold text-rose-400 mb-1.5 flex items-center gap-1">- Kategori Pengeluaran / Biaya</h4>
+            <div class="flex gap-1.5 mb-2">
+              <input type="text" id="newExpenseCat" placeholder="Nama Kategori..." class="w-full bg-dark-card border border-dark-border rounded-lg px-2.5 py-1 text-white text-[11px]">
+              <button onclick="addCustomCategory('pengeluaran')" class="px-2.5 py-1 bg-rose-600 text-white rounded-lg font-bold">+</button>
+            </div>
+            <ul id="expenseCatList" class="space-y-1 max-h-40 overflow-y-auto pr-1"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: BAGAN HAK AKSES MASING-MASING JABATAN -->
+      <div id="setSectionRoles" class="space-y-3.5 hidden">
+        
+        <!-- Header Info Bagan -->
+        <div class="p-3 bg-gradient-to-r from-emerald-950/50 via-dark-input to-dark-input rounded-xl border border-emerald-500/30 flex items-center justify-between">
+          <div>
+            <h4 class="font-extrabold text-white text-xs flex items-center gap-1.5">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+              Bagan & Matriks Hak Akses Jabatan (GIGIN SWANTO ENTERPRISE)
+            </h4>
+            <p class="text-[10px] text-slate-400 mt-0.5">Hierarki hak akses sistem untuk menjaga keamanan & isolasi data keuangan antar-cabang.</p>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">RBAC Active</span>
+        </div>
+
+        <!-- 4 Kartu Hierarki Jabatan -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+          <!-- 1. Owner -->
+          <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-amber-300 flex items-center gap-1">👑 OWNER / SUPER ADMIN</span>
+              <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">Semua Cabang</span>
+            </div>
+            <p class="text-[10px] text-slate-300 leading-tight">Akses penuh ke 3 cabang usaha, melihat Laporan Konsolidasi, mengelola akun tim, mengubah role, & backup/reset data.</p>
+          </div>
+
+          <!-- 2. Manager -->
+          <div class="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/30 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-sky-300 flex items-center gap-1">👔 MANAGER CABANG</span>
+              <span class="text-[9px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded font-bold">1 Cabang Tugas</span>
+            </div>
+            <p class="text-[10px] text-slate-300 leading-tight">Akses penuh pada cabang tugasnya (omset, arus kas, struk, laporan A4, setting profil toko & rekening BCA cabang).</p>
+          </div>
+
+          <!-- 3. Kasir -->
+          <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-emerald-300 flex items-center gap-1">💻 KASIR HARIAN</span>
+              <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">Operasional Cabang</span>
+            </div>
+            <p class="text-[10px] text-slate-300 leading-tight">Mencatat pesanan masuk (order cetak/service), mencetak struk kasir, mencatat biaya kas kecil & upload bukti struk.</p>
+          </div>
+
+          <!-- 4. Operator / Mekanik -->
+          <div class="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/30 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-purple-300 flex items-center gap-1">🛠️ OPERATOR / MEKANIK</span>
+              <span class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-bold">Produksi & Stok</span>
+            </div>
+            <p class="text-[10px] text-slate-300 leading-tight">Mencatat biaya pembelian stok bahan percetakan / sparepart bengkel serta melampirkan foto struk pembelian nota.</p>
+          </div>
+        </div>
+
+        <!-- Tabel Matriks Perbandingan Hak Akses -->
+        <div class="overflow-x-auto rounded-xl border border-dark-border">
+          <table class="w-full text-left text-[11px] text-slate-300">
+            <thead class="bg-dark-input text-slate-400 font-bold border-b border-dark-border text-[10px] uppercase">
+              <tr>
+                <th class="p-2">Fitur & Modul Sistem</th>
+                <th class="p-2 text-center text-amber-400">👑 Owner</th>
+                <th class="p-2 text-center text-sky-400">👔 Manager</th>
+                <th class="p-2 text-center text-emerald-400">💻 Kasir</th>
+                <th class="p-2 text-center text-purple-400">🛠️ Operator</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-dark-border bg-dark-card/60">
+              <tr>
+                <td class="p-2 font-medium">Buka Dashboard & Transaksi 3 Cabang</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Bebas Switch</td>
+                <td class="p-2 text-center font-bold text-amber-400">🔒 1 Cabang Tugas</td>
+                <td class="p-2 text-center font-bold text-amber-400">🔒 1 Cabang Tugas</td>
+                <td class="p-2 text-center font-bold text-amber-400">🔒 1 Cabang Tugas</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Laporan Konsolidasi Gabungan 3 Cabang</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Catat Pemasukan (Order Cetak / Service)</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Terkunci</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Catat Pengeluaran (Biaya / Belanja Stok)</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Upload & Pratinjau Foto Bukti Pengeluaran</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Cetak Struk Kasir (Thermal Receipt)</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Otomatis</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Cetak Laporan Keuangan A4 & Download Excel</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Semua Cabang</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Cabang Sendiri</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Cabang Sendiri</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Hapus / Void Transaksi</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Semua</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Cabang Sendiri</td>
+                <td class="p-2 text-center font-bold text-amber-400">⚠️ Milik Sendiri</td>
+                <td class="p-2 text-center font-bold text-amber-400">⚠️ Milik Sendiri</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Atur Profil Cabang, Kontak & Rekening BCA</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Semua Cabang</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Cabang Sendiri</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Tambah / Hapus Kategori Produk & Biaya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Semua Cabang</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Cabang Sendiri</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Kelola Akun Tim & Mutasi Cabang Penugasan</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Akses Penuh</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Download Backup JSON Database</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Ya</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+              <tr>
+                <td class="p-2 font-medium">Restore Backup & Kosongkan Transaksi (Reset)</td>
+                <td class="p-2 text-center font-bold text-emerald-400">✅ Khusus Owner</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+                <td class="p-2 text-center font-bold text-rose-400">❌ Tidak</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ================= CEKLIST HAK AKSES PER USER INDIVIDUAL ================= -->
+        <div class="p-3.5 rounded-xl bg-dark-input border border-emerald-500/30 space-y-3 mt-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-dark-border">
+            <div>
+              <h4 class="font-extrabold text-white text-xs flex items-center gap-1.5">
+                <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i>
+                Ceklist Hak Akses Individual User
+              </h4>
+              <p class="text-[10px] text-slate-400 mt-0.5">Pilih akun pengguna di bawah ini untuk melihat ceklist izin sistem aktif secara spesifik.</p>
+            </div>
+            
+            <!-- Selector User untuk Ceklist -->
+            <div class="flex items-center gap-2">
+              <label class="text-[11px] font-bold text-slate-300">Pilih User:</label>
+              <select id="checklistUserSelect" onchange="renderUserPermissionChecklist(this.value)" 
+                class="bg-dark-card text-emerald-400 font-extrabold border border-emerald-500/40 rounded-lg px-2.5 py-1 text-xs focus:outline-none cursor-pointer">
+                <!-- Populated via JS -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Container Hasil Ceklist User -->
+          <div id="userPermissionChecklistContainer">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 5: KEAMANAN & GANTI PASSWORD -->
+      <div id="setSectionSecurity" class="space-y-3 hidden">
+        <div class="p-3 bg-dark-input border border-dark-border rounded-xl space-y-2.5">
+          <h4 class="font-bold text-white">Ubah Kata Sandi Akun Anda (<span id="setSecUsername" class="text-emerald-400">-</span>)</h4>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Password Lama</label>
+            <input type="password" id="setOldPass" class="w-full bg-dark-card border border-dark-border rounded-xl px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Password Baru (Minimal 4 Karakter)</label>
+            <input type="password" id="setNewPass" class="w-full bg-dark-card border border-dark-border rounded-xl px-3 py-2 text-white">
+          </div>
+          <button onclick="handleChangePassword()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow">
+            Perbarui Password
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 5: DATABASE, TIM & BACKUP -->
+      <div id="setSectionDatabase" class="space-y-3 hidden">
+        
+        <!-- Khusus Owner: Manajemen Staf & Penugasan Cabang -->
+        <div id="setSecOwnerUsers" class="p-3 bg-dark-input border border-dark-border rounded-xl hidden">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-white flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Kelola Staf & Penugasan Cabang (Owner)</h4>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-[11px] text-slate-300">
+              <thead class="bg-dark-card text-slate-400 font-bold border-b border-dark-border">
+                <tr>
+                  <th class="p-1.5">Nama & User</th>
+                  <th class="p-1.5">Jabatan</th>
+                  <th class="p-1.5">Cabang Tugas</th>
+                  <th class="p-1.5 text-right">Aksi Penugasan</th>
+                </tr>
+              </thead>
+              <tbody id="settingUserTableBody" class="divide-y divide-dark-border"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-dark-input border border-dark-border">
+          <h4 class="font-bold text-white mb-1">Download File Cadangan Data (JSON)</h4>
+          <p class="text-slate-400 text-[11px] mb-2.5">Simpan salinan seluruh transaksi 3 cabang dan akun user ke komputer Anda.</p>
+          <button onclick="downloadBackupJSON()" class="w-full py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center justify-center gap-1.5 shadow">
+            <i data-lucide="download" class="w-4 h-4"></i> Download File Cadangan (.json)
+          </button>
+        </div>
+
+        <div id="setSecOwnerRestore" class="p-3 rounded-xl bg-dark-input border border-dark-border hidden">
+          <h4 class="font-bold text-white mb-1">Pulihkan Data dari File Cadangan</h4>
+          <input type="file" id="restoreFileInput" accept=".json" onchange="handleRestoreJSON(event)" class="w-full text-xs text-slate-400 mt-1">
+        </div>
+
+        <div id="setResetDbWrapper" class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 hidden">
+          <h4 class="font-bold text-rose-400 mb-1">Hapus Seluruh Data Transaksi (Mulai dari Nol)</h4>
+          <p class="text-slate-400 text-[11px] mb-2">Mengosongkan semua transaksi di seluruh cabang sehingga semua saldo menjadi Rp 0.</p>
+          <button onclick="clearAllTransactionsData()" class="w-full py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold">
+            Kosongkan Seluruh Transaksi (Rp 0)
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer Modal -->
+      <div class="mt-4 pt-3 border-t border-dark-border flex items-center justify-between">
+        <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 hover:bg-rose-600 hover:text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Logout dari Akun
+        </button>
+        <button onclick="closeModal('settingModal')" class="px-4 py-2 rounded-xl bg-dark-card2 text-slate-300 hover:text-white font-semibold text-xs">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL INPUT TRANSAKSI (DENGAN CABANG & FITUR BUKTI) ================= -->
+  <div id="txModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0f19]/80 p-4 hidden overflow-y-auto">
+    <div class="card-box w-full max-w-lg p-6 border-dark-border shadow-2xl my-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-dark-border mb-4">
+        <div>
+          <h3 id="txModalTitle" class="text-base font-extrabold text-white">Catat Transaksi</h3>
+          <p id="txModalBranchName" class="text-[11px] font-bold text-emerald-400">Cabang: -</p>
+        </div>
+        <button onclick="closeModal('txModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="txForm" onsubmit="handleSaveTransaction(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="txId">
+        <input type="hidden" id="txType" value="pemasukan">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Cabang Usaha</label>
+            <select id="txBranch" required class="w-full bg-dark-input border border-emerald-500/50 rounded-xl px-3 py-2 text-white font-bold focus:outline-none focus:border-emerald-400">
+              <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
+              <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
+              <option value="snp_zamrud">🖨️ SNAPRINT Zamrud</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">Tanggal</label>
+              <input type="date" id="txDate" required class="w-full bg-dark-input border border-dark-border rounded-xl px-2.5 py-2 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">Jam</label>
+              <input type="time" id="txTime" required class="w-full bg-dark-input border border-dark-border rounded-xl px-2.5 py-2 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label id="txCustomerLabel" class="block font-bold text-slate-300 mb-1">Nama Pelanggan / Kontak / Nopol Kendaraan</label>
+          <input type="text" id="txCustomer" required placeholder="Contoh: Bpk. Hendra / B 1234 XYZ" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Kategori Produk / Jasa / Biaya</label>
+            <select id="txCategory" required class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+              <!-- Rendered via JS -->
+            </select>
+          </div>
+          <div>
+            <!-- LABEL & SELECT CARA BAYAR / SUMBER DANA DINAMIS -->
+            <label id="txPaymentMethodLabel" class="block font-bold text-slate-300 mb-1">Cara Pembayaran</label>
+            <select id="txPaymentMethod" required class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+              <!-- Rendered dynamically in openTransactionModal() -->
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Keterangan / Rincian Transaksi</label>
+          <input type="text" id="txNotes" placeholder="Contoh: Oli Shell Helix HX7 4L + Filter Oli" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nominal Uang (Rp)</label>
+          <input type="number" id="txAmount" min="1" step="1" required placeholder="0" 
+            class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <!-- ================= FITUR UPLOAD BUKTI PENGELUARAN ================= -->
+        <div id="txProofWrapper" class="hidden pt-1">
+          <label class="block font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="camera" class="w-4 h-4 text-rose-400"></i>
+            Bukti Pengeluaran / Struk Pembelian (Foto / File)
+          </label>
+          <div class="flex items-center gap-2">
+            <label class="cursor-pointer flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-dark-input border border-dashed border-rose-500/40 hover:border-rose-500 text-slate-300 hover:text-white transition-all text-xs font-semibold">
+              <i data-lucide="upload" class="w-4 h-4 text-rose-400"></i>
+              <span id="proofFileLabel">Klik / Foto Struk Nota Pengeluaran</span>
+              <input type="file" id="txProofFile" accept="image/*" onchange="handleProofImageSelect(event)" class="hidden">
+            </label>
+            <button type="button" id="btnRemoveProof" onclick="removeSelectedProof()" class="hidden px-3 py-2.5 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 font-bold" title="Hapus Foto">
+              ✕
+            </button>
+          </div>
+          <!-- Preview Foto Bukti -->
+          <div id="proofPreviewContainer" class="hidden mt-2 relative p-2 bg-dark-input rounded-xl border border-dark-border flex items-center gap-3">
+            <img id="proofPreviewImg" src="" alt="Bukti Pengeluaran" class="w-14 h-14 object-cover rounded-lg border border-slate-700">
+            <div class="text-[11px] text-slate-300 overflow-hidden">
+              <p class="font-bold text-emerald-400 flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Foto bukti siap disimpan</p>
+              <p id="proofFileInfo" class="text-slate-400 truncate text-[10px] mt-0.5"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-dark-border mt-4">
+          <button type="button" onclick="closeModal('txModal')" class="px-4 py-2 rounded-xl bg-dark-card2 text-slate-300 font-semibold">
+            Batal
+          </button>
+          <button type="submit" id="btnSubmitTx" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i> Simpan Transaksi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL LIHAT BUKTI PENGELUARAN ================= -->
+  <div id="proofModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0f19]/85 p-4 hidden overflow-y-auto">
+    <div class="card-box w-full max-w-lg p-5 border-dark-border shadow-2xl my-auto text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-dark-border mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white">Bukti Pengeluaran</h3>
+            <p class="text-[11px] text-slate-400" id="proofModalSubtitle">No Invoice: -</p>
+          </div>
+        </div>
+        <button onclick="closeModal('proofModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Ringkasan Info Transaksi Pengeluaran -->
+      <div class="bg-dark-input p-3 rounded-xl border border-dark-border space-y-1.5 mb-3 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Cabang Usaha:</span>
+          <span id="proofBranch" class="font-bold text-emerald-400">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Penerima / Toko:</span>
+          <span id="proofCust" class="font-bold text-slate-200">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Kategori Biaya:</span>
+          <span id="proofCategory" class="font-semibold text-rose-400">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Sumber Dana:</span>
+          <span id="proofMethod" class="font-bold text-slate-200">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Nominal:</span>
+          <span id="proofAmount" class="font-black text-rose-400 text-sm">-</span>
+        </div>
+        <div class="flex justify-between border-t border-dark-border pt-1.5 text-[11px]">
+          <span class="text-slate-400">Rincian / Keterangan:</span>
+          <span id="proofNotes" class="text-slate-300">-</span>
+        </div>
+      </div>
+
+      <!-- Gambar Bukti Full -->
+      <div class="rounded-xl overflow-hidden border border-dark-border bg-black/50 text-center max-h-[55vh] flex items-center justify-center p-1">
+        <img id="proofFullImg" src="" alt="Bukti Struk" class="max-h-[50vh] w-auto max-w-full object-contain mx-auto rounded-lg shadow">
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-dark-border flex items-center justify-between">
+        <a id="proofDownloadLink" href="#" download="Bukti_Pengeluaran.jpg" class="px-3.5 py-2 rounded-xl bg-dark-card2 border border-dark-border hover:border-emerald-500 text-slate-200 font-bold flex items-center gap-1.5 text-xs">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i> Unduh Foto Bukti
+        </a>
+        <button onclick="closeModal('proofModal')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL STRUK KASIR ================= -->
+  <div id="receiptModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0f19]/80 p-4 hidden overflow-y-auto">
+    <div class="bg-white text-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl my-auto font-mono text-xs border border-slate-200">
+      
+      <div id="receiptPrintContent" class="space-y-3">
+        <div class="text-center border-b border-dashed border-slate-300 pb-3">
+          <img src="snaprint_logo.jpg" alt="Logo" class="w-12 h-12 object-cover mx-auto mb-1.5 rounded-full border border-slate-300 shadow-sm">
+          <h2 class="text-base font-black text-slate-900" id="rcpStoreName">SNAPRINT ZAMRUD</h2>
+          <p class="text-[11px] text-slate-600" id="rcpStoreTagline">Digital Printing & Percetakan Cepat</p>
+          <p class="text-[10px] text-slate-500" id="rcpStorePhone">WhatsApp: 0812-XXXX-XXXX</p>
+        </div>
+
+        <div class="text-[11px] space-y-1 border-b border-dashed border-slate-300 pb-2">
+          <div class="flex justify-between"><span>No. Nota:</span><span id="rcpInvoice" class="font-bold">-</span></div>
+          <div class="flex justify-between"><span>Cabang:</span><span id="rcpBranch" class="font-bold">-</span></div>
+          <div class="flex justify-between"><span>Tanggal:</span><span id="rcpDate">-</span></div>
+          <div class="flex justify-between"><span>Pelanggan/Nopol:</span><span id="rcpCustomer" class="font-bold">-</span></div>
+          <div class="flex justify-between"><span>Kasir/Petugas:</span><span id="rcpCashier">-</span></div>
+        </div>
+
+        <div class="border-b border-dashed border-slate-300 pb-2">
+          <div class="font-bold mb-1 text-slate-900" id="rcpCategory">-</div>
+          <div class="text-slate-600 leading-tight" id="rcpNotes">-</div>
+        </div>
+
+        <div class="space-y-1.5 pt-1">
+          <div class="flex justify-between text-xs">
+            <span id="rcpMethodLabel">Metode Pembayaran:</span>
+            <span id="rcpMethod" class="font-bold text-slate-900">-</span>
+          </div>
+          <div class="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-200">
+            <span>TOTAL BAYAR:</span>
+            <span id="rcpTotal" class="text-emerald-700">Rp 0</span>
+          </div>
+        </div>
+
+        <div class="text-center text-[10px] text-slate-500 pt-3 border-t border-dashed border-slate-300">
+          <p class="font-bold text-slate-700" id="rcpStoreFooter">Terima Kasih Atas Kunjungan Anda!</p>
+          <p class="mt-1 text-[9px] text-slate-400 font-semibold" id="rcpSystemFooter">GIGIN SWANTO ENTERPRISE</p>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between gap-2 no-print font-sans">
+        <button onclick="closeModal('receiptModal')" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs">
+          Tutup
+        </button>
+        <button onclick="window.print()" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Struk
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= PRINT AREA UNTUK LAPORAN KEUANGAN A4 ================= -->
+  <div id="printArea" class="hidden">
+    <div style="font-family: Arial, sans-serif; padding: 20px; color: #111;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 16px; border-bottom: 2.5px solid #0f172a; padding-bottom: 14px; margin-bottom: 20px;">
+        <img src="snaprint_logo.jpg" alt="Logo SNAPRINT" style="width: 58px; height: 58px; border-radius: 12px; object-fit: contain; border: 1.5px solid #10b981; padding: 2px;">
+        <div style="text-align: left;">
+          <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #0b0f19; letter-spacing: -0.5px;" id="printStoreTitle">KONSOLIDASI GIGIN SWANTO ENTERPRISE</h1>
+          <p style="font-size: 13px; color: #059669; font-weight: bold; margin: 3px 0;" id="printBranchSubtitle">Laporan Keuangan Konsolidasi Seluruh Cabang</p>
+          <p style="font-size: 11px; color: #64748b; margin: 0;" id="printReportDate">Dicetak pada: -</p>
+        </div>
+      </div>
+
+      <!-- Ringkasan 3 Dimensi -->
+      <div style="margin-bottom: 15px;">
+        <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 6px;">1. RINGKASAN KEUANGAN CABANG</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px;">
+          <thead>
+            <tr style="background: #f0f0f0;">
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: left;">Dimensi Waktu</th>
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: right;">Total Masuk</th>
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: right;">Total Keluar</th>
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: right;">Saldo Bersih</th>
+            </tr>
+          </thead>
+          <tbody id="printSummaryTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Ringkasan Cara Bayar & Sumber Dana (Tunai/Cash, QRIS, Rekening BCA) -->
+      <div style="margin-bottom: 15px;">
+        <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 6px;">2. RINCIAN SALDO (CASH / TUNAI, QRIS, & REKENING BCA)</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px;">
+          <thead>
+            <tr style="background: #f0f0f0;">
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: left;">Saluran Kas / Sumber Dana</th>
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: right;">Masuk Hari Ini</th>
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: right;">Keluar Hari Ini</th>
+              <th style="border: 1px solid #ccc; padding: 6px; text-align: right;">Total Saldo Riil</th>
+            </tr>
+          </thead>
+          <tbody id="printPaymentMethodTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Rincian Transaksi -->
+      <div>
+        <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 6px;">3. CATATAN RINCIAN TRANSAKSI</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+          <thead>
+            <tr style="background: #f0f0f0;">
+              <th style="border: 1px solid #ccc; padding: 5px; text-align: left;">Tanggal & No. Inv</th>
+              <th style="border: 1px solid #ccc; padding: 5px; text-align: left;">Cabang</th>
+              <th style="border: 1px solid #ccc; padding: 5px; text-align: left;">Pelanggan / Keterangan</th>
+              <th style="border: 1px solid #ccc; padding: 5px; text-align: left;">Kategori</th>
+              <th style="border: 1px solid #ccc; padding: 5px; text-align: left;">Cara Bayar / Sumber Dana</th>
+              <th style="border: 1px solid #ccc; padding: 5px; text-align: center;">Tipe</th>
+              <th style="border: 1px solid #ccc; padding: 5px; text-align: right;">Nominal</th>
+            </tr>
+          </thead>
+          <tbody id="printTxTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= JAVASCRIPT LOGIC MULTI-CABANG LENGKAP ================= -->
+  <script>
+    const STORAGE_KEY_TX = 'snaprint_multibranch_tx_v1';
+    const STORAGE_KEY_USERS = 'snaprint_multibranch_users_v2';
+    const STORAGE_KEY_SESSION = 'snaprint_multibranch_session_v2';
+    const STORAGE_KEY_BRANCHES = 'snaprint_multibranch_branches_v1';
+
+    // 3 CABANG USAHA RESMI
+    const DEFAULT_BRANCHES = {
+      snd_gw: {
+        id: 'snd_gw',
+        name: 'Shop & Drive Grand Wisata',
+        shortName: 'Shop & Drive GW',
+        tagline: 'Aki, Oli, Shock Absorber & Servis Cepat',
+        phone: '0812-XXXX-XXXX',
+        footer: 'Terima Kasih Telah Mempercayakan Kendaraan Anda!',
+        bcaNumber: '123-456-7890',
+        bcaHolder: 'SHOP & DRIVE GW',
+        icon: 'car',
+        badge: '🚗 Shop & Drive GW',
+        incomeCategories: [
+          'Ganti Oli Mesin & Filter',
+          'Aki GS Astra (Incoe / Hybrid / MF)',
+          'Shock Absorber & Kaki-kaki',
+          'Jasa Servis & Tune Up',
+          'Ban Mobil & Balancing / Spooring',
+          'Aksesoris & Chemical Mobil',
+          'Layanan Bengkel Lainnya'
+        ],
+        expenseCategories: [
+          'Stok Oli & Filter Mesin',
+          'Stok Aki GS Astra & Incoe',
+          'Stok Sparepart & Shock Absorber',
+          'Operasional Bengkel (Listrik, Wifi, Air)',
+          'Gaji & Uang Makan Mekanik / Staf',
+          'Maintenance Alat & Kompresor',
+          'Petty Cash Bengkel',
+          'Pengeluaran Lainnya'
+        ]
+      },
+      snp_gw: {
+        id: 'snp_gw',
+        name: 'SNAPRINT Grand Wisata',
+        shortName: 'SNAPRINT GW',
+        tagline: 'Digital Printing & Percetakan Cepat',
+        phone: '0812-XXXX-XXXX',
+        footer: 'Terima Kasih Atas Kunjungan Anda!',
+        bcaNumber: '123-456-7890',
+        bcaHolder: 'SNAPRINT GRAND WISATA',
+        icon: 'printer',
+        badge: '🖨️ SNAPRINT GW',
+        incomeCategories: [
+          'Cetak Spanduk / Banner Flexi',
+          'Digital Print A3+ (Brosur / Stiker)',
+          'Merchandise (Kaos DTF, Mug, Topi)',
+          'Cutting Sticker & Label Kemasan',
+          'Dokumen, Jilid & Fotocopy',
+          'Desain Grafis & Setting',
+          'Stempel Flash & Akrilik',
+          'Layanan Cetak Lainnya'
+        ],
+        expenseCategories: [
+          'Bahan Baku (Flexi, Stiker, Kertas, Tinta)',
+          'Operasional Toko (Listrik, Wifi, Sewa)',
+          'Gaji & Uang Makan Karyawan',
+          'Maintenance Mesin & Sparepart',
+          'Perlengkapan Toko & ATK',
+          'Transportasi & Ongkir',
+          'Kas Kecil (Petty Cash)',
+          'Pengeluaran Lainnya'
+        ]
+      },
+      snp_zamrud: {
+        id: 'snp_zamrud',
+        name: 'SNAPRINT Zamrud',
+        shortName: 'SNAPRINT Zamrud',
+        tagline: 'Digital Printing & Percetakan Cepat',
+        phone: '0812-XXXX-XXXX',
+        footer: 'Terima Kasih Atas Kunjungan Anda!',
+        bcaNumber: '123-456-7890',
+        bcaHolder: 'SNAPRINT ZAMRUD',
+        icon: 'printer',
+        badge: '🖨️ SNAPRINT Zamrud',
+        incomeCategories: [
+          'Cetak Spanduk / Banner Flexi',
+          'Digital Print A3+ (Brosur / Stiker)',
+          'Merchandise (Kaos DTF, Mug, Topi)',
+          'Cutting Sticker & Label Kemasan',
+          'Dokumen, Jilid & Fotocopy',
+          'Desain Grafis & Setting',
+          'Stempel Flash & Akrilik',
+          'Layanan Cetak Lainnya'
+        ],
+        expenseCategories: [
+          'Bahan Baku (Flexi, Stiker, Kertas, Tinta)',
+          'Operasional Toko (Listrik, Wifi, Sewa)',
+          'Gaji & Uang Makan Karyawan',
+          'Maintenance Mesin & Sparepart',
+          'Perlengkapan Toko & ATK',
+          'Transportasi & Ongkir',
+          'Kas Kecil (Petty Cash)',
+          'Pengeluaran Lainnya'
+        ]
+      }
+    };
+
+    let branchesData = { ...DEFAULT_BRANCHES };
+    let currentBranchId = 'snp_zamrud';
+    let users = [];
+    let transactions = [];
+    let currentUser = null;
+    let currentProofBase64 = '';
+
+    function getTodayDateStr() {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // Default Akun dengan Penugasan Cabang Khusus
+    const DEFAULT_USERS = [
+      { id: 'usr_boss', username: 'boss_01', fullName: 'H. Swanto (Boss 01 / Super Owner)', role: 'owner', assignedBranch: 'all', passwordHash: 'boss123', createdAt: '2026-08-01' },
+      { id: 'usr_snap001', username: 'snap_001', fullName: 'Manager SNAPRINT GW (Snap 001)', role: 'manager', assignedBranch: 'snp_gw', passwordHash: 'snap123', createdAt: '2026-08-01' },
+      { id: 'usr_1', username: 'owner', fullName: 'H. Swanto (Owner)', role: 'owner', assignedBranch: 'all', passwordHash: 'owner123', createdAt: '2026-08-01' },
+      { id: 'usr_2', username: 'manager_snd', fullName: 'Ahmad (Manager Shop & Drive GW)', role: 'manager', assignedBranch: 'snd_gw', passwordHash: 'manager123', createdAt: '2026-08-01' },
+      { id: 'usr_3', username: 'manager_snpgw', fullName: 'Budi (Manager SNAPRINT GW)', role: 'manager', assignedBranch: 'snp_gw', passwordHash: 'manager123', createdAt: '2026-08-01' },
+      { id: 'usr_4', username: 'manager_zmr', fullName: 'Hendra (Manager SNAPRINT Zamrud)', role: 'manager', assignedBranch: 'snp_zamrud', passwordHash: 'manager123', createdAt: '2026-08-01' },
+      { id: 'usr_5', username: 'kasir1', fullName: 'Siti Rahma (Kasir Zamrud)', role: 'kasir', assignedBranch: 'snp_zamrud', passwordHash: 'kasir123', createdAt: '2026-08-05' },
+      { id: 'usr_6', username: 'operator1', fullName: 'Rian Produksi (Zamrud)', role: 'operator', assignedBranch: 'snp_zamrud', passwordHash: 'operator123', createdAt: '2026-08-05' }
+    ];
+
+    function getPaymentChannel(methodStr) {
+      if (!methodStr) return 'cash';
+      const m = methodStr.toLowerCase();
+      if (m.includes('qris')) return 'qris';
+      if (m.includes('bca') || m.includes('rekening') || m.includes('transfer')) return 'bca';
+      return 'cash';
+    }
+
+    function initDatabase() {
+      const savedBranches = localStorage.getItem(STORAGE_KEY_BRANCHES);
+      if (savedBranches) {
+        try { branchesData = JSON.parse(savedBranches); } catch(e) { branchesData = DEFAULT_BRANCHES; }
+      } else {
+        branchesData = DEFAULT_BRANCHES;
+        saveBranchesData();
+      }
+
+      const savedUsers = localStorage.getItem(STORAGE_KEY_USERS);
+      if (savedUsers) {
+        try { 
+          users = JSON.parse(savedUsers); 
+          // Pastikan akun boss_01 terdaftar dan memiliki akses ke semua cabang ('all')
+          let bossUser = users.find(u => u.username === 'boss_01');
+          if (!bossUser) {
+            users.unshift({ id: 'usr_boss', username: 'boss_01', fullName: 'H. Swanto (Boss 01 / Super Owner)', role: 'owner', assignedBranch: 'all', passwordHash: 'boss123', createdAt: '2026-08-01' });
+          } else {
+            bossUser.role = 'owner';
+            bossUser.assignedBranch = 'all';
+          }
+
+          // Pastikan akun snap_001 terdaftar dan hanya memiliki akses ke Cabang SNAPRINT Grand Wisata ('snp_gw')
+          let snapUser = users.find(u => u.username.toLowerCase() === 'snap_001');
+          if (!snapUser) {
+            users.push({ id: 'usr_snap001', username: 'snap_001', fullName: 'Manager SNAPRINT GW (Snap 001)', role: 'manager', assignedBranch: 'snp_gw', passwordHash: 'snap123', createdAt: '2026-08-01' });
+          } else {
+            snapUser.role = 'manager';
+            snapUser.assignedBranch = 'snp_gw';
+          }
+
+          // Pastikan semua user memiliki assignedBranch
+          users.forEach(u => {
+            if (!u.assignedBranch) {
+              u.assignedBranch = (u.role === 'owner') ? 'all' : 'snp_zamrud';
+            }
+          });
+          saveUsers();
+        } catch(e) { users = DEFAULT_USERS; }
+      } else {
+        users = DEFAULT_USERS;
+        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      }
+
+      const savedTx = localStorage.getItem(STORAGE_KEY_TX);
+      if (savedTx) {
+        try { 
+          transactions = JSON.parse(savedTx); 
+        } catch(e) { 
+          transactions = []; 
+          saveTransactions();
+        }
+      } else {
+        transactions = [];
+        saveTransactions();
+      }
+
+      const savedSession = localStorage.getItem(STORAGE_KEY_SESSION);
+      if (savedSession) {
+        try {
+          const parsed = JSON.parse(savedSession);
+          currentUser = users.find(u => u.username === parsed.username) || null;
+          if (currentUser) {
+            if (currentUser.role === 'owner') {
+              if (parsed.branchId && (branchesData[parsed.branchId] || parsed.branchId === 'all')) {
+                currentBranchId = parsed.branchId;
+              } else {
+                currentBranchId = 'snp_zamrud';
+              }
+            } else {
+              // MANAGER, KASIR & OPERATOR TERKUNCI PADA CABANG TUGAS MEREKA
+              currentBranchId = currentUser.assignedBranch || 'snp_zamrud';
+            }
+          }
+        } catch(e) { currentUser = null; }
+      }
+    }
+
+    function saveTransactions() {
+      localStorage.setItem(STORAGE_KEY_TX, JSON.stringify(transactions));
+    }
+
+    function saveUsers() {
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+    }
+
+    function saveBranchesData() {
+      localStorage.setItem(STORAGE_KEY_BRANCHES, JSON.stringify(branchesData));
+    }
+
+    function switchActiveBranch(branchId) {
+      // VALIDASI KEAMANAN: HANYA OWNER YANG BISA BERPINDAH CABANG ATAU KONSOLIDASI
+      if (currentUser && currentUser.role !== 'owner') {
+        currentBranchId = currentUser.assignedBranch || 'snp_zamrud';
+        showToast(`Akses Dibatasi: Anda hanya memiliki akses ke ${getBranchName(currentBranchId)}`, 'error');
+        applyBranchUI();
+        refreshData();
+        return;
+      }
+
+      currentBranchId = branchId;
+      if (currentUser) {
+        const session = JSON.parse(localStorage.getItem(STORAGE_KEY_SESSION) || '{}');
+        session.branchId = branchId;
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+      }
+      applyBranchUI();
+      refreshData();
+      showToast(`Beralih ke: ${getBranchName(branchId)}`, 'info');
+    }
+
+    function getBranchName(branchId) {
+      if (branchId === 'all') return 'Konsolidasi Gigin Swanto Enterprise';
+      return branchesData[branchId] ? branchesData[branchId].name : 'Cabang Usaha';
+    }
+
+    function getBranchShortName(branchId) {
+      if (branchId === 'all') return 'Konsolidasi Gigin Swanto Enterprise';
+      return branchesData[branchId] ? branchesData[branchId].shortName : 'Cabang';
+    }
+
+    function applyBranchUI() {
+      const headerSelect = document.getElementById('headerBranchSelect');
+      const headerLockedBadge = document.getElementById('headerBranchLockedBadge');
+      const lockedBranchNameText = document.getElementById('lockedBranchNameText');
+      const headerBranchLabel = document.getElementById('headerBranchLabel');
+
+      // PENGATURAN AKSES CABANG: OWNER VS MANAGER / STAF
+      if (currentUser && currentUser.role === 'owner') {
+        if (headerSelect) {
+          headerSelect.classList.remove('hidden');
+          headerSelect.value = currentBranchId;
+        }
+        if (headerLockedBadge) headerLockedBadge.classList.add('hidden');
+        if (headerBranchLabel) headerBranchLabel.innerText = 'Cabang (Owner):';
+      } else {
+        // MANAGER, KASIR, OPERATOR: CABANG TERKUNCI
+        if (currentUser) {
+          currentBranchId = currentUser.assignedBranch || 'snp_zamrud';
+        }
+        if (headerSelect) headerSelect.classList.add('hidden');
+        if (headerLockedBadge) {
+          headerLockedBadge.classList.remove('hidden');
+          if (lockedBranchNameText) lockedBranchNameText.innerText = getBranchShortName(currentBranchId);
+        }
+        if (headerBranchLabel) headerBranchLabel.innerText = 'Cabang Tugas:';
+      }
+
+      const headerStore = document.getElementById('headerStoreName');
+      const bannerTitle = document.getElementById('branchBannerTitle');
+      const bannerTag = document.getElementById('branchBannerTag');
+      const branchBadge = document.getElementById('txTableBranchBadge');
+      const btnIncLabel = document.getElementById('labelBtnIncome');
+      const btnExpLabel = document.getElementById('labelBtnExpense');
+
+      if (currentBranchId === 'all') {
+        if (headerStore) {
+          headerStore.innerHTML = 'KONSOLIDASI <span class="text-emerald-400">GIGIN SWANTO ENTERPRISE</span>';
+          headerStore.className = 'text-base sm:text-xl font-black tracking-tight text-white leading-tight';
+        }
+        if (bannerTitle) {
+          bannerTitle.innerHTML = '<span class="text-base sm:text-lg font-black text-white">🏢 Konsolidasi Gigin Swanto Enterprise</span> <span class="text-xs text-emerald-400 block font-semibold mt-0.5">(Gabungan 3 Cabang: Shop & Drive GW + SNAPRINT GW + SNAPRINT Zamrud)</span>';
+        }
+        if (bannerTag) bannerTag.innerText = 'KONSOLIDASI GIGIN SWANTO ENTERPRISE (SUPER OWNER)';
+        if (branchBadge) branchBadge.innerText = 'Konsolidasi Gigin Swanto Enterprise';
+        if (btnIncLabel) btnIncLabel.innerText = '+ CATAT PEMASUKAN';
+        if (btnExpLabel) btnExpLabel.innerText = '- CATAT PENGELUARAN';
+      } else {
+        const br = branchesData[currentBranchId] || branchesData.snp_zamrud;
+        if (headerStore) {
+          headerStore.innerText = br.name.toUpperCase();
+          headerStore.className = 'text-base sm:text-xl font-black tracking-tight text-white leading-tight';
+        }
+        
+        const isManagerOrStaff = currentUser && currentUser.role !== 'owner';
+        if (bannerTag) bannerTag.innerText = isManagerOrStaff ? `CABANG TUGAS ANDA (${currentUser.role.toUpperCase()})` : 'CABANG AKTIF';
+        if (bannerTitle) bannerTitle.innerText = `${br.badge} • ${br.tagline}`;
+        if (branchBadge) branchBadge.innerText = br.shortName;
+
+        if (currentBranchId === 'snd_gw') {
+          if (btnIncLabel) btnIncLabel.innerText = '+ CATAT PEMASUKAN (SERVICE / SPAREPART)';
+          if (btnExpLabel) btnExpLabel.innerText = '- CATAT PENGELUARAN (BIAYA / STOK)';
+        } else {
+          if (btnIncLabel) btnIncLabel.innerText = '+ CATAT PEMASUKAN (ORDER CETAK)';
+          if (btnExpLabel) btnExpLabel.innerText = '- CATAT PENGELUARAN (BIAYA / BAHAN)';
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    function confirmClearTodayData() {
+      const today = getTodayDateStr();
+      const currentList = currentBranchId === 'all' 
+        ? transactions.filter(t => t.date === today)
+        : transactions.filter(t => t.date === today && t.branchId === currentBranchId);
+      
+      if (currentList.length === 0) {
+        showToast('Data hari ini di cabang ini sudah 0 (kosong).', 'info');
+        return;
+      }
+
+      const branchName = currentBranchId === 'all' ? 'Semua Cabang' : getBranchName(currentBranchId);
+      if (confirm(`Kosongkan ${currentList.length} transaksi HARI INI untuk [${branchName}]? Saldo lalu tetap aman.`)) {
+        if (currentBranchId === 'all') {
+          transactions = transactions.filter(t => t.date !== today);
+        } else {
+          transactions = transactions.filter(t => !(t.date === today && t.branchId === currentBranchId));
+        }
+        saveTransactions();
+        refreshData();
+        showToast('Data hari ini berhasil dikosongkan!', 'success');
+      }
+    }
+
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const tabLoginBtn = document.getElementById('tabLoginBtn');
+      const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        tabLoginBtn.className = 'py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow';
+        tabRegisterBtn.className = 'py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white';
+      } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        tabRegisterBtn.className = 'py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow';
+        tabLoginBtn.className = 'py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white';
+      }
+    }
+
+    function quickFillLogin(u, p, branchId) {
+      document.getElementById('loginUsername').value = u;
+      document.getElementById('loginPassword').value = p;
+      if (branchId) {
+        document.getElementById('loginBranch').value = branchId;
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUsername').value.trim().toLowerCase();
+      const p = document.getElementById('loginPassword').value;
+      const selectedBranch = document.getElementById('loginBranch').value;
+
+      const found = users.find(user => user.username.toLowerCase() === u && user.passwordHash === p);
+      if (!found) {
+        showToast('Username atau password salah!', 'error');
+        return;
+      }
+
+      currentUser = found;
+
+      // PENEGAKAN HAK AKSES CABANG:
+      // Jika Owner: bisa buka cabang yang dipilih atau konsolidasi
+      // Jika Manager / Kasir / Operator: otomatis terkunci ke cabang tugasnya (assignedBranch)
+      let branchToOpen = selectedBranch;
+      if (found.role !== 'owner') {
+        branchToOpen = found.assignedBranch || 'snp_zamrud';
+        if (selectedBranch !== branchToOpen) {
+          showToast(`Info: Anda dialihkan ke cabang resmi tugas Anda: ${getBranchName(branchToOpen)}`, 'info');
+        }
+      }
+
+      currentBranchId = branchToOpen;
+      localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify({ 
+        username: found.username, 
+        branchId: branchToOpen,
+        loggedAt: new Date().toISOString() 
+      }));
+
+      showToast(`Selamat datang, ${found.fullName}! (${found.role === 'owner' ? '👑 Owner' : '👔 ' + getBranchShortName(branchToOpen)})`, 'success');
+      
+      applyAuthUI();
+      applyBranchUI();
+      refreshData();
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('regFullName').value.trim();
+      const username = document.getElementById('regUsername').value.trim().toLowerCase().replace(/\s+/g, '');
+      const role = document.getElementById('regRole').value;
+      const assignedBranch = (role === 'owner') ? 'all' : document.getElementById('regBranch').value;
+      const password = document.getElementById('regPassword').value;
+
+      if (username.length < 3) {
+        showToast('Username minimal 3 karakter!', 'error');
+        return;
+      }
+
+      if (users.some(u => u.username.toLowerCase() === username)) {
+        showToast('Username sudah ada, gunakan username lain!', 'error');
+        return;
+      }
+
+      const newUser = {
+        id: 'usr_' + Date.now(),
+        username,
+        fullName,
+        role,
+        assignedBranch,
+        passwordHash: password,
+        createdAt: getTodayDateStr()
+      };
+
+      users.push(newUser);
+      saveUsers();
+
+      showToast(`Pendaftaran berhasil! Ditugaskan di: ${getBranchName(assignedBranch)}`, 'success');
+      switchAuthTab('login');
+      quickFillLogin(username, password, assignedBranch === 'all' ? 'snp_zamrud' : assignedBranch);
+    }
+
+    function handleLogout() {
+      const uName = currentUser ? currentUser.fullName : 'Pengguna';
+      if (confirm(`Apakah Anda yakin ingin keluar dari akun (${uName})?`)) {
+        currentUser = null;
+        localStorage.removeItem(STORAGE_KEY_SESSION);
+
+        // Tutup semua modal yang mungkin sedang terbuka
+        const modalIds = ['settingModal', 'txModal', 'proofModal', 'receiptModal'];
+        modalIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+        });
+
+        // Kosongkan input kata sandi pada form login
+        const passInput = document.getElementById('loginPassword');
+        if (passInput) passInput.value = '';
+
+        applyAuthUI();
+        showToast('Anda telah berhasil keluar dari akun (Logout).', 'info');
+      }
+    }
+
+    function applyAuthUI() {
+      const authScreen = document.getElementById('authScreen');
+      if (!currentUser) {
+        authScreen.classList.remove('hidden');
+        return;
+      }
+      authScreen.classList.add('hidden');
+
+      document.getElementById('currentUserName').innerText = currentUser.fullName;
+      
+      const roleNames = {
+        owner: '👑 Owner (Akses Penuh)',
+        manager: `👔 Manager (${getBranchShortName(currentUser.assignedBranch)})`,
+        kasir: `💻 Kasir (${getBranchShortName(currentUser.assignedBranch)})`,
+        operator: `🛠️ Operator (${getBranchShortName(currentUser.assignedBranch)})`
+      };
+      document.getElementById('currentUserRoleBadge').innerText = roleNames[currentUser.role] || currentUser.role;
+
+      const btnOpenIncome = document.getElementById('btnOpenIncome');
+      if (currentUser.role === 'operator') {
+        btnOpenIncome.classList.add('hidden');
+      } else {
+        btnOpenIncome.classList.remove('hidden');
+      }
+
+      applyBranchUI();
+      lucide.createIcons();
+    }
+
+    /* =========================================================================
+       SEMUA RUMUS KEUANGAN MATEMATIS AKTIF 100% REAL-TIME (PER CABANG)
+       ========================================================================= */
+    function calculateMetrics() {
+      const today = getTodayDateStr();
+
+      // Filter Data Berdasarkan Cabang Aktif
+      const branchTx = currentBranchId === 'all' 
+        ? transactions 
+        : transactions.filter(t => t.branchId === currentBranchId);
+
+      // 1. RUMUS DIMENSI HARI INI (t = today)
+      const txToday = branchTx.filter(t => t.date === today);
+      const inToday = txToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const exToday = txToday.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const netToday = inToday - exToday;
+
+      // 2. RUMUS DIMENSI s/d KEMARIN (Saldo Awal, t < today)
+      const txPast = branchTx.filter(t => t.date < today);
+      const inPast = txPast.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const exPast = txPast.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const netPast = inPast - exPast;
+
+      // 3. RUMUS DIMENSI TOTAL KAS TOKO / KUMULATIF (Grand Total)
+      const inCum = inPast + inToday;
+      const exCum = exPast + exToday;
+      const netCum = inCum - exCum;
+      const totalTx = branchTx.length;
+
+      // Update Tampilan 3 Kartu Utama
+      document.getElementById('todayTxBadge').innerText = `${txToday.length} Transaksi`;
+      document.getElementById('todayIncome').innerText = formatRupiah(inToday);
+      document.getElementById('todayExpense').innerText = formatRupiah(exToday);
+      document.getElementById('todayNet').innerText = (netToday > 0 ? '+ ' : '') + formatRupiah(netToday);
+      document.getElementById('todayNet').className = `text-base font-extrabold ${netToday >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      document.getElementById('pastIncome').innerText = formatRupiah(inPast);
+      document.getElementById('pastExpense').innerText = formatRupiah(exPast);
+      document.getElementById('pastNet').innerText = formatRupiah(netPast);
+
+      document.getElementById('cumTxBadge').innerText = `${totalTx} Total`;
+      document.getElementById('cumIncome').innerText = formatRupiah(inCum);
+      document.getElementById('cumExpense').innerText = formatRupiah(exCum);
+      document.getElementById('cumNet').innerText = formatRupiah(netCum);
+      document.getElementById('cumNet').className = `text-lg font-black ${netCum >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      // 4. RUMUS SALURAN PEMBAYARAN & SUMBER DANA (Cash, QRIS, BCA)
+      const cashToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'cash');
+      const cashAll = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'cash');
+      const cInToday = cashToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const cOutToday = cashToday.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const cInAll = cashAll.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const cOutAll = cashAll.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+
+      document.getElementById('cashInToday').innerText = formatRupiah(cInToday);
+      document.getElementById('cashOutToday').innerText = formatRupiah(cOutToday);
+      document.getElementById('cashBalance').innerText = formatRupiah(cInAll - cOutAll);
+
+      const qrisToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'qris');
+      const qrisAll = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'qris');
+      const qInToday = qrisToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const qOutToday = qrisToday.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const qInAll = qrisAll.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const qOutAll = qrisAll.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+
+      document.getElementById('qrisInToday').innerText = formatRupiah(qInToday);
+      document.getElementById('qrisOutToday').innerText = formatRupiah(qOutToday);
+      document.getElementById('qrisBalance').innerText = formatRupiah(qInAll - qOutAll);
+
+      const bcaToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'bca');
+      const bcaAll = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'bca');
+      const bInToday = bcaToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const bOutToday = bcaToday.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const bInAll = bcaAll.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const bOutAll = bcaAll.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+
+      document.getElementById('bcaInToday').innerText = formatRupiah(bInToday);
+      document.getElementById('bcaOutToday').innerText = formatRupiah(bOutToday);
+      document.getElementById('bcaBalance').innerText = formatRupiah(bInAll - bOutAll);
+    }
+
+    function formatRupiah(num) {
+      return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+    }
+
+    function formatDateIndo(dateStr) {
+      if (!dateStr) return '-';
+      const [y, m, d] = dateStr.split('-');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      return `${d} ${months[parseInt(m, 10) - 1]} ${y}`;
+    }
+
+    function applyFilters() {
+      if (!currentUser) return;
+
+      const search = document.getElementById('filterSearch').value.toLowerCase();
+      const type = document.getElementById('filterType').value;
+      const method = document.getElementById('filterMethod').value;
+      const period = document.getElementById('filterPeriod').value;
+      const today = getTodayDateStr();
+
+      // Manager/Kasir/Operator hanya dapat melihat transaksi cabang mereka
+      let filtered = currentBranchId === 'all' 
+        ? [...transactions] 
+        : transactions.filter(t => t.branchId === currentBranchId);
+
+      if (currentUser.role === 'operator') {
+        filtered = filtered.filter(t => t.createdBy === currentUser.username);
+      }
+
+      if (type !== 'all') {
+        filtered = filtered.filter(t => t.type === type);
+      }
+
+      if (method !== 'all') {
+        filtered = filtered.filter(t => getPaymentChannel(t.paymentMethod) === method);
+      }
+
+      if (period === 'today') {
+        filtered = filtered.filter(t => t.date === today);
+      } else if (period === 'yesterday') {
+        filtered = filtered.filter(t => t.date < today);
+      } else if (period === 'this_month') {
+        const currentMonthPrefix = today.substring(0, 7);
+        filtered = filtered.filter(t => t.date.startsWith(currentMonthPrefix));
+      }
+
+      if (search) {
+        filtered = filtered.filter(t => 
+          (t.customer && t.customer.toLowerCase().includes(search)) ||
+          (t.notes && t.notes.toLowerCase().includes(search)) ||
+          (t.category && t.category.toLowerCase().includes(search)) ||
+          (t.paymentMethod && t.paymentMethod.toLowerCase().includes(search)) ||
+          (t.id && t.id.toLowerCase().includes(search))
+        );
+      }
+
+      filtered.sort((a, b) => (b.date + ' ' + (b.time || '00:00')).localeCompare(a.date + ' ' + (a.time || '00:00')));
+      renderTable(filtered);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('txTableBody');
+      const emptyState = document.getElementById('emptyTableState');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      let sumIn = 0;
+      let sumEx = 0;
+
+      data.forEach(t => {
+        if (t.type === 'pemasukan') sumIn += Number(t.amount || 0);
+        else sumEx += Number(t.amount || 0);
+
+        const isInc = t.type === 'pemasukan';
+        const channel = getPaymentChannel(t.paymentMethod);
+        
+        let badge = '💵 Tunai';
+        if (isInc) {
+          if (channel === 'qris') badge = '📱 QRIS';
+          else if (channel === 'bca') badge = '🏦 Transfer BCA';
+          else badge = '💵 Tunai';
+        } else {
+          if (channel === 'bca') badge = '🏦 Rekening BCA';
+          else badge = '💵 Cash';
+        }
+
+        const canDeleteOrEdit = (currentUser.role === 'owner' || currentUser.role === 'manager' || t.createdBy === currentUser.username);
+        const branchBadgeText = getBranchShortName(t.branchId);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-dark-input/50';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3">
+            <div class="font-bold text-white">${t.id}</div>
+            <div class="text-[10px] text-slate-400">${formatDateIndo(t.date)} ${t.time || ''}</div>
+          </td>
+          <td class="py-2.5 px-3">
+            <div class="font-bold text-slate-200 flex items-center gap-1.5">
+              <span>${escapeHtml(t.customer || '-')}</span>
+              ${t.proofImage ? `<span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[9px] font-bold border border-rose-500/30 flex items-center gap-0.5">📷 Bukti</span>` : ''}
+            </div>
+            <div class="text-[11px] text-slate-400 truncate max-w-xs">${escapeHtml(t.notes || '-')}</div>
+          </td>
+          <td class="py-2.5 px-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-dark-input border border-emerald-500/30 text-emerald-400">${branchBadgeText}</span>
+          </td>
+          <td class="py-2.5 px-3">
+            <span class="text-[11px] font-semibold text-slate-300">${escapeHtml(t.category)}</span>
+          </td>
+          <td class="py-2.5 px-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-dark-input border border-dark-border text-slate-300">${badge}</span>
+          </td>
+          <td class="py-2.5 px-3 text-right font-bold ${isInc ? 'text-emerald-400' : 'text-rose-400'}">
+            ${isInc ? '+' : '-'} ${formatRupiah(t.amount)}
+          </td>
+          <td class="py-2.5 px-3 text-center">
+            <div class="flex items-center justify-center gap-1.5">
+              ${t.proofImage ? `
+                <button onclick="openProofModal('${t.id}')" title="Lihat Foto Bukti Pengeluaran" class="px-2 py-1 rounded-lg bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 flex items-center gap-1 text-[10px] font-bold">
+                  <i data-lucide="image" class="w-3 h-3"></i> Bukti
+                </button>
+              ` : ''}
+              ${isInc ? `
+                <button onclick="openReceiptModal('${t.id}')" title="Cetak Nota" class="p-1 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20">
+                  <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                </button>
+              ` : ''}
+              ${canDeleteOrEdit ? `
+                <button onclick="deleteTransaction('${t.id}')" title="Hapus" class="p-1 rounded bg-rose-500/10 text-rose-400 hover:bg-rose-500/20">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('displayedCount').innerText = data.length;
+      document.getElementById('sumTableIncome').innerText = formatRupiah(sumIn);
+      document.getElementById('sumTableExpense').innerText = formatRupiah(sumEx);
+
+      lucide.createIcons();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+
+    // =========================================================================
+    // HANDLER UPLOAD FOTO BUKTI PENGELUARAN (KOMPRESI OTOMATIS)
+    // =========================================================================
+    function handleProofImageSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDimension = 1000;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDimension) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          currentProofBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+          document.getElementById('proofPreviewImg').src = currentProofBase64;
+          document.getElementById('proofPreviewContainer').classList.remove('hidden');
+          document.getElementById('btnRemoveProof').classList.remove('hidden');
+          document.getElementById('proofFileLabel').innerText = file.name;
+          document.getElementById('proofFileInfo').innerText = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+          lucide.createIcons();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeSelectedProof() {
+      currentProofBase64 = '';
+      document.getElementById('txProofFile').value = '';
+      document.getElementById('proofPreviewImg').src = '';
+      document.getElementById('proofPreviewContainer').classList.add('hidden');
+      document.getElementById('btnRemoveProof').classList.add('hidden');
+      document.getElementById('proofFileLabel').innerText = 'Klik / Foto Struk Nota Pengeluaran';
+    }
+
+    function openProofModal(txId) {
+      const tx = transactions.find(t => t.id === txId);
+      if (!tx || !tx.proofImage) return;
+
+      document.getElementById('proofModalSubtitle').innerText = `No Invoice: ${tx.id} • ${formatDateIndo(tx.date)} ${tx.time || ''}`;
+      document.getElementById('proofBranch').innerText = getBranchName(tx.branchId);
+      document.getElementById('proofCust').innerText = tx.customer || '-';
+      document.getElementById('proofCategory').innerText = tx.category || '-';
+      document.getElementById('proofMethod').innerText = tx.paymentMethod || '-';
+      document.getElementById('proofAmount').innerText = formatRupiah(tx.amount);
+      document.getElementById('proofNotes').innerText = tx.notes || '-';
+      
+      const img = document.getElementById('proofFullImg');
+      img.src = tx.proofImage;
+      
+      const dl = document.getElementById('proofDownloadLink');
+      dl.href = tx.proofImage;
+      dl.download = `Bukti_${tx.id}_${tx.date}.jpg`;
+
+      document.getElementById('proofModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // MODAL INPUT TRANSAKSI (SESUAI CABANG & KATEGORI CABANG)
+    // =========================================================================
+    function openTransactionModal(type) {
+      if (!currentUser) return;
+
+      const modal = document.getElementById('txModal');
+      const title = document.getElementById('txModalTitle');
+      const branchLabel = document.getElementById('txModalBranchName');
+      const branchSelect = document.getElementById('txBranch');
+      const custLabel = document.getElementById('txCustomerLabel');
+      const methodLabel = document.getElementById('txPaymentMethodLabel');
+      const methodSelect = document.getElementById('txPaymentMethod');
+      const typeInput = document.getElementById('txType');
+      const btnSubmit = document.getElementById('btnSubmitTx');
+      const proofWrapper = document.getElementById('txProofWrapper');
+
+      typeInput.value = type;
+      removeSelectedProof();
+
+      // Penentuan Cabang Transaksi:
+      // Non-owner terkunci ke cabang tugasnya.
+      let defaultBranch = (currentBranchId === 'all') ? 'snp_zamrud' : currentBranchId;
+      if (currentUser.role !== 'owner') {
+        defaultBranch = currentUser.assignedBranch || 'snp_zamrud';
+        branchSelect.value = defaultBranch;
+        branchSelect.disabled = true; // Kunci pilihan cabang untuk non-owner
+      } else {
+        branchSelect.disabled = false;
+        branchSelect.value = defaultBranch;
+      }
+
+      branchLabel.innerText = `Cabang: ${getBranchName(defaultBranch)}`;
+
+      branchSelect.onchange = function() {
+        populateCategoriesForBranch(this.value, type);
+        branchLabel.innerText = `Cabang: ${getBranchName(this.value)}`;
+      };
+
+      if (type === 'pemasukan') {
+        title.innerText = 'Catat Pemasukan (Order / Penjualan)';
+        custLabel.innerText = 'Nama Pelanggan / Nopol Kendaraan';
+        methodLabel.innerText = 'Cara Pembayaran';
+        btnSubmit.className = 'px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow flex items-center gap-1.5';
+        proofWrapper.classList.add('hidden');
+
+        methodSelect.innerHTML = '';
+        const optionsIn = [
+          { val: 'Tunai', text: '💵 Tunai (Cash)' },
+          { val: 'QRIS', text: '📱 QRIS' },
+          { val: 'Transfer BCA', text: '🏦 Transfer BCA' }
+        ];
+        optionsIn.forEach(o => {
+          const opt = document.createElement('option');
+          opt.value = o.val;
+          opt.innerText = o.text;
+          methodSelect.appendChild(opt);
+        });
+
+      } else {
+        title.innerText = 'Catat Pengeluaran (Biaya / Belanja Stok)';
+        custLabel.innerText = 'Penerima / Toko / Supplier';
+        methodLabel.innerText = 'Sumber Dana';
+        btnSubmit.className = 'px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow flex items-center gap-1.5';
+        proofWrapper.classList.remove('hidden');
+
+        methodSelect.innerHTML = '';
+        const optionsEx = [
+          { val: 'Cash', text: '💵 Cash (Uang Kas Toko / Petty Cash)' },
+          { val: 'Rekening BCA', text: '🏦 Rekening BCA' }
+        ];
+        optionsEx.forEach(o => {
+          const opt = document.createElement('option');
+          opt.value = o.val;
+          opt.innerText = o.text;
+          methodSelect.appendChild(opt);
+        });
+      }
+
+      populateCategoriesForBranch(defaultBranch, type);
+
+      const now = new Date();
+      document.getElementById('txId').value = '';
+      document.getElementById('txDate').value = getTodayDateStr();
+      document.getElementById('txTime').value = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('txCustomer').value = '';
+      document.getElementById('txNotes').value = '';
+      document.getElementById('txAmount').value = '';
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function populateCategoriesForBranch(branchId, type) {
+      const catSelect = document.getElementById('txCategory');
+      catSelect.innerHTML = '';
+      const br = branchesData[branchId] || branchesData.snp_zamrud;
+      const categories = type === 'pemasukan' ? br.incomeCategories : br.expenseCategories;
+
+      categories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.innerText = c;
+        catSelect.appendChild(opt);
+      });
+    }
+
+    function handleSaveTransaction(e) {
+      e.preventDefault();
+      let branchId = document.getElementById('txBranch').value;
+      if (currentUser.role !== 'owner') {
+        branchId = currentUser.assignedBranch || 'snp_zamrud';
+      }
+
+      const type = document.getElementById('txType').value;
+      const date = document.getElementById('txDate').value;
+      const time = document.getElementById('txTime').value;
+      const customer = document.getElementById('txCustomer').value.trim();
+      const category = document.getElementById('txCategory').value;
+      const paymentMethod = document.getElementById('txPaymentMethod').value;
+      const notes = document.getElementById('txNotes').value.trim();
+      const amount = Number(document.getElementById('txAmount').value);
+
+      if (amount <= 0) {
+        showToast('Nominal harus lebih dari 0!', 'error');
+        return;
+      }
+
+      const countToday = transactions.filter(t => t.date === date && t.branchId === branchId).length + 1;
+      const dateCode = date.replace(/-/g, '').substring(2);
+      
+      let prefix = 'SNP';
+      if (branchId === 'snd_gw') prefix = 'SND-GW';
+      else if (branchId === 'snp_gw') prefix = 'SNP-GW';
+      else prefix = 'SNP-ZMR';
+
+      const newId = `${prefix}-${dateCode}-${String(countToday).padStart(4, '0')}`;
+
+      const newTx = {
+        id: newId,
+        branchId,
+        type,
+        date,
+        time,
+        customer,
+        category,
+        paymentMethod,
+        notes,
+        amount,
+        proofImage: type === 'pengeluaran' ? (currentProofBase64 || null) : null,
+        createdBy: currentUser.username,
+        createdByName: currentUser.fullName
+      };
+
+      transactions.push(newTx);
+      saveTransactions();
+      closeModal('txModal');
+      refreshData();
+      showToast(`Transaksi berhasil disimpan di ${getBranchShortName(branchId)}!`, 'success');
+
+      if (type === 'pemasukan' && currentUser.role === 'kasir') {
+        setTimeout(() => openReceiptModal(newTx.id), 400);
+      }
+    }
+
+    function deleteTransaction(id) {
+      const item = transactions.find(t => t.id === id);
+      if (!item) return;
+      if (confirm(`Hapus transaksi ${item.id} (${formatRupiah(item.amount)})?`)) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveTransactions();
+        refreshData();
+        showToast('Transaksi berhasil dihapus & saldo diperbarui!', 'info');
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function openReceiptModal(txId) {
+      const tx = transactions.find(t => t.id === txId);
+      if (!tx) return;
+
+      const br = branchesData[tx.branchId] || branchesData.snp_zamrud;
+
+      document.getElementById('rcpStoreName').innerText = br.name;
+      document.getElementById('rcpStoreTagline').innerText = br.tagline;
+      document.getElementById('rcpStorePhone').innerText = 'Telp/WA: ' + br.phone;
+      document.getElementById('rcpStoreFooter').innerText = br.footer;
+
+      document.getElementById('rcpInvoice').innerText = tx.id;
+      document.getElementById('rcpBranch').innerText = br.name;
+      document.getElementById('rcpDate').innerText = `${formatDateIndo(tx.date)} ${tx.time || ''}`;
+      document.getElementById('rcpCustomer').innerText = tx.customer || 'Pelanggan Umum';
+      document.getElementById('rcpCashier').innerText = tx.createdByName || 'Kasir';
+      document.getElementById('rcpCategory').innerText = tx.category;
+      document.getElementById('rcpNotes').innerText = tx.notes || '-';
+      
+      const rcpLabel = document.getElementById('rcpMethodLabel');
+      if (rcpLabel) rcpLabel.innerText = tx.type === 'pengeluaran' ? 'Sumber Dana:' : 'Metode Pembayaran:';
+
+      document.getElementById('rcpMethod').innerText = tx.paymentMethod || 'Tunai';
+      document.getElementById('rcpTotal').innerText = formatRupiah(tx.amount);
+
+      document.getElementById('receiptModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    /* =========================================================
+       SETTINGS LOGIC & MODAL PER CABANG
+       ========================================================= */
+    let settingActiveBranchId = 'snp_zamrud';
+
+    function openSettingModal() {
+      if (!currentUser) return;
+
+      const settingBranchSelect = document.getElementById('settingBranchSelect');
+      if (currentUser.role === 'owner') {
+        settingActiveBranchId = (currentBranchId === 'all') ? 'snp_zamrud' : currentBranchId;
+        settingBranchSelect.disabled = false;
+      } else {
+        settingActiveBranchId = currentUser.assignedBranch || 'snp_zamrud';
+        settingBranchSelect.disabled = true; // Kunci pengaturan cabang untuk Manager/Staf
+      }
+      settingBranchSelect.value = settingActiveBranchId;
+
+      loadBranchSettings(settingActiveBranchId);
+
+      document.getElementById('setSecUsername').innerText = '@' + currentUser.username;
+      document.getElementById('setOldPass').value = '';
+      document.getElementById('setNewPass').value = '';
+
+      const ownerSection = document.getElementById('setSecOwnerUsers');
+      const ownerRestore = document.getElementById('setSecOwnerRestore');
+      const resetDbWrapper = document.getElementById('setResetDbWrapper');
+
+      if (currentUser.role === 'owner') {
+        ownerSection.classList.remove('hidden');
+        ownerRestore.classList.remove('hidden');
+        resetDbWrapper.classList.remove('hidden');
+        renderSettingUserTable();
+      } else {
+        ownerSection.classList.add('hidden');
+        ownerRestore.classList.add('hidden');
+        resetDbWrapper.classList.add('hidden');
+      }
+
+      populateChecklistUserSelect();
+      switchSettingTab('store');
+      document.getElementById('settingModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function loadBranchSettings(branchId) {
+      settingActiveBranchId = branchId;
+      const br = branchesData[branchId] || branchesData.snp_zamrud;
+
+      document.getElementById('setStoreName').value = br.name;
+      document.getElementById('setStoreTagline').value = br.tagline;
+      document.getElementById('setStorePhone').value = br.phone;
+      document.getElementById('setStoreFooter').value = br.footer;
+
+      document.getElementById('setBcaNumber').value = br.bcaNumber || '';
+      document.getElementById('setBcaHolder').value = br.bcaHolder || '';
+
+      renderCategoryLists();
+    }
+
+    function switchSettingTab(tab) {
+      const tabs = ['store', 'bank', 'categories', 'roles', 'security', 'database'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('setTab' + capitalize(t));
+        const sec = document.getElementById('setSection' + capitalize(t));
+        if (t === tab) {
+          if (btn) btn.className = 'setting-tab active px-3 py-1.5 rounded-lg font-bold text-white transition-all flex items-center gap-1.5 shadow';
+          if (sec) sec.classList.remove('hidden');
+        } else {
+          if (btn) btn.className = 'setting-tab px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5';
+          if (sec) sec.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    function saveStoreSettings() {
+      const br = branchesData[settingActiveBranchId];
+      if (!br) return;
+
+      br.name = document.getElementById('setStoreName').value.trim() || br.name;
+      br.tagline = document.getElementById('setStoreTagline').value.trim() || br.tagline;
+      br.phone = document.getElementById('setStorePhone').value.trim() || br.phone;
+      br.footer = document.getElementById('setStoreFooter').value.trim() || br.footer;
+      
+      saveBranchesData();
+      applyBranchUI();
+      showToast(`Profil cabang [${br.shortName}] berhasil disimpan!`, 'success');
+    }
+
+    function saveBankSettings() {
+      const br = branchesData[settingActiveBranchId];
+      if (!br) return;
+
+      br.bcaNumber = document.getElementById('setBcaNumber').value.trim();
+      br.bcaHolder = document.getElementById('setBcaHolder').value.trim();
+
+      saveBranchesData();
+      showToast(`Rekening BCA [${br.shortName}] berhasil disimpan!`, 'success');
+    }
+
+    function renderCategoryLists() {
+      const inList = document.getElementById('incomeCatList');
+      const exList = document.getElementById('expenseCatList');
+      if (!inList || !exList) return;
+
+      const br = branchesData[settingActiveBranchId] || branchesData.snp_zamrud;
+
+      inList.innerHTML = '';
+      br.incomeCategories.forEach((c, idx) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-1.5 rounded bg-dark-card text-slate-200 text-[11px]';
+        li.innerHTML = `<span>${escapeHtml(c)}</span><button onclick="removeCategory('pemasukan', ${idx})" class="text-rose-400 hover:text-rose-300 font-bold px-1">✕</button>`;
+        inList.appendChild(li);
+      });
+
+      exList.innerHTML = '';
+      br.expenseCategories.forEach((c, idx) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-1.5 rounded bg-dark-card text-slate-200 text-[11px]';
+        li.innerHTML = `<span>${escapeHtml(c)}</span><button onclick="removeCategory('pengeluaran', ${idx})" class="text-rose-400 hover:text-rose-300 font-bold px-1">✕</button>`;
+        exList.appendChild(li);
+      });
+    }
+
+    function addCustomCategory(type) {
+      const br = branchesData[settingActiveBranchId];
+      if (!br) return;
+
+      if (type === 'pemasukan') {
+        const inp = document.getElementById('newIncomeCat');
+        const val = inp.value.trim();
+        if (val && !br.incomeCategories.includes(val)) {
+          br.incomeCategories.push(val);
+          inp.value = '';
+          saveBranchesData();
+          renderCategoryLists();
+          showToast('Kategori pemasukan ditambahkan!', 'success');
+        }
+      } else {
+        const inp = document.getElementById('newExpenseCat');
+        const val = inp.value.trim();
+        if (val && !br.expenseCategories.includes(val)) {
+          br.expenseCategories.push(val);
+          inp.value = '';
+          saveBranchesData();
+          renderCategoryLists();
+          showToast('Kategori pengeluaran ditambahkan!', 'success');
+        }
+      }
+    }
+
+    function removeCategory(type, idx) {
+      const br = branchesData[settingActiveBranchId];
+      if (!br) return;
+
+      if (type === 'pemasukan') {
+        if (br.incomeCategories.length <= 1) {
+          showToast('Minimal harus ada 1 kategori!', 'error');
+          return;
+        }
+        br.incomeCategories.splice(idx, 1);
+      } else {
+        if (br.expenseCategories.length <= 1) {
+          showToast('Minimal harus ada 1 kategori!', 'error');
+          return;
+        }
+        br.expenseCategories.splice(idx, 1);
+      }
+      saveBranchesData();
+      renderCategoryLists();
+      showToast('Kategori dihapus!', 'info');
+    }
+
+    function handleChangePassword() {
+      const oldP = document.getElementById('setOldPass').value;
+      const newP = document.getElementById('setNewPass').value;
+
+      if (currentUser.passwordHash !== oldP) {
+        showToast('Password lama Anda salah!', 'error');
+        return;
+      }
+
+      if (newP.length < 4) {
+        showToast('Password baru minimal 4 karakter!', 'error');
+        return;
+      }
+
+      currentUser.passwordHash = newP;
+      const uIdx = users.findIndex(u => u.username === currentUser.username);
+      if (uIdx !== -1) users[uIdx].passwordHash = newP;
+      saveUsers();
+
+      document.getElementById('setOldPass').value = '';
+      document.getElementById('setNewPass').value = '';
+      showToast('Kata sandi berhasil diperbarui!', 'success');
+    }
+
+    function renderSettingUserTable() {
+      const tbody = document.getElementById('settingUserTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      users.forEach(u => {
+        const isSelf = currentUser && u.username === currentUser.username;
+        const roleLabels = { owner: '👑 Owner', manager: '👔 Manager', kasir: '💻 Kasir', operator: '🛠️ Operator' };
+        const branchDisplay = u.assignedBranch === 'all' ? '🏢 Semua Cabang' : getBranchShortName(u.assignedBranch);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-dark-card/50';
+        tr.innerHTML = `
+          <td class="py-2 px-1.5"><strong>${escapeHtml(u.fullName)}</strong><br><span class="text-slate-500">@${escapeHtml(u.username)}</span></td>
+          <td class="py-2 px-1.5 text-emerald-400 font-bold">${roleLabels[u.role] || u.role}</td>
+          <td class="py-2 px-1.5 text-sky-400 font-semibold">${branchDisplay}</td>
+          <td class="py-2 px-1.5 text-right">
+            ${isSelf ? '<span class="text-slate-500 font-bold">Akun Anda</span>' : `
+              <div class="flex items-center justify-end gap-1">
+                <button onclick="changeRolePrompt('${u.id}')" class="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded font-bold hover:bg-emerald-500/20">Role</button>
+                <button onclick="changeBranchPrompt('${u.id}')" class="px-2 py-0.5 bg-sky-500/10 text-sky-300 rounded font-bold hover:bg-sky-500/20">Cabang</button>
+              </div>
+            `}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function changeRolePrompt(userId) {
+      const u = users.find(x => x.id === userId);
+      if (!u) return;
+      const r = prompt(`Ubah jabatan untuk ${u.fullName}\n(Pilihan: owner / manager / kasir / operator):`, u.role);
+      if (r && ['owner', 'manager', 'kasir', 'operator'].includes(r.toLowerCase())) {
+        u.role = r.toLowerCase();
+        if (u.role === 'owner') u.assignedBranch = 'all';
+        saveUsers();
+        renderSettingUserTable();
+        populateChecklistUserSelect();
+        showToast('Jabatan berhasil diubah & ceklist hak akses diperbarui!', 'success');
+      }
+    }
+
+    function changeBranchPrompt(userId) {
+      const u = users.find(x => x.id === userId);
+      if (!u) return;
+      const b = prompt(`Ubah Cabang Penugasan untuk ${u.fullName}\nKetik kode cabang:\n- snd_gw (Shop & Drive Grand Wisata)\n- snp_gw (SNAPRINT Grand Wisata)\n- snp_zamrud (SNAPRINT Zamrud)\n- all (Semua Cabang - Khusus Owner)`, u.assignedBranch);
+      if (b && ['snd_gw', 'snp_gw', 'snp_zamrud', 'all'].includes(b.toLowerCase())) {
+        u.assignedBranch = b.toLowerCase();
+        saveUsers();
+        renderSettingUserTable();
+        populateChecklistUserSelect();
+        showToast(`Cabang penugasan ${u.fullName} berhasil diubah ke: ${getBranchName(u.assignedBranch)}!`, 'success');
+      }
+    }
+
+    // =========================================================================
+    // MODUL CEKLIST HAK AKSES PER USER INDIVIDUAL
+    // =========================================================================
+    function populateChecklistUserSelect() {
+      const select = document.getElementById('checklistUserSelect');
+      if (!select) return;
+      const currentSelected = select.value;
+      select.innerHTML = '';
+
+      users.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        const roleIcon = u.role === 'owner' ? '👑' : u.role === 'manager' ? '👔' : u.role === 'kasir' ? '💻' : '🛠️';
+        const branchShort = u.assignedBranch === 'all' ? 'Semua Cabang' : getBranchShortName(u.assignedBranch);
+        opt.innerText = `${roleIcon} ${u.fullName} (@${u.username}) - [${branchShort}]`;
+        if (currentSelected ? u.id === currentSelected : (currentUser && u.id === currentUser.id)) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+
+      const selectedId = select.value || (users[0] ? users[0].id : null);
+      if (selectedId) {
+        renderUserPermissionChecklist(selectedId);
+      }
+    }
+
+    function renderUserPermissionChecklist(userId) {
+      const container = document.getElementById('userPermissionChecklistContainer');
+      if (!container) return;
+
+      const u = users.find(x => x.id === userId) || currentUser;
+      if (!u) {
+        container.innerHTML = '<p class="text-slate-400 text-xs">Pilih akun pengguna di atas.</p>';
+        return;
+      }
+
+      const isOwner = u.role === 'owner';
+      const isManager = u.role === 'manager';
+      const isKasir = u.role === 'kasir';
+      const isOperator = u.role === 'operator';
+
+      const roleBadge = isOwner ? '👑 Owner / Super Admin' : isManager ? '👔 Manager Cabang' : isKasir ? '💻 Kasir Harian' : '🛠️ Operator Produksi/Mekanik';
+      const roleColor = isOwner ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' : isManager ? 'text-sky-400 border-sky-500/30 bg-sky-500/10' : isKasir ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-purple-400 border-purple-500/30 bg-purple-500/10';
+      const branchDisplay = u.assignedBranch === 'all' ? '🏢 Akses Semua Cabang & Konsolidasi' : `📍 Cabang Resmi: ${getBranchName(u.assignedBranch)}`;
+
+      // Matrix Rules for this specific user
+      const permissions = [
+        {
+          group: '🏢 1. Akses Cabang & Dashboard',
+          items: [
+            {
+              name: 'Dashboard Shop & Drive Grand Wisata',
+              allowed: isOwner || u.assignedBranch === 'snd_gw',
+              note: isOwner ? 'Akses Penuh Owner' : u.assignedBranch === 'snd_gw' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
+            },
+            {
+              name: 'Dashboard SNAPRINT Grand Wisata',
+              allowed: isOwner || u.assignedBranch === 'snp_gw',
+              note: isOwner ? 'Akses Penuh Owner' : u.assignedBranch === 'snp_gw' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
+            },
+            {
+              name: 'Dashboard SNAPRINT Zamrud',
+              allowed: isOwner || u.assignedBranch === 'snp_zamrud',
+              note: isOwner ? 'Akses Penuh Owner' : u.assignedBranch === 'snp_zamrud' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
+            },
+            {
+              name: 'Laporan Konsolidasi Gabungan (3 Cabang)',
+              allowed: isOwner,
+              note: isOwner ? 'Hak Eksklusif Owner' : 'Dibatasi (Hanya untuk Owner)'
+            }
+          ]
+        },
+        {
+          group: '💰 2. Pencatatan Transaksi & Keuangan',
+          items: [
+            {
+              name: 'Catat Pemasukan (Order Cetak / Service Baru)',
+              allowed: !isOperator,
+              note: !isOperator ? 'Diizinkan' : 'Dibatasi (Operator fokus pada stok/biaya)'
+            },
+            {
+              name: 'Catat Pengeluaran (Biaya / Pembelian Bahan/Stok)',
+              allowed: true,
+              note: 'Diizinkan untuk semua jabatan'
+            },
+            {
+              name: 'Upload Foto Bukti Struk Pengeluaran (Nota)',
+              allowed: true,
+              note: 'Fitur aktif (Auto-kompresi gambar)'
+            },
+            {
+              name: 'Void / Hapus Transaksi',
+              allowed: true,
+              note: isOwner ? 'Bisa hapus semua transaksi cabang mana pun' : isManager ? 'Bisa hapus transaksi di cabangnya' : 'Hanya bisa hapus transaksi inputan sendiri'
+            }
+          ]
+        },
+        {
+          group: '🧾 3. Modul Kasir, Struk & Laporan Keuangan',
+          items: [
+            {
+              name: 'Cetak Nota Struk Kasir (Thermal Receipt)',
+              allowed: !isOperator,
+              note: isKasir ? 'Otomatis saat simpan pesanan' : !isOperator ? 'Diizinkan' : 'Dibatasi'
+            },
+            {
+              name: 'Cetak Laporan Keuangan Format A4',
+              allowed: isOwner || isManager || isKasir,
+              note: isOwner ? 'Format Semua Cabang & Konsolidasi' : 'Format Cabang Tugas'
+            },
+            {
+              name: 'Download Laporan Keuangan Excel (.csv)',
+              allowed: isOwner || isManager || isKasir,
+              note: isOwner ? 'Data Semua Cabang' : 'Data Cabang Tugas'
+            }
+          ]
+        },
+        {
+          group: '⚙️ 4. Pengaturan Sistem & Database',
+          items: [
+            {
+              name: 'Pengaturan Profil Cabang, Kontak & Rekening BCA',
+              allowed: isOwner || isManager,
+              note: isOwner ? 'Semua Cabang' : isManager ? 'Cabang Tugas Sendiri' : 'Dibatasi untuk Kasir/Operator'
+            },
+            {
+              name: 'Kelola Kategori Produk & Biaya Cabang',
+              allowed: isOwner || isManager,
+              note: isOwner ? 'Semua Cabang' : isManager ? 'Cabang Tugas Sendiri' : 'Dibatasi untuk Kasir/Operator'
+            },
+            {
+              name: 'Kelola Akun Tim & Mutasi Cabang Penugasan Staf',
+              allowed: isOwner,
+              note: isOwner ? 'Hak Eksklusif Owner' : 'Dibatasi (Hanya Owner)'
+            },
+            {
+              name: 'Download File Backup Database JSON',
+              allowed: isOwner || isManager,
+              note: 'Diizinkan'
+            },
+            {
+              name: 'Pulihkan Data (Restore) & Reset Transaksi Global',
+              allowed: isOwner,
+              note: isOwner ? 'Hak Eksklusif Owner' : 'Dibatasi (Hanya Owner)'
+            }
+          ]
+        }
+      ];
+
+      let html = `
+        <div class="p-3 rounded-xl bg-dark-card border border-dark-border mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-dark-input border border-dark-border flex items-center justify-center text-base font-bold">
+              ${isOwner ? '👑' : isManager ? '👔' : isKasir ? '💻' : '🛠️'}
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-black text-white text-xs">${escapeHtml(u.fullName)}</span>
+                <span class="text-[10px] text-slate-400">(@${escapeHtml(u.username)})</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-0.5">${branchDisplay}</p>
+            </div>
+          </div>
+          <div>
+            <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border ${roleColor} block text-center">
+              ${roleBadge}
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+      `;
+
+      permissions.forEach(grp => {
+        html += `
+          <div class="p-3 rounded-xl bg-dark-card border border-dark-border space-y-2">
+            <h5 class="font-extrabold text-slate-200 text-[11px] pb-1 border-b border-dark-border flex items-center justify-between">
+              <span>${grp.group}</span>
+            </h5>
+            <div class="space-y-1.5">
+        `;
+
+        grp.items.forEach(item => {
+          const checkIcon = item.allowed 
+            ? `<span class="w-4 h-4 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-bold text-[10px]">✓</span>`
+            : `<span class="w-4 h-4 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center font-bold text-[10px]">✕</span>`;
+          
+          const statusBadge = item.allowed
+            ? `<span class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[9px] font-bold">✓ Diizinkan</span>`
+            : `<span class="px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[9px] font-bold">✕ Terkunci</span>`;
+
+          html += `
+            <div class="p-1.5 rounded-lg ${item.allowed ? 'bg-dark-input/60 border border-dark-border/40' : 'bg-dark-input/20 opacity-75 border border-dark-border/20'} flex items-start justify-between gap-1.5">
+              <div class="flex items-start gap-1.5">
+                <div class="mt-0.5">${checkIcon}</div>
+                <div>
+                  <span class="font-semibold text-[11px] ${item.allowed ? 'text-slate-200' : 'text-slate-400'}">${item.name}</span>
+                  <p class="text-[9px] text-slate-500">${item.note}</p>
+                </div>
+              </div>
+              <div class="shrink-0">${statusBadge}</div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function downloadBackupJSON() {
+      const backupData = {
+        app: 'GIGIN SWANTO ENTERPRISE',
+        exportedAt: new Date().toISOString(),
+        branches: branchesData,
+        users,
+        transactions
+      };
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `BACKUP_MULTICABANG_${getTodayDateStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('File backup 3 cabang berhasil diunduh!', 'success');
+    }
+
+    function handleRestoreJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const data = JSON.parse(event.target.result);
+          if (data.transactions) { transactions = data.transactions; saveTransactions(); }
+          if (data.users) { users = data.users; saveUsers(); }
+          if (data.branches) { branchesData = { ...DEFAULT_BRANCHES, ...data.branches }; saveBranchesData(); }
+          refreshData();
+          applyBranchUI();
+          closeModal('settingModal');
+          showToast('Data 3 cabang berhasil dipulihkan dari backup!', 'success');
+        } catch(err) {
+          showToast('File backup tidak valid!', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearAllTransactionsData() {
+      if (confirm('PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH transaksi di 3 cabang? Semua saldo akan kembali ke Rp 0.')) {
+        transactions = [];
+        saveTransactions();
+        refreshData();
+        closeModal('settingModal');
+        showToast('Seluruh data transaksi di semua cabang telah dihapus (Rp 0)!', 'info');
+      }
+    }
+
+    function exportToExcel() {
+      let csv = 'data:text/csv;charset=utf-8,';
+      csv += `LAPORAN KEUANGAN - ${getBranchName(currentBranchId).toUpperCase()}\r\n`;
+      csv += `Tanggal: ${getTodayDateStr()}\r\n\r\n`;
+      csv += 'No Invoice,Cabang,Tanggal,Pelanggan/Keterangan,Kategori,Tipe,Cara Bayar / Sumber Dana,Nominal (Rp),Petugas,Catatan\r\n';
+
+      const dataToExport = currentBranchId === 'all' 
+        ? transactions 
+        : transactions.filter(t => t.branchId === currentBranchId);
+
+      dataToExport.forEach(t => {
+        const brName = getBranchShortName(t.branchId);
+        csv += `"${t.id}","${brName}","${t.date}","${(t.customer||'').replace(/"/g,'""')}","${t.category}","${t.type.toUpperCase()}","${t.paymentMethod||'Tunai'}",${t.amount},"${t.createdByName||''}","${(t.notes||'').replace(/"/g,'""')}"\r\n`;
+      });
+
+      const link = document.createElement('a');
+      link.setAttribute('href', encodeURI(csv));
+      link.setAttribute('download', `Laporan_Keuangan_${currentBranchId}_${getTodayDateStr()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Laporan Excel berhasil diunduh!', 'success');
+    }
+
+    function printFinancialReport() {
+      const today = getTodayDateStr();
+      const brTitle = currentBranchId === 'all' ? 'KONSOLIDASI GIGIN SWANTO ENTERPRISE' : getBranchName(currentBranchId).toUpperCase();
+      
+      document.getElementById('printStoreTitle').innerText = brTitle;
+      document.getElementById('printBranchSubtitle').innerText = currentBranchId === 'all' ? 'Laporan Keuangan Konsolidasi Seluruh Cabang Usaha' : `Cabang: ${getBranchName(currentBranchId)}`;
+      document.getElementById('printReportDate').innerText = `Dicetak pada: ${formatDateIndo(today)} oleh ${currentUser ? currentUser.fullName : 'Petugas'}`;
+
+      const branchTx = currentBranchId === 'all' 
+        ? transactions 
+        : transactions.filter(t => t.branchId === currentBranchId);
+
+      const txToday = branchTx.filter(t => t.date === today);
+      const inToday = txToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const exToday = txToday.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+
+      const txPast = branchTx.filter(t => t.date < today);
+      const inPast = txPast.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const exPast = txPast.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
+
+      const inCum = inPast + inToday;
+      const exCum = exPast + exToday;
+
+      document.getElementById('printSummaryTableBody').innerHTML = `
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 6px; font-weight: bold;">HARI INI (${formatDateIndo(today)})</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #047857;">${formatRupiah(inToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #b91c1c;">${formatRupiah(exToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right; font-weight: bold;">${formatRupiah(inToday - exToday)}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 6px; font-weight: bold;">s/d KEMARIN (Saldo Awal)</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right;">${formatRupiah(inPast)}</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right;">${formatRupiah(exPast)}</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right; font-weight: bold;">${formatRupiah(inPast - exPast)}</td>
+        </tr>
+        <tr style="background: #fdfdfd; font-weight: bold;">
+          <td style="border: 1px solid #ccc; padding: 6px;">TOTAL KAS (KUMULATIF)</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #047857;">${formatRupiah(inCum)}</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #b91c1c;">${formatRupiah(exCum)}</td>
+          <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #1d4ed8;">${formatRupiah(inCum - exCum)}</td>
+        </tr>
+      `;
+
+      const cashAll = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'cash');
+      const qrisAll = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'qris');
+      const bcaAll = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'bca');
+
+      const cInToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'cash' && t.type === 'pemasukan').reduce((s,t)=>s+Number(t.amount||0),0);
+      const cOutToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'cash' && t.type === 'pengeluaran').reduce((s,t)=>s+Number(t.amount||0),0);
+      const cNet = cashAll.filter(t=>t.type==='pemasukan').reduce((s,t)=>s+Number(t.amount||0),0) - cashAll.filter(t=>t.type==='pengeluaran').reduce((s,t)=>s+Number(t.amount||0),0);
+
+      const qInToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'qris' && t.type === 'pemasukan').reduce((s,t)=>s+Number(t.amount||0),0);
+      const qOutToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'qris' && t.type === 'pengeluaran').reduce((s,t)=>s+Number(t.amount||0),0);
+      const qNet = qrisAll.filter(t=>t.type==='pemasukan').reduce((s,t)=>s+Number(t.amount||0),0) - qrisAll.filter(t=>t.type==='pengeluaran').reduce((s,t)=>s+Number(t.amount||0),0);
+
+      const bInToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'bca' && t.type === 'pemasukan').reduce((s,t)=>s+Number(t.amount||0),0);
+      const bOutToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'bca' && t.type === 'pengeluaran').reduce((s,t)=>s+Number(t.amount||0),0);
+      const bNet = bcaAll.filter(t=>t.type==='pemasukan').reduce((s,t)=>s+Number(t.amount||0),0) - bcaAll.filter(t=>t.type==='pengeluaran').reduce((s,t)=>s+Number(t.amount||0),0);
+
+      document.getElementById('printPaymentMethodTableBody').innerHTML = `
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">💵 Kas Tunai / Cash (Laci Toko)</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right;">${formatRupiah(cInToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right;">${formatRupiah(cOutToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right; font-weight: bold;">${formatRupiah(cNet)}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">📱 QRIS</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right;">${formatRupiah(qInToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right;">${formatRupiah(qOutToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right; font-weight: bold;">${formatRupiah(qNet)}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">🏦 Rekening BCA (Transfer)</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right;">${formatRupiah(bInToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right;">${formatRupiah(bOutToday)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right; font-weight: bold;">${formatRupiah(bNet)}</td>
+        </tr>
+      `;
+
+      const txTbody = document.getElementById('printTxTableBody');
+      txTbody.innerHTML = '';
+      const sorted = [...branchTx].sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+
+      sorted.forEach(t => {
+        const isInc = t.type === 'pemasukan';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td style="border: 1px solid #ccc; padding: 5px;">${t.id}<br><span style="color:#666; font-size:9px;">${formatDateIndo(t.date)} ${t.time || ''}</span></td>
+          <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">${getBranchShortName(t.branchId)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px;"><strong>${escapeHtml(t.customer || '-')}</strong><br><span style="color:#555; font-size:9px;">${escapeHtml(t.notes || '')}</span></td>
+          <td style="border: 1px solid #ccc; padding: 5px;">${escapeHtml(t.category)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px;"><strong>${escapeHtml(t.paymentMethod || 'Tunai')}</strong></td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: center;"><strong>${isInc ? 'MASUK' : 'KELUAR'}</strong></td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right; font-weight: bold; color: ${isInc ? '#047857' : '#b91c1c'};">${isInc ? '+' : '-'} ${formatRupiah(t.amount)}</td>
+        `;
+        txTbody.appendChild(row);
+      });
+
+      window.print();
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const colors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        info: 'bg-[#131b2e] text-white border border-emerald-500/40'
+      };
+
+      toast.className = `px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 transform transition-all duration-300 translate-y-4 opacity-0 pointer-events-auto ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => toast.classList.remove('translate-y-4', 'opacity-0'), 10);
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function refreshData() {
+      calculateMetrics();
+      applyFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initDatabase();
+      
+      const today = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDateDisplay').innerText = today.toLocaleDateString('id-ID', options);
+
+      applyAuthUI();
+      if (currentUser) {
+        refreshData();
+      }
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
