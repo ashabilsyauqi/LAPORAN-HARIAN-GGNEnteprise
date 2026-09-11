@@ -5,7 +5,9 @@ Folder ini berisi seluruh sistem aplikasi dan website operasional usaha **GIGIN 
 ---
 
 ## 💰 1. Sistem Keuangan Multi-Cabang & Kasir
-- **File Aplikasi**: [`SNAPRINT_ZAMRUD_Keuangan.html`](SNAPRINT_ZAMRUD_Keuangan.html) / [`KEUANGAN_GIGIN_SWANTO_ENTERPRISE.html`](KEUANGAN_GIGIN_SWANTO_ENTERPRISE.html)
+- **File Aplikasi**: [`index.html`](index.html) / [`SNAPRINT_ZAMRUD_Keuangan.html`](SNAPRINT_ZAMRUD_Keuangan.html) / [`KEUANGAN_GIGIN_SWANTO_ENTERPRISE.html`](KEUANGAN_GIGIN_SWANTO_ENTERPRISE.html)
+- **Akses Online (Subdomain)**: 🌐 **`https://laphar.dutaglobaltech.com`**
+- **Repository GitHub**: 📦 **`https://github.com/ashabilsyauqi/LAPORAN-HARIAN-GGNEnteprise`**
 - **File Buka Cepat (.bat)**:
   - 🚀 **`BUKA_SNAPRINT_KEUANGAN.bat`** (Klik ganda untuk membuka)
   - 🚀 **`BUKA_KEUANGAN_GIGIN_SWANTO_ENTERPRISE.bat`**
