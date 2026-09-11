@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cari WhatsApp Bengkel Aktif Terdekat (24 Jam & Panggilan)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="bengkel_style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+
+  <!-- ================= TOP NAVBAR ================= -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-emerald-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/25 text-2xl font-black">
+          <i class="fa-solid fa-wrench"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-black bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
+              BengkelSiaga<span class="text-emerald-400">.WA</span>
+            </span>
+            <span class="text-[10px] bg-red-600/80 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-white pulse-dot"></span> LIVE GPS
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">Pencari No WhatsApp Bengkel Aktif & Darurat Terdekat</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <!-- SOS Button -->
+        <button onclick="openSosModalForBengkel()" class="bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-rose-900/40 transition transform active:scale-95 animate-pulse">
+          <i class="fa-solid fa-triangle-exclamation text-base"></i>
+          <span class="hidden sm:inline">SOS Mogok Darurat</span>
+        </button>
+
+        <!-- Tambah Bengkel Button -->
+        <button onclick="openAddBengkelModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
+          <i class="fa-solid fa-plus text-blue-400"></i>
+          <span class="hidden md:inline">Daftarkan Bengkel</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= HERO & LOCATION BAR ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 w-full">
+    <div class="glass-card rounded-3xl p-5 sm:p-7 border border-slate-800/80 relative overflow-hidden">
+      <!-- Background Ambient Glow -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
+        <!-- Left: Status & Lokasi Aktif -->
+        <div class="lg:col-span-6 space-y-3">
+          <div class="inline-flex items-center gap-2 bg-blue-950/60 border border-blue-800/50 px-3 py-1.5 rounded-full text-xs font-semibold text-blue-300">
+            <i class="fa-solid fa-satellite-dish text-blue-400"></i>
+            <span>Sistem Pelacak Bengkel & Derek 24 Jam Terpadu</span>
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+            Temukan Bengkel Aktif & <br class="hidden sm:block">
+            <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Langsung Chat WhatsApp</span>
+          </h1>
+
+          <!-- Info Posisi Pengguna -->
+          <div class="flex items-center gap-3 bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl">
+            <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-lg flex-shrink-0">
+              <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Titik Pencarian Anda:</span>
+              <p id="currentLocationText" class="text-sm font-extrabold text-white truncate">Mendeteksi lokasi...</p>
+              <span id="currentCoordsText" class="text-[10px] text-slate-500 font-mono">0.0000, 0.0000</span>
+            </div>
+            <button id="btnDetectGps" onclick="detectLocation(true)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition flex-shrink-0 shadow">
+              <i class="fa-solid fa-crosshairs text-blue-200"></i> Ambil GPS Saya
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Input Pencarian Wilayah & Radius -->
+        <div class="lg:col-span-6 space-y-3 bg-slate-900/60 p-5 rounded-2xl border border-slate-800/80">
+          <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
+            <span><i class="fa-solid fa-magnifying-glass-location text-blue-400 mr-1.5"></i> Cari Kota / Kecamatan Lain:</span>
+            <span class="text-[11px] text-slate-400 font-normal">Contoh: Tebet, Bandung, Surabaya</span>
+          </label>
+
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <i class="fa-solid fa-city absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+              <input type="text" id="manualLocationInput" placeholder="Ketik nama kota / daerah..." class="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+            </div>
+            <button id="btnSearchLocation" onclick="searchManualLocation()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition flex items-center justify-center">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+          </div>
+
+          <!-- Radius Slider & Quick Stats -->
+          <div class="pt-2">
+            <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
+              <span class="text-slate-400"><i class="fa-solid fa-circle-dot text-indigo-400 mr-1"></i> Radius Jarak:</span>
+              <span id="radiusValueText" class="text-blue-400 font-bold bg-blue-950/80 border border-blue-900 px-2 py-0.5 rounded">15 km</span>
+            </div>
+            <input type="range" id="radiusSlider" min="1" max="50" value="15" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+              <span>1 km</span>
+              <span>10 km</span>
+              <span>25 km</span>
+              <span>50 km</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Scan Status Banner -->
+      <div id="liveScanStatus" class="hidden mt-4 pt-3 border-t border-slate-800 flex items-center justify-between"></div>
+    </div>
+  </section>
+
+  <!-- ================= INTERACTIVE MAP & FILTER TABS ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 w-full">
+    <!-- Map Container -->
+    <div class="glass-panel rounded-3xl p-3 sm:p-4 border border-slate-800 shadow-2xl relative">
+      <div class="flex items-center justify-between mb-3 px-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-dot"></span>
+          <h2 class="text-sm font-extrabold text-white uppercase tracking-wider">Peta Interaktif Bengkel Terdekat</h2>
+        </div>
+        <span class="text-xs text-slate-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-hand-pointer text-blue-400"></i> Klik pin untuk kontak langsung
+        </span>
+      </div>
+
+      <!-- Peta Leaflet -->
+      <div id="map" class="h-[360px] sm:h-[420px] w-full rounded-2xl overflow-hidden border border-slate-800 shadow-inner"></div>
+    </div>
+  </section>
+
+  <!-- ================= CATEGORY TABS & FILTER BAR ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
+    <!-- Category Tabs -->
+    <div class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none mb-4" id="categoryTabsContainer">
+      <!-- Generated by JS -->
+    </div>
+
+    <!-- Search & Checkbox Filters Bar -->
+    <div class="glass-card rounded-2xl p-4 border border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Input Pencarian Cepat -->
+      <div class="relative w-full md:w-80">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+        <input type="text" id="globalSearchInput" placeholder="Cari nama bengkel, servis, oli..." class="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+      </div>
+
+      <!-- Checkbox Switches -->
+      <div class="flex items-center gap-4 flex-wrap w-full md:w-auto text-xs font-semibold text-slate-300">
+        <label class="flex items-center gap-2 cursor-pointer select-none hover:text-white">
+          <input type="checkbox" id="chk24Jam" class="w-4 h-4 rounded">
+          <span class="flex items-center gap-1"><i class="fa-solid fa-clock text-rose-400"></i> Siaga 24 Jam</span>
+        </label>
+
+        <label class="flex items-center gap-2 cursor-pointer select-none hover:text-white">
+          <input type="checkbox" id="chkPanggilan" class="w-4 h-4 rounded">
+          <span class="flex items-center gap-1"><i class="fa-solid fa-truck-fast text-emerald-400"></i> Panggilan / Home Service</span>
+        </label>
+
+        <label class="flex items-center gap-2 cursor-pointer select-none hover:text-white">
+          <input type="checkbox" id="chkResmi" class="w-4 h-4 rounded">
+          <span class="flex items-center gap-1"><i class="fa-solid fa-certificate text-blue-400"></i> Bengkel Resmi</span>
+        </label>
+      </div>
+
+      <!-- Sort Dropdown -->
+      <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+        <span class="text-xs text-slate-400">Urutkan:</span>
+        <select id="sortSelect" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer">
+          <option value="jarak">📍 Terdekat (Jarak)</option>
+          <option value="rating">⭐ Rating Tertinggi</option>
+          <option value="nama">🔤 Nama (A - Z)</option>
+        </select>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= BENGKEL GRID LIST ================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full flex-1">
+    <!-- Header Info Jumlah Hasil -->
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-2">
+        <h2 class="text-lg font-black text-white">Daftar Bengkel & Kontak WhatsApp</h2>
+        <span id="totalBengkelCount" class="bg-blue-600/30 text-blue-400 border border-blue-500/40 text-xs font-black px-2.5 py-0.5 rounded-full">0</span>
+      </div>
+      <span id="nearestCount" class="text-xs text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/40 px-3 py-1 rounded-lg"></span>
+    </div>
+
+    <!-- Grid Kartu Bengkel -->
+    <div id="bengkelGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Cards rendered by bengkel_app.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden py-16 text-center glass-card rounded-3xl p-8 max-w-lg mx-auto">
+      <div class="w-16 h-16 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center text-3xl mx-auto mb-4">
+        <i class="fa-solid fa-wrench"></i>
+      </div>
+      <h3 class="text-base font-bold text-white mb-2">Tidak Ada Bengkel yang Cocok</h3>
+      <p class="text-xs text-slate-400 mb-5 leading-relaxed">
+        Coba perbesar radius jarak pada slider di atas, atau matikan filter tertentu untuk menampilkan lebih banyak bengkel.
+      </p>
+      <button onclick="document.getElementById('radiusSlider').value=30; document.getElementById('radiusSlider').dispatchEvent(new Event('input'));" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
+        Perluas Radius ke 30 km
+      </button>
+    </div>
+  </main>
+
+  <!-- ================= MODAL SOS DARURAT ================= -->
+  <div id="sosModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
+      <button onclick="closeSosModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-rose-600/20 border border-rose-500/40 text-rose-500 flex items-center justify-center text-2xl flex-shrink-0 animate-bounce">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-black text-white">Bantuan Darurat di Jalan (SOS)</h3>
+          <p class="text-xs text-slate-400">Pilih jenis kendala Anda untuk format pesan cepat & kirim ke kontak WhatsApp siaga:</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+        <!-- Opsi 1: Mesin Mogok -->
+        <button onclick="triggerSosIssue('mogok')" class="p-4 rounded-2xl bg-slate-800/80 hover:bg-rose-950/50 border border-slate-700 hover:border-rose-600/80 text-left transition group">
+          <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-car-burst"></i>
+          </div>
+          <h4 class="font-bold text-sm text-white mb-1">Mesin Mogok / Mati</h4>
+          <p class="text-[11px] text-slate-400">Overheat, suara kasar, tidak mau distarter di jalan.</p>
+        </button>
+
+        <!-- Opsi 2: Ban Bocor -->
+        <button onclick="triggerSosIssue('ban')" class="p-4 rounded-2xl bg-slate-800/80 hover:bg-amber-950/50 border border-slate-700 hover:border-amber-600/80 text-left transition group">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-compact-disc"></i>
+          </div>
+          <h4 class="font-bold text-sm text-white mb-1">Ban Bocor / Kempes</h4>
+          <p class="text-[11px] text-slate-400">Butuh tambal tubeless panggilan atau ganti serep.</p>
+        </button>
+
+        <!-- Opsi 3: Aki Soak -->
+        <button onclick="triggerSosIssue('aki')" class="p-4 rounded-2xl bg-slate-800/80 hover:bg-purple-950/50 border border-slate-700 hover:border-purple-600/80 text-left transition group">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-car-battery"></i>
+          </div>
+          <h4 class="font-bold text-sm text-white mb-1">Aki Drop / Soak</h4>
+          <p class="text-[11px] text-slate-400">Butuh jumper aki darurat atau antar aki baru 24 jam.</p>
+        </button>
+
+        <!-- Opsi 4: Derek Towing -->
+        <button onclick="triggerSosIssue('derek')" class="p-4 rounded-2xl bg-slate-800/80 hover:bg-blue-950/50 border border-slate-700 hover:border-blue-600/80 text-left transition group">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-truck-pickup"></i>
+          </div>
+          <h4 class="font-bold text-sm text-white mb-1">Derek Towing Mobil</h4>
+          <p class="text-[11px] text-slate-400">Evakuasi mobil mogok di tol atau jalan raya.</p>
+        </button>
+      </div>
+
+      <p class="text-[11px] text-slate-400 text-center flex items-center justify-center gap-1">
+        <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+        Pesan otomatis akan menyertakan link Google Maps lokasi Anda saat ini.
+      </p>
+    </div>
+  </div>
+
+  <!-- ================= MODAL TAMBAH BENGKEL ================= -->
+  <div id="addBengkelModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+      <button onclick="closeAddBengkelModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-plus"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-black text-white">Daftarkan Bengkel Baru</h3>
+          <p class="text-xs text-slate-400">Tambahkan kontak WhatsApp bengkel Anda atau rekomendasi terdekat</p>
+        </div>
+      </div>
+
+      <form id="addBengkelForm" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nama Bengkel <span class="text-rose-500">*</span></label>
+          <input type="text" id="addNama" required placeholder="Contoh: Bengkel Motor Bintang Jaya 24 Jam" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Kategori <span class="text-rose-500">*</span></label>
+            <select id="addKategori" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-blue-500">
+              <option value="mobil">🚗 Bengkel Mobil</option>
+              <option value="motor">🏍️ Bengkel Motor</option>
+              <option value="derek">🛞 Derek & Towing</option>
+              <option value="aki">🔋 Spesialis Aki</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">No. WhatsApp <span class="text-rose-500">*</span></label>
+            <input type="tel" id="addWhatsapp" required placeholder="0812xxxxxxx" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Alamat Lengkap <span class="text-rose-500">*</span></label>
+          <input type="text" id="addAlamat" required placeholder="Jl. Nama Jalan No. XX, Kelurahan, Kecamatan" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Latitude</label>
+            <input type="number" step="any" id="addBengkelLat" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Longitude</label>
+            <input type="number" step="any" id="addBengkelLng" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Jenis Layanan (Pisahkan Koma)</label>
+          <input type="text" id="addLayanan" placeholder="Servis Rutin, Ganti Oli, Tune Up, Tambal Ban" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Jam Operasional / Jam Buka</label>
+          <input type="text" id="addJamBuka" placeholder="08:00 - 17:00 atau Buka 24 Jam" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500">
+        </div>
+
+        <div class="flex items-center gap-4 pt-1">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="addIs24Jam" class="w-4 h-4 rounded">
+            <span>Siaga 24 Jam</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="addIsPanggilan" class="w-4 h-4 rounded" checked>
+            <span>Bisa Panggilan</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="addIsResmi" class="w-4 h-4 rounded">
+            <span>Bengkel Resmi</span>
+          </label>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Deskripsi Singkat</label>
+          <textarea id="addDeskripsi" rows="2" placeholder="Keahlian khusus, mekanik panggilan, diskon servis..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500"></textarea>
+        </div>
+
+        <div class="pt-3 flex gap-2">
+          <button type="button" onclick="closeAddBengkelModal()" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl transition">Batal</button>
+          <button type="submit" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-blue-600/30">Simpan Bengkel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="mt-12 border-t border-slate-800 bg-slate-950/80 py-6 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-wrench text-blue-400"></i>
+        <span class="font-bold text-slate-300">BengkelSiaga.WA &copy; 2026</span>
+        <span class="text-slate-600">|</span>
+        <span>Aplikasi Pencari WhatsApp Bengkel Aktif Terdekat</span>
+      </div>
+      <p class="text-slate-400">
+        Data terintegrasi GPS, OpenStreetMap satelit & kontak WhatsApp aktif.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="bengkel_data.js"></script>
+  <script src="bengkel_app.js"></script>
+</body>
+</html>

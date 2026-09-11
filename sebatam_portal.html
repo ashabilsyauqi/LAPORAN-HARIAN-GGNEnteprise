@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEBATAM Super-Portal - Direktori Usaha & Layanan Terpadu Batam</title>
+  
+  <!-- Favicon & PWA meta -->
+  <link rel="icon" type="image/png" href="https://sebatam.com/logo-sebatam.png" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <meta name="description" content="Pusat Direktori Usaha, UMKM, Jasa 24 Jam, Kos, Percetakan Snaprint, Bengkel Panggilan & Ekosistem Terpadu Kota Batam." />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Custom Stylesheet (Left Sidebar Architecture) -->
+  <link rel="stylesheet" href="sebatam_portal.css" />
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- Backdrop for mobile drawer -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- ==================== 1. SIDEBAR KIRI (MAIN MENU) ==================== -->
+    <aside id="leftSidebar" class="left-sidebar">
+      <!-- Sidebar Header / Brand Logo -->
+      <div class="sidebar-header">
+        <a href="sebatam_portal.html" class="brand-logo">
+          <i class="fa-solid fa-compass" style="color: var(--primary);"></i>
+          <span>Sebatam<span class="brand-highlight">.com</span></span>
+          <span class="brand-badge">PORTAL</span>
+        </a>
+        <button class="icon-btn sidebar-close-btn" style="display:none;" onclick="toggleSidebar(false)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Sidebar Body (Scrollable) -->
+      <div class="sidebar-body">
+        
+        <!-- Group 1: Menu Utama -->
+        <div>
+          <div class="sidebar-group-title">Menu Utama</div>
+          <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn active" id="navBtnDirektori" onclick="selectMainMenu('direktori')">
+                <span class="nav-left-part"><i class="fa-solid fa-store" style="color:var(--primary);"></i> Direktori Utama</span>
+                <span class="nav-badge-pill" id="badgeAllCount">0</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" id="navBtnFeatured" onclick="selectMainMenu('featured')">
+                <span class="nav-left-part"><i class="fa-solid fa-crown" style="color:#f59e0b;"></i> Rekomendasi Unggulan</span>
+                <span class="nav-badge-pill" style="color:#f59e0b; font-weight:800;">PRO</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" id="navBtn24Jam" onclick="selectMainMenu('24jam')">
+                <span class="nav-left-part"><i class="fa-solid fa-clock" style="color:#ef4444;"></i> Layanan 24 Jam</span>
+                <span class="nav-badge-pill" style="color:#ef4444; font-weight:800;">SIAGA</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" id="navBtnFavorit" onclick="selectMainMenu('favorit')">
+                <span class="nav-left-part"><i class="fa-solid fa-heart" style="color:#ec4899;"></i> Usaha Favorit</span>
+                <span class="nav-badge-pill" id="badgeFavCount">0</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" id="navBtnMap" onclick="selectMainMenu('map')">
+                <span class="nav-left-part"><i class="fa-solid fa-map-location-dot" style="color:#10b981;"></i> Peta Interaktif Batam</span>
+                <span class="nav-badge-pill">OSM</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Group 2: Bursa Kerja & Karier Batam -->
+        <div>
+          <div class="sidebar-group-title">Bursa Karier & Talenta</div>
+          <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" id="navBtnLoker" onclick="selectMainMenu('loker')" title="Bursa Lowongan Kerja Batam">
+                <span class="nav-left-part"><i class="fa-solid fa-briefcase" style="color:#10b981;"></i> Lowongan Kerja</span>
+                <span class="nav-badge-pill" id="badgeLokerCount" style="color:#10b981; font-weight:800;">LOKER</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" id="navBtnPencariKerja" onclick="selectMainMenu('pencarikerja')" title="Database Pencari Kerja & CV Siap Kerja">
+                <span class="nav-left-part"><i class="fa-solid fa-user-graduate" style="color:#06b6d4;"></i> Pencari Kerja</span>
+                <span class="nav-badge-pill" id="badgePencariCount" style="color:#06b6d4; font-weight:800;">CV/BAKAT</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item" style="margin-top: 4px;">
+              <button class="sidebar-nav-btn" style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.18)); color: #059669; font-weight:700;" onclick="openJobPostModal()">
+                <span class="nav-left-part"><i class="fa-solid fa-briefcase" style="color:#10b981;"></i> + Pasang Lowongan Kerja</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item" style="margin-top: 4px;">
+              <button class="sidebar-nav-btn" style="background: linear-gradient(135deg, rgba(6,182,212,0.12), rgba(14,165,233,0.18)); color: #0891b2; font-weight:700;" onclick="openCvUploadModal()">
+                <span class="nav-left-part"><i class="fa-solid fa-file-invoice" style="color:#06b6d4;"></i> + Buat & Upload CV</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Group 3: Kategori Usaha & Layanan Batam -->
+        <div>
+          <div class="sidebar-group-title">Kategori Usaha Batam</div>
+          <ul class="sidebar-nav-list" id="sidebarCategoryList">
+            <!-- Populated dynamically by JS -->
+          </ul>
+        </div>
+
+        <!-- Group 4: Ekosistem Aplikasi Terpadu -->
+        <div>
+          <div class="sidebar-group-title">Ekosistem Aplikasi</div>
+          <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-item">
+              <a href="cari_kos.html" class="sidebar-nav-btn" title="Buka Portal Cari & Kelola Kos Batam">
+                <span class="nav-left-part"><i class="fa-solid fa-building-user" style="color:#0ea5e9;"></i> Cari Kos Batam</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem; color:var(--text-muted);"></i>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a href="cari_bengkel.html" class="sidebar-nav-btn" title="Buka Layanan Bengkel Siaga & Derek 24 Jam">
+                <span class="nav-left-part"><i class="fa-solid fa-screwdriver-wrench" style="color:#f59e0b;"></i> Bengkel 24 Jam</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem; color:var(--text-muted);"></i>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a href="snaprint.html" class="sidebar-nav-btn" title="Buka Portal Snaprint Digital Printing">
+                <span class="nav-left-part"><i class="fa-solid fa-print" style="color:#10b981;"></i> Snaprint Digital</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem; color:var(--text-muted);"></i>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a href="KEUANGAN_GIGIN_SWANTO_ENTERPRISE.html" class="sidebar-nav-btn" title="Buka Sistem Kasir & Keuangan Enterprise">
+                <span class="nav-left-part"><i class="fa-solid fa-chart-pie" style="color:#a855f7;"></i> Kasir & Keuangan</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem; color:var(--text-muted);"></i>
+              </a>
+            </li>
+            <li class="sidebar-nav-item">
+              <a href="ARISAN_RUMAH_BOLON.html" class="sidebar-nav-btn" title="Buka Sistem Arisan Paguyuban & Video Kocokan">
+                <span class="nav-left-part"><i class="fa-solid fa-users" style="color:#ec4899;"></i> Arisan Rumah Bolon</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem; color:var(--text-muted);"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Group 5: Alat & Utilitas -->
+        <div>
+          <div class="sidebar-group-title">Alat & Utilitas</div>
+          <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" style="background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(2,132,199,0.18)); color: var(--primary); font-weight:700;" onclick="openAddListingModal()">
+                <span class="nav-left-part"><i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> + Daftarkan Usaha Baru</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" onclick="openAppDevModal()">
+                <span class="nav-left-part"><i class="fa-solid fa-code" style="color:#6366f1;"></i> Konsultasi Buat Aplikasi</span>
+                <span class="nav-badge-pill" style="color:#6366f1;">DEV</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" onclick="openQuickCalcModal()">
+                <span class="nav-left-part"><i class="fa-solid fa-calculator" style="color:#0ea5e9;"></i> Kalkulator Cetak Snaprint</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <button class="sidebar-nav-btn" onclick="exportListingsJSON()">
+                <span class="nav-left-part"><i class="fa-solid fa-file-export" style="color:#10b981;"></i> Ekspor Backup JSON</span>
+              </button>
+            </li>
+            <li class="sidebar-nav-item">
+              <label class="sidebar-nav-btn" style="cursor:pointer; margin:0;">
+                <span class="nav-left-part"><i class="fa-solid fa-file-import" style="color:#f59e0b;"></i> Impor Data JSON</span>
+                <input type="file" accept=".json" onchange="importListingsJSON(event)" style="display:none;">
+              </label>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Sidebar Footer (Theme Mode & Info) -->
+      <div class="sidebar-footer">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Mode Tampilan</span>
+        </div>
+        <button id="themeToggleBtn" class="icon-btn" title="Ganti Mode Gelap/Terang" onclick="toggleTheme()">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==================== 2. MAIN CONTENT WRAPPER ==================== -->
+    <div class="main-wrapper">
+      
+      <!-- Top Header Bar (Search & Mobile Toggle) -->
+      <header class="top-header-bar">
+        <!-- Mobile Sidebar Toggle Button -->
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar(true)" title="Buka Menu Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Main Search & Area Select Form -->
+        <div class="search-box-top">
+          <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted); cursor:pointer;" onclick="triggerSearch()" title="Klik untuk Cari"></i>
+          <input 
+            type="text" 
+            id="mainSearchInput" 
+            class="search-input-top" 
+            placeholder="Cari usaha, loker, jasa, servis AC, tambal ban 24 jam, spanduk, kos..." 
+            autocomplete="off"
+          />
+          <select id="areaSelect" class="area-select-top" title="Filter Kecamatan Batam">
+            <option value="">Semua Kecamatan (12)</option>
+            <option value="Batam Kota">Batam Kota</option>
+            <option value="Batu Aji">Batu Aji</option>
+            <option value="Batu Ampar">Batu Ampar</option>
+            <option value="Belakang Padang">Belakang Padang</option>
+            <option value="Bengkong">Bengkong</option>
+            <option value="Bulang">Bulang</option>
+            <option value="Galang">Galang</option>
+            <option value="Lubuk Baja">Lubuk Baja (Nagoya)</option>
+            <option value="Nongsa">Nongsa</option>
+            <option value="Sagulung">Sagulung</option>
+            <option value="Sei Beduk">Sei Beduk (Muka Kuning)</option>
+            <option value="Sekupang">Sekupang (Tiban)</option>
+          </select>
+          <button class="search-submit-btn" id="searchSubmitBtn" onclick="triggerSearch()" title="Cari di Direktori">
+            <i class="fa-solid fa-magnifying-glass"></i> Cari
+          </button>
+        </div>
+
+        <!-- Top Right Actions -->
+        <div class="top-actions-right">
+          <button class="nav-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;" onclick="openJobPostModal()">
+            <i class="fa-solid fa-briefcase"></i>
+            <span>+ Pasang Loker</span>
+          </button>
+          <button class="nav-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; border: none;" onclick="openCvUploadModal()">
+            <i class="fa-solid fa-file-invoice"></i>
+            <span>+ Upload CV</span>
+          </button>
+          <button class="nav-btn btn-primary-gradient" onclick="openAddListingModal()">
+            <i class="fa-solid fa-plus"></i>
+            <span>+ Usaha Baru</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content Scroll Area -->
+      <main class="main-content-scroll" id="direktori">
+        
+        <!-- Hero Banner: Gerbang Ekosistem Bisnis & Karier Kota Batam (Clean Modern Banner) -->
+        <section class="hero-banner-container">
+          <div class="hero-banner-card">
+            <img src="gerbang_bisnis_karier_batam.jpg?v=2" alt="Gerbang Ekosistem Bisnis & Karier Kota Batam" class="hero-banner-img" />
+            <a href="https://dutaglobaltech.com" target="_blank" rel="noopener noreferrer" class="hero-banner-link-badge" title="Kunjungi Website Developer dutaglobaltech.com">
+              <i class="fa-solid fa-code" style="color: #38bdf8; font-size: 0.75rem;"></i>
+              <span>developed by <strong>dutaglobaltech.com</strong></span>
+            </a>
+          </div>
+
+          <!-- Quick Action Toolbar Under Banner -->
+          <div class="hero-quick-action-bar">
+            <button class="hero-action-pill-btn btn-loker-cta" onclick="openJobPostModal()">
+              <i class="fa-solid fa-briefcase"></i>
+              <span>+ Pasang Lowongan Kerja</span>
+            </button>
+            <button class="hero-action-pill-btn btn-cv-cta" onclick="openCvUploadModal()">
+              <i class="fa-solid fa-file-invoice"></i>
+              <span>+ Buat & Upload CV</span>
+            </button>
+            <button class="hero-action-pill-btn btn-usaha-cta" onclick="openAddListingModal()">
+              <i class="fa-solid fa-plus-circle"></i>
+              <span>+ Daftarkan Usaha</span>
+            </button>
+            <button class="hero-action-pill-btn btn-it-cta" onclick="openAppDevModal()">
+              <i class="fa-solid fa-code"></i>
+              <span>Buat Aplikasi / Web</span>
+            </button>
+            <button class="hero-action-pill-btn btn-search-cta" onclick="focusAndSearchDirektori()">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <span>Cari di Direktori</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- District Quick Chips Bar -->
+        <div class="district-chips-bar" id="districtChipsBar">
+          <!-- Rendered via JS -->
+        </div>
+
+        <!-- Content Controls Bar -->
+        <div class="content-controls-bar">
+          <div class="results-info">
+            <span id="activeFilterHeading">Katalog Direktori Batam</span>
+            <span id="resultsCountBadge" class="results-count-badge">Memuat usaha...</span>
+            <button class="nav-btn" style="font-size:0.8rem; padding:4px 10px;" onclick="resetAllFilters()" title="Reset semua filter">
+              <i class="fa-solid fa-rotate-left"></i> Reset
+            </button>
+          </div>
+
+          <div class="view-mode-buttons">
+            <button class="view-btn active" data-view="grid" onclick="setViewMode('grid')">
+              <i class="fa-solid fa-grip"></i> Grid
+            </button>
+            <button class="view-btn" data-view="list" onclick="setViewMode('list')">
+              <i class="fa-solid fa-list"></i> List
+            </button>
+            <button class="view-btn" data-view="map" onclick="setViewMode('map')">
+              <i class="fa-solid fa-map-location-dot"></i> Peta
+            </button>
+          </div>
+        </div>
+
+        <!-- Leaflet Interactive Map View -->
+        <div id="mapContainer"></div>
+
+        <!-- Grid View Container -->
+        <div id="listingGridView" class="listing-grid-view">
+          <!-- Dynamic Listing Cards -->
+        </div>
+
+        <!-- List View Container -->
+        <div id="listingListView" class="listing-list-view" style="display: none;">
+          <!-- Dynamic List Rows -->
+        </div>
+
+        <!-- Empty State Box -->
+        <div id="emptyStateBox" class="empty-state-box" style="display: none;">
+          <div class="empty-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div>
+          <h3 class="empty-title">Tidak Ada Usaha yang Cocok</h3>
+          <p class="empty-subtitle">
+            Belum menemukan apa yang Anda cari? Coba ubah kata kunci pencarian atau daftarkan usaha Anda untuk ditampilkan di Sebatam Super-Portal!
+          </p>
+          <button class="btn-primary-gradient nav-btn" style="display: inline-flex;" onclick="openAddListingModal()">
+            <i class="fa-solid fa-plus"></i> Daftarkan Usaha Anda Sekarang
+          </button>
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ==================== 3. MODAL DETAIL USAHA ==================== -->
+  <div id="detailModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="detailModalTitle" class="modal-title">Detail Profil Usaha</h3>
+        <button class="modal-close" onclick="closeDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="detailModalBody" class="modal-body">
+        <!-- Injected via JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-detail-action" onclick="closeDetailModal()">Tutup</button>
+        <a id="detailWaBtn" href="#" target="_blank" class="btn-wa-action" style="max-width: 220px;">
+          <i class="fa-brands fa-whatsapp"></i> Hubungi WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 4. MODAL TAMBAH USAHA BARU ==================== -->
+  <div id="addListingModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-store" style="color:var(--primary);"></i> Daftarkan Usaha Anda di Batam</h3>
+        <button class="modal-close" onclick="closeAddListingModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="addListingForm">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Nama Usaha / Toko / Jasa *</label>
+              <input type="text" name="namaUsaha" class="form-input" placeholder="Contoh: Bengkel Motor Jaya Abadi" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Kategori *</label>
+              <select name="kategoriUsaha" class="form-select" required>
+                <option value="loker">💼 Lowongan Kerja (Buka Lowongan)</option>
+                <option value="pencarikerja">👤 Pencari Kerja (Upload CV & Profil)</option>
+                <option value="aplikasi">💻 Jasa Buat Aplikasi & Software IT</option>
+                <option value="percetakan">🖨️ Snaprint & Percetakan</option>
+                <option value="bengkel">🔧 Bengkel & Derek 24 Jam</option>
+                <option value="kos">🏠 Kos & Properti Batam</option>
+                <option value="kuliner">🍽️ Kuliner & Seafood Kelong</option>
+                <option value="elektronik">❄️ Servis AC & Elektronik</option>
+                <option value="legalitas">⚖️ Legalitas PT & Bisnis</option>
+                <option value="bangunan">🔨 Tukang & Bengkel Las</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Kecamatan (Area) *</label>
+              <select name="kecamatanUsaha" class="form-select" required>
+                <option value="Batam Kota">Batam Kota</option>
+                <option value="Batu Aji">Batu Aji</option>
+                <option value="Batu Ampar">Batu Ampar</option>
+                <option value="Belakang Padang">Belakang Padang</option>
+                <option value="Bengkong">Bengkong</option>
+                <option value="Bulang">Bulang</option>
+                <option value="Galang">Galang</option>
+                <option value="Lubuk Baja">Lubuk Baja (Nagoya)</option>
+                <option value="Nongsa">Nongsa</option>
+                <option value="Sagulung">Sagulung</option>
+                <option value="Sei Beduk">Sei Beduk (Muka Kuning)</option>
+                <option value="Sekupang">Sekupang (Tiban)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp Aktif *</label>
+              <input type="text" name="teleponUsaha" class="form-input" placeholder="0812xxxxxxx" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Estimasi Harga / Tarif</label>
+              <input type="text" name="hargaUsaha" class="form-input" placeholder="Contoh: Mulai Rp 25.000" />
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Alamat Lengkap</label>
+              <input type="text" name="alamatUsaha" class="form-input" placeholder="Jl. Raya / Nama Ruko & Komplek" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Jam Operasional</label>
+              <input type="text" name="jamBukaUsaha" class="form-input" placeholder="Contoh: 08:00 - 22:00 WIB / 24 Jam" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">URL Foto Banner / Gambar</label>
+              <input type="url" name="fotoUsaha" class="form-input" placeholder="https://..." />
+            </div>
+
+            <div class="form-group full-width">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem; font-weight:700;">
+                <input type="checkbox" name="is24JamUsaha" value="1" style="width:18px; height:18px;">
+                Usaha Siaga 24 Jam (Layanan Panggilan Darurat)
+              </label>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Deskripsi Usaha & Layanan *</label>
+              <textarea name="deskripsiUsaha" rows="3" class="form-textarea" placeholder="Jelaskan keunggulan produk/jasa Anda secara lengkap..." required></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Tagar Pencarian (Pisahkan koma)</label>
+              <input type="text" name="tagsUsaha" class="form-input" placeholder="Contoh: Wifi, Delivery, 24Jam, Murah" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-detail-action" onclick="closeAddListingModal()">Batal</button>
+          <button type="submit" class="btn-primary-gradient nav-btn"><i class="fa-solid fa-check"></i> Simpan & Tayangkan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== 5. MODAL KALKULATOR CETAK SNAPRINT ==================== -->
+  <div id="quickCalcModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-calculator" style="color:var(--primary);"></i> Kalkulator Estimasi Cetak Snaprint</h3>
+        <button class="modal-close" onclick="closeQuickCalcModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Jenis Bahan Cetak</label>
+            <select id="calcBahan" class="form-select" onchange="calculateSpandukEstimate()">
+              <option value="18000">Spanduk Flexi Standar (Rp 18.000 / m²)</option>
+              <option value="25000">Spanduk Flexi Korea Tebal (Rp 25.000 / m²)</option>
+              <option value="35000">Stiker Vinyl Outdoor (Rp 35.000 / m²)</option>
+              <option value="45000">Banner Albatros Indoor (Rp 45.000 / m²)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jumlah (Qty)</label>
+            <input type="number" id="calcQty" class="form-input" value="1" min="1" oninput="calculateSpandukEstimate()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Panjang (Meter)</label>
+            <input type="number" step="0.1" id="calcPanjang" class="form-input" value="3" oninput="calculateSpandukEstimate()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lebar (Meter)</label>
+            <input type="number" step="0.1" id="calcLebar" class="form-input" value="1" oninput="calculateSpandukEstimate()" />
+          </div>
+          <div class="form-group full-width" id="calcResultText" style="margin-top: 10px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-detail-action" onclick="closeQuickCalcModal()">Tutup</button>
+        <a href="https://api.whatsapp.com/send?phone=6281270889900&text=Halo%20Snaprint,%20saya%20ingin%20pesan%20cetak%20spanduk%20sesuai%20kalkulator%20portal." target="_blank" class="btn-wa-action">
+          <i class="fa-brands fa-whatsapp"></i> Order ke WhatsApp Snaprint
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 6. MODAL KONSULTASI & ESTIMASI BUAT APLIKASI ==================== -->
+  <div id="appDevModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-code" style="color:#6366f1;"></i> Konsultasi & Estimasi Jasa Buat Aplikasi</h3>
+        <button class="modal-close" onclick="closeAppDevModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Dapatkan software custom, website toko online, aplikasi kasir POS, sistem keuangan, atau mobile app untuk bisnis Anda di Batam dengan pengerjaan cepat & profesional.
+        </p>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label class="form-label">Pilih Jenis Website / Aplikasi *</label>
+            <select id="appTypeSelect" class="form-select" onchange="calculateAppDevEstimate()">
+              <option value="750000" data-label="Website Company Profile / Landing Page">Website Company Profile & Portofolio (Rp 750.000)</option>
+              <option value="1500000" data-label="Toko Online & Katalog WhatsApp">Toko Online / Katalog Produk Terintegrasi WA (Rp 1.500.000)</option>
+              <option value="2500000" data-label="Aplikasi Kasir POS & Manajemen Stok" selected>Aplikasi Kasir POS, Barcode & Stok Usaha (Rp 2.500.000)</option>
+              <option value="3500000" data-label="Sistem Web Custom & Manajemen Kos/Bisnis">Sistem Web Usaha Custom / Manajemen Kos & Bisnis (Rp 3.500.000)</option>
+              <option value="5000000" data-label="Aplikasi Mobile Android / iOS Custom">Aplikasi Mobile Android / iOS Native/Flutter (Rp 5.000.000)</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Fitur Tambahan (Add-on):</label>
+            <div style="display: flex; flex-direction: column; gap: 8px; background: var(--bg-main); padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; font-weight:600;">
+                <input type="checkbox" id="addonThermal" value="350000" onchange="calculateAppDevEstimate()" checked>
+                Cetak Struk Thermal Bluetooth (+Rp 350.000)
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; font-weight:600;">
+                <input type="checkbox" id="addonWaApi" value="500000" onchange="calculateAppDevEstimate()">
+                Notifikasi Otomatis WhatsApp Gateway (+Rp 500.000)
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; font-weight:600;">
+                <input type="checkbox" id="addonExport" value="400000" onchange="calculateAppDevEstimate()" checked>
+                Laporan Keuangan Laba-Rugi & Ekspor Excel (+Rp 400.000)
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; font-weight:600;">
+                <input type="checkbox" id="addonDomain" value="500000" onchange="calculateAppDevEstimate()">
+                Domain .COM & Server Cloud 1 Tahun (+Rp 500.000)
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama Anda / Perusahaan</label>
+            <input type="text" id="appClientName" class="form-input" placeholder="Contoh: Pak Gigin / PT..." />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nomor WhatsApp Aktif</label>
+            <input type="text" id="appClientWa" class="form-input" placeholder="0812xxxxxxx" />
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Deskripsi Ide / Kebutuhan Khusus</label>
+            <textarea id="appClientNotes" rows="2" class="form-textarea" placeholder="Jelaskan alur atau fitur khusus yang Anda inginkan..."></textarea>
+          </div>
+
+          <div class="form-group full-width" id="appDevResultText" style="margin-top: 6px;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-detail-action" onclick="closeAppDevModal()">Tutup</button>
+        <button class="btn-wa-action" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 12px rgba(99,102,241,0.35);" onclick="sendAppDevOrderWhatsApp()">
+          <i class="fa-brands fa-whatsapp"></i> Konsultasi ke WhatsApp Developer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 7. MODAL UPLOAD / BUAT FORMAT CV PENCARI KERJA ==================== -->
+  <div id="cvUploadModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 780px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-file-invoice" style="color:#06b6d4;"></i> Format CV & Upload Profil Pencari Kerja Batam</h3>
+        <button class="modal-close" onclick="closeCvUploadModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="cvUploadForm" onsubmit="handleCvFormSubmit(event)">
+        <div class="modal-body">
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 18px;">
+            Lengkapi data diri, keahlian, dan unggah hingga <strong>3 Foto</strong> (Foto Profil, Sertifikat / Portofolio Karya) agar profil Anda langsung tayang di bursa bakat dan siap dihubungi perusahaan/UMKM Batam!
+          </p>
+
+          <!-- 1. Upload 3 Foto Slots -->
+          <div class="form-group full-width" style="margin-bottom: 16px;">
+            <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+              <span><i class="fa-solid fa-images" style="color:#06b6d4;"></i> Upload Foto Kandidat & Portofolio (Maksimal 3 Foto) *</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Format: JPG, PNG / URL</span>
+            </label>
+
+            <div class="cv-photo-upload-grid">
+              <!-- Slot 1: Foto Profil Utama -->
+              <div class="cv-photo-slot" id="cvSlot1" onclick="triggerCvFileInput(1)">
+                <i class="fa-solid fa-user-circle" style="font-size: 2rem; color: #06b6d4; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Foto Profil Utama *</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk pilih file</span>
+                <input type="file" id="cvFileInput1" accept="image/*" style="display: none;" onchange="handleCvFileSelect(1, event)" />
+                <input type="hidden" id="cvPhotoVal1" />
+              </div>
+
+              <!-- Slot 2: Portofolio / Sertifikat 1 -->
+              <div class="cv-photo-slot" id="cvSlot2" onclick="triggerCvFileInput(2)">
+                <i class="fa-solid fa-award" style="font-size: 2rem; color: #f59e0b; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Portofolio / Sertifikat #1</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk upload</span>
+                <input type="file" id="cvFileInput2" accept="image/*" style="display: none;" onchange="handleCvFileSelect(2, event)" />
+                <input type="hidden" id="cvPhotoVal2" />
+              </div>
+
+              <!-- Slot 3: Portofolio / Sertifikat 2 -->
+              <div class="cv-photo-slot" id="cvSlot3" onclick="triggerCvFileInput(3)">
+                <i class="fa-solid fa-briefcase" style="font-size: 2rem; color: #10b981; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Portofolio / Sertifikat #2</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk upload</span>
+                <input type="file" id="cvFileInput3" accept="image/*" style="display: none;" onchange="handleCvFileSelect(3, event)" />
+                <input type="hidden" id="cvPhotoVal3" />
+              </div>
+            </div>
+            <div style="margin-top: 8px;">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Atau masukkan link URL foto utama:</span>
+              <input type="url" id="cvUrlInput1" class="form-input" placeholder="https://... (Opsional jika upload file langsung)" oninput="handleCvUrlInput(this.value)" style="padding: 6px 12px; font-size: 0.82rem; margin-top: 4px;" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <!-- 2. Data Diri -->
+            <div class="form-group">
+              <label class="form-label">Nama Lengkap & Gelar *</label>
+              <input type="text" id="cvNama" class="form-input" placeholder="Contoh: Rizky Ananda, S.Kom" required oninput="updateCvLivePreview()" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Posisi / Pekerjaan yang Diminati *</label>
+              <input type="text" id="cvPosisi" class="form-input" placeholder="Contoh: Graphic Designer & Video Editor" required oninput="updateCvLivePreview()" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp Aktif *</label>
+              <input type="text" id="cvWa" class="form-input" placeholder="0812xxxxxxx" required oninput="updateCvLivePreview()" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Domisili Kecamatan Batam *</label>
+              <select id="cvKecamatan" class="form-select" required onchange="updateCvLivePreview()">
+                <option value="Batam Kota">Batam Kota</option>
+                <option value="Batu Aji">Batu Aji</option>
+                <option value="Batu Ampar">Batu Ampar</option>
+                <option value="Belakang Padang">Belakang Padang</option>
+                <option value="Bengkong">Bengkong</option>
+                <option value="Bulang">Bulang</option>
+                <option value="Galang">Galang</option>
+                <option value="Lubuk Baja">Lubuk Baja (Nagoya)</option>
+                <option value="Nongsa">Nongsa</option>
+                <option value="Sagulung">Sagulung</option>
+                <option value="Sei Beduk">Sei Beduk (Muka Kuning)</option>
+                <option value="Sekupang">Sekupang (Tiban)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Pendidikan / Kualifikasi Terakhir *</label>
+              <select id="cvPendidikan" class="form-select" required onchange="updateCvLivePreview()">
+                <optgroup label="📜 Pendidikan Non-Akademis & Kejuruan">
+                  <option value="Sertifikasi Profesi (BNSP / K3 / Keahlian)">Sertifikasi Profesi (BNSP / K3 / Keahlian)</option>
+                  <option value="Kursus / Pelatihan LPK / Balai Latihan Kerja (BLK)">Kursus / Pelatihan LPK / Balai Latihan Kerja (BLK)</option>
+                  <option value="Bootcamp IT / Coding / Desain Digital">Bootcamp IT / Coding / Desain Digital</option>
+                  <option value="Pendidikan Vokasi / Pelatihan Teknisi Khusus">Pendidikan Vokasi / Pelatihan Teknisi Khusus</option>
+                  <option value="Pondok Pesantren / Pendidikan Non-Formal">Pondok Pesantren / Pendidikan Non-Formal</option>
+                  <option value="Otodidak Berpengalaman / Praktisi">Otodidak Berpengalaman / Praktisi</option>
+                </optgroup>
+                <optgroup label="🎓 Pendidikan Akademis / Formal">
+                  <option value="Sarjana (S1)">Sarjana (S1)</option>
+                  <option value="Diploma (D3 / D4)">Diploma (D3 / D4)</option>
+                  <option value="Magister (S2)">Magister (S2)</option>
+                  <option value="SMA / SMK Sederajat" selected>SMA / SMK Sederajat</option>
+                  <option value="SMP / Sederajat">SMP / Sederajat</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Ekspektasi Gaji (Per Bulan)</label>
+              <input type="text" id="cvGaji" class="form-input" placeholder="Contoh: Rp 5.000.000 - Rp 6.500.000" oninput="updateCvLivePreview()" />
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Status Kesiapan Bekerja</label>
+              <select id="cvStatusKerja" class="form-select" onchange="updateCvLivePreview()">
+                <option value="Status: Siap Kerja Segera">Siap Kerja Segera (Full Time)</option>
+                <option value="Status: Siap Kerja Shift / Lapangan">Siap Kerja Shift / Lapangan / Pabrik</option>
+                <option value="Status: Siap Part-time & Freelance">Tersedia Part-time / Freelance Proyek</option>
+                <option value="Status: Bekerja (Open to Opportunities)">Sedang Bekerja (Terbuka untuk Tawaran Terbaik)</option>
+              </select>
+            </div>
+
+            <!-- 3. Keahlian & Skill Chips -->
+            <div class="form-group full-width">
+              <label class="form-label">Pilih & Tambah Keahlian Utama (Skill Tags):</label>
+              <div class="skill-chips-selector">
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Desain Grafis')">+ Desain Grafis</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Video Editor')">+ Video Editor</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Admin Kasir')">+ Admin Kasir</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Akuntansi')">+ Akuntansi / Pajak</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Teknisi AC')">+ Teknisi AC</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Teknisi Listrik')">+ Teknisi Listrik</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Mekanik')">+ Mekanik Otomotif</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Driver Logistik')">+ Driver Logistik (SIM B1)</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Web Developer')">+ Web & IT</span>
+                <span class="skill-select-chip" onclick="toggleCvSkillChip(this, 'Tukang Las')">+ Tukang Las / Konstruksi</span>
+              </div>
+              <input type="text" id="cvSkillTags" class="form-input" placeholder="Ketik skill lain dipisah koma (contoh: Photoshop, MS Excel, K3)" style="margin-top: 6px;" oninput="updateCvLivePreview()" />
+            </div>
+
+            <!-- 4. Pengalaman Kerja & Ringkasan Profil -->
+            <div class="form-group full-width">
+              <label class="form-label">Ringkasan Profil & Pengalaman Kerja *</label>
+              <textarea id="cvPengalaman" rows="3" class="form-textarea" placeholder="Jelaskan riwayat pekerjaan, perusahaan sebelumnya, masa kerja, dan pencapaian Anda..." required oninput="updateCvLivePreview()"></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Link Portofolio / File Dokumen CV (Opsional)</label>
+              <input type="url" id="cvDocLink" class="form-input" placeholder="https://drive.google.com/... atau link website portofolio" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-detail-action" onclick="closeCvUploadModal()">Batal</button>
+          <button type="submit" class="btn-primary-gradient nav-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+            <i class="fa-solid fa-check"></i> Simpan & Tayangkan CV ke Talent Pool
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== 8. MODAL PASANG IKLAN LOWONGAN KERJA ==================== -->
+  <div id="jobPostModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 820px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-briefcase" style="color:#10b981;"></i> Pasang Iklan Lowongan Kerja Batam</h3>
+        <button class="modal-close" onclick="closeJobPostModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="jobPostForm" onsubmit="handleJobPostFormSubmit(event)">
+        <div class="modal-body">
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px;">
+            Publikasikan lowongan kerja perusahaan atau usaha Anda di portal Sebatam.com untuk menjangkau ribuan pencari kerja siap kerja di seluruh Kota Batam.
+          </p>
+
+          <!-- 1. Upload Flyer / Poster / Foto Tempat Kerja (Maksimal 6 Foto: JPG, PNG) -->
+          <div class="form-group full-width" style="margin-bottom: 16px;">
+            <label class="form-label" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+              <span><i class="fa-solid fa-images" style="color:#10b981;"></i> Upload Poster / Foto Lowongan Kerja (Maksimal 6 Foto) *</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;"><i class="fa-solid fa-file-image"></i> Format: JPG, PNG, WEBP (Maks 5MB/foto)</span>
+            </label>
+
+            <div class="loker-photo-upload-grid">
+              <!-- Slot 1: Poster Utama -->
+              <div class="cv-photo-slot" id="jobSlot1" onclick="triggerJobFileInput(1)">
+                <i class="fa-solid fa-bullhorn" style="font-size: 1.8rem; color: #10b981; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Poster / Flyer Utama *</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik pilih JPG/PNG</span>
+                <input type="file" id="jobFileInput1" accept="image/jpeg,image/png,image/webp,image/*" style="display: none;" onchange="handleJobFileSelect(1, event)" />
+                <input type="hidden" id="jobPhotoVal1" />
+              </div>
+
+              <!-- Slot 2: Gedung / Kantor -->
+              <div class="cv-photo-slot" id="jobSlot2" onclick="triggerJobFileInput(2)">
+                <i class="fa-solid fa-building" style="font-size: 1.8rem; color: #0ea5e9; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Gedung / Kantor #1</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk upload</span>
+                <input type="file" id="jobFileInput2" accept="image/jpeg,image/png,image/webp,image/*" style="display: none;" onchange="handleJobFileSelect(2, event)" />
+                <input type="hidden" id="jobPhotoVal2" />
+              </div>
+
+              <!-- Slot 3: Ruang Kerja / Workshop -->
+              <div class="cv-photo-slot" id="jobSlot3" onclick="triggerJobFileInput(3)">
+                <i class="fa-solid fa-laptop-code" style="font-size: 1.8rem; color: #6366f1; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Ruang Kerja / Workshop #2</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk upload</span>
+                <input type="file" id="jobFileInput3" accept="image/jpeg,image/png,image/webp,image/*" style="display: none;" onchange="handleJobFileSelect(3, event)" />
+                <input type="hidden" id="jobPhotoVal3" />
+              </div>
+
+              <!-- Slot 4: Fasilitas Karyawan / Mess -->
+              <div class="cv-photo-slot" id="jobSlot4" onclick="triggerJobFileInput(4)">
+                <i class="fa-solid fa-couch" style="font-size: 1.8rem; color: #a855f7; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Fasilitas / Mess #3</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk upload</span>
+                <input type="file" id="jobFileInput4" accept="image/jpeg,image/png,image/webp,image/*" style="display: none;" onchange="handleJobFileSelect(4, event)" />
+                <input type="hidden" id="jobPhotoVal4" />
+              </div>
+
+              <!-- Slot 5: Kegiatan Operasional / Tim -->
+              <div class="cv-photo-slot" id="jobSlot5" onclick="triggerJobFileInput(5)">
+                <i class="fa-solid fa-users-gear" style="font-size: 1.8rem; color: #f59e0b; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Aktivitas Tim / Proyek #4</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk upload</span>
+                <input type="file" id="jobFileInput5" accept="image/jpeg,image/png,image/webp,image/*" style="display: none;" onchange="handleJobFileSelect(5, event)" />
+                <input type="hidden" id="jobPhotoVal5" />
+              </div>
+
+              <!-- Slot 6: Sertifikat / Legalitas -->
+              <div class="cv-photo-slot" id="jobSlot6" onclick="triggerJobFileInput(6)">
+                <i class="fa-solid fa-file-shield" style="font-size: 1.8rem; color: #059669; margin-bottom: 6px;"></i>
+                <span style="font-size: 0.78rem; font-weight: 700;">Legalitas / Sertifikat #5</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted);">Klik untuk upload</span>
+                <input type="file" id="jobFileInput6" accept="image/jpeg,image/png,image/webp,image/*" style="display: none;" onchange="handleJobFileSelect(6, event)" />
+                <input type="hidden" id="jobPhotoVal6" />
+              </div>
+            </div>
+            <div style="margin-top: 8px;">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Atau masukkan link URL gambar poster loker:</span>
+              <input type="url" id="jobUrlInput1" class="form-input" placeholder="https://... (URL poster gambar)" oninput="handleJobUrlInput(this.value)" style="padding: 6px 12px; font-size: 0.82rem; margin-top: 4px;" />
+            </div>
+          </div>
+
+          <!-- 2. Form Rincian Lowongan Kerja -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" id="jobPerusahaanLabel">Nama Perusahaan / Instansi / Toko *</label>
+              <input type="text" id="jobPerusahaan" class="form-input" placeholder="Contoh: PT Batam Tech Solusindo / Snaprint Batam" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" id="jobJudulLabel">Posisi / Judul Lowongan Kerja *</label>
+              <input type="text" id="jobJudul" class="form-input" placeholder="Contoh: Staff Admin Kasir & Akuntansi / Teknisi Listrik" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Kategori Bidang Pekerjaan / Jasa *</label>
+              <select id="jobKategoriSelect" class="form-select" required>
+                <option value="loker">💼 Lowongan Kerja Umum</option>
+                <option value="aplikasi">💻 IT, Programmer & Mobile Developer</option>
+                <option value="elektronik">❄️ Servis AC, Mesin & Elektronik</option>
+                <option value="bengkel">🔧 Bengkel Otomotif, Derek & Las</option>
+                <option value="percetakan">🖨️ Snaprint, Desain & Percetakan</option>
+                <option value="kuliner">🍽️ Restoran, Kafe, Koki & Barista</option>
+                <option value="bangunan">🔨 Tukang Bangunan, Renovasi & Pagar</option>
+                <option value="kos">🏠 Pengelola Kos & Properti</option>
+                <option value="legalitas">⚖️ Akuntansi, Notaris & Legalitas Usaha</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Kecamatan (Area Penempatan / Layanan) *</label>
+              <select id="jobKecamatan" class="form-select" required>
+                <option value="Batam Kota">Batam Kota</option>
+                <option value="Batu Aji">Batu Aji</option>
+                <option value="Batu Ampar">Batu Ampar</option>
+                <option value="Belakang Padang">Belakang Padang</option>
+                <option value="Bengkong">Bengkong</option>
+                <option value="Bulang">Bulang</option>
+                <option value="Galang">Galang</option>
+                <option value="Lubuk Baja">Lubuk Baja (Nagoya)</option>
+                <option value="Nongsa">Nongsa</option>
+                <option value="Sagulung">Sagulung</option>
+                <option value="Sei Beduk">Sei Beduk (Muka Kuning)</option>
+                <option value="Sekupang">Sekupang (Tiban)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tipe Pekerjaan / Sistem Kerja *</label>
+              <select id="jobTipeKerja" class="form-select" required>
+                <option value="Full Time (Penuh Waktu)">Full Time (Penuh Waktu)</option>
+                <option value="Kontrak / Shift Pabrik">Kontrak / Shift Pabrik</option>
+                <option value="Part Time (Paruh Waktu)">Part Time (Paruh Waktu)</option>
+                <option value="Freelance / Borongan">Freelance / Borongan Proyek</option>
+                <option value="Panggilan 24 Jam">Layanan Siaga / Panggilan 24 Jam</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" id="jobGajiLabel">Gaji / Upah Ditawarkan (Per Bulan/Proyek) *</label>
+              <input type="text" id="jobGaji" class="form-input" placeholder="Contoh: Rp 4.500.000 - Rp 6.000.000" required />
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Alamat Lengkap Kantor / Lokasi Kerja / Workshop</label>
+              <input type="text" id="jobAlamat" class="form-input" placeholder="Komp. Ruko / Nama Gedung / Kawasan Industri" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Kualifikasi Pendidikan Minimal</label>
+              <select id="jobPendidikan" class="form-select">
+                <optgroup label="📜 Non-Akademis / Sertifikasi & Kejuruan">
+                  <option value="Sertifikasi Keahlian / Pelatihan BLK / LPK">Sertifikasi Keahlian / Pelatihan BLK / LPK</option>
+                  <option value="Sertifikasi Profesi (BNSP / K3 / Terkait)">Sertifikasi Profesi (BNSP / K3 / Terkait)</option>
+                  <option value="Terbuka Untuk Semua Jenjang / Portofolio Kuat" selected>Terbuka Untuk Semua Jenjang / Portofolio Kuat</option>
+                </optgroup>
+                <optgroup label="🎓 Pendidikan Akademis / Formal">
+                  <option value="SMA / SMK Sederajat">SMA / SMK Sederajat</option>
+                  <option value="Diploma (D3 / D4)">Diploma (D3 / D4)</option>
+                  <option value="Sarjana (S1)">Sarjana (S1)</option>
+                  <option value="Magister (S2)">Magister (S2)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Pengalaman Kerja Dibutuhkan</label>
+              <select id="jobPengalaman" class="form-select">
+                <option value="Fresh Graduate / Pemula Dipersilakan">Fresh Graduate / Pemula Dipersilakan</option>
+                <option value="Minimal 1 - 2 Tahun">Minimal 1 - 2 Tahun di Bidangnya</option>
+                <option value="Minimal 3 - 5 Tahun">Minimal 3 - 5 Tahun (Berpengalaman)</option>
+                <option value="Senior / Ahli Khusus">Senior / Memiliki Portofolio & Keahlian Khusus</option>
+              </select>
+            </div>
+
+            <!-- 4. Persyaratan & Jobdesk -->
+            <div class="form-group full-width">
+              <label class="form-label">Persyaratan & Kualifikasi Kandidat *</label>
+              <textarea id="jobKualifikasi" rows="3" class="form-textarea" placeholder="Contoh:&#10;1. Pria/Wanita maks. 30 tahun&#10;2. Menguasai Microsoft Excel & software akuntansi / desain&#10;3. Memiliki loyalitas, jujur & komunikatif&#10;4. Bersedia kerja shift / penempatan Batam Center" required></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Deskripsi Pekerjaan (Jobdesk) / Ruang Lingkup Layanan Jasa *</label>
+              <textarea id="jobDeskripsi" rows="3" class="form-textarea" placeholder="Contoh: Bertanggung jawab melakukan pembukuan transaksi harian, mengelola kasir kas kecil, mencetak nota dan laporan berkala kepada manajemen..." required></textarea>
+            </div>
+
+            <!-- 5. Fasilitas & Benefit -->
+            <div class="form-group full-width">
+              <label class="form-label">Fasilitas & Benefit yang Diberikan (Pilih Cepat):</label>
+              <div class="benefit-chips-selector">
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'BPJS Kesehatan')">+ BPJS Kesehatan</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'BPJS Ketenagakerjaan')">+ BPJS Ketenagakerjaan</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'Uang Makan')">+ Uang Makan Siang</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'Mess Karyawan')">+ Mess Tempat Tinggal</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'Tunjangan Transport')">+ Tunjangan Transport</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'Bonus Insentif')">+ Bonus Insentif / Target</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'Lembur Dibayar')">+ Lembur Dibayar</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'THR')">+ Tunjangan Hari Raya (THR)</span>
+                <span class="benefit-chip" onclick="toggleJobBenefitChip(this, 'Garansi Pekerjaan')">+ Garansi Hasil Kerja</span>
+              </div>
+              <input type="text" id="jobBenefitText" class="form-input" placeholder="Ketik benefit/keunggulan lain dipisah koma (misal: Seragam, Training Bersertifikat)" style="margin-top: 6px;" />
+            </div>
+
+            <!-- 6. Batas Lamaran & Kontak Perekrut -->
+            <div class="form-group">
+              <label class="form-label">Batas Akhir Lamaran / Status</label>
+              <input type="text" id="jobDeadline" class="form-input" placeholder="Contoh: 30 September 2026 / Urgent Dibutuhkan Segera" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp HRD / Kontak Cepat *</label>
+              <input type="text" id="jobWa" class="form-input" placeholder="0812xxxxxxx" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email Pengiriman CV / Lamaran (Opsional)</label>
+              <input type="email" id="jobEmail" class="form-input" placeholder="hrd@perusahaan.com" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Link Formulir Online / Google Form (Opsional)</label>
+              <input type="url" id="jobFormLink" class="form-input" placeholder="https://forms.gle/... atau tautan website karir" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-detail-action" onclick="closeJobPostModal()">Batal</button>
+          <button type="submit" class="btn-primary-gradient nav-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <i class="fa-solid fa-check"></i> Simpan & Tayangkan Iklan Lowongan / Jasa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Sebatam Portal Engine JS -->
+  <script src="sebatam_portal.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      calculateSpandukEstimate();
+    });
+  </script>
+</body>
+</html>
