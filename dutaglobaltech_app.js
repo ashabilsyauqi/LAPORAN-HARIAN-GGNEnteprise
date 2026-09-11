@@ -695,7 +695,7 @@ function handleLeadSubmit(event) {
     `📝 Ringkasan Proyek: ${summary || "Terlampir dalam diskusi awal"}\n\n` +
     `Mohon dijadwalkan sesi konsultasi teknis / video call. Terima kasih!`;
 
-  const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(waText)}`;
+  const waUrl = `https://wa.me/6287781047453?text=${encodeURIComponent(waText)}`;
   
   alert(isId 
     ? "Terima kasih! Permintaan Anda telah kami rekam. Anda akan dialihkan ke WhatsApp Business Dutaglobaltech untuk melanjutkan diskusi teknis." 
