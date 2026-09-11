@@ -397,14 +397,19 @@
         </div>
       </div>
 
-      <!-- ================= 2. TIGA CARA PEMBAYARAN / SUMBER DANA ================= -->
+      <!-- ================= 2. TIGA CARA PEMBAYARAN & VOUCHER DISCOUNT ================= -->
       <div>
-        <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 mb-2.5 flex items-center gap-2">
-          <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i>
-          2. Rincian Saldo Saluran Kas (Tunai, QRIS, & Rekening BCA)
-        </h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
+          <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-sky-400"></i>
+            2. Rincian Saldo Saluran Kas & Voucher Discount (Penghematan)
+          </h2>
+          <button onclick="openVoucherReportModal()" class="px-3 py-1 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5 w-fit transition-all shadow-sm">
+            <i data-lucide="tag" class="w-3.5 h-3.5"></i> Buka Report Voucher Discount
+          </button>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           <!-- 1. UANG TUNAI DI LACI -->
           <div class="card-box p-4 border-emerald-500/40">
@@ -481,6 +486,36 @@
             </div>
           </div>
 
+          <!-- 4. VOUCHER DISCOUNT (PENGHEMATAN NON-TUNAI) -->
+          <div class="card-box p-4 border-amber-500/40 bg-gradient-to-b from-amber-500/10 to-transparent">
+            <div class="flex items-center justify-between pb-2 border-b border-dark-border">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🏷️</span>
+                <h3 class="text-xs font-bold text-white uppercase">Voucher Discount</h3>
+              </div>
+              <span class="text-[10px] text-amber-400 font-bold bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded">Penghematan</span>
+            </div>
+            <div class="mt-2.5 space-y-1 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>Diskon Hari Ini:</span>
+                <span id="voucherInToday" class="font-bold text-amber-400">Rp 0</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>s/d Kemarin:</span>
+                <span id="voucherPast" class="font-bold text-slate-300">Rp 0</span>
+              </div>
+              <div class="pt-2 border-t border-dark-border flex justify-between items-center font-bold">
+                <span class="text-slate-200">Total Penghematan:</span>
+                <span id="voucherBalance" class="text-amber-400 text-sm font-black">Rp 0</span>
+              </div>
+              <div class="pt-2">
+                <button onclick="openVoucherReportModal()" class="w-full py-1 px-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Lihat Report Voucher
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -525,6 +560,7 @@
             <option value="cash">💵 Hanya Cash / Tunai</option>
             <option value="qris">📱 Hanya QRIS</option>
             <option value="bca">🏦 Hanya Rekening BCA</option>
+            <option value="voucher">🏷️ Hanya Voucher Discount (Penghematan)</option>
           </select>
 
           <!-- Filter Waktu -->
@@ -569,9 +605,10 @@
           <div>
             Menampilkan <span id="displayedCount" class="font-bold text-white">0</span> transaksi
           </div>
-          <div class="flex items-center gap-4 font-bold text-xs">
-            <span class="text-emerald-400">Total Masuk: <span id="sumTableIncome">Rp 0</span></span>
+          <div class="flex flex-wrap items-center gap-4 font-bold text-xs">
+            <span class="text-emerald-400">Total Masuk (Kas): <span id="sumTableIncome">Rp 0</span></span>
             <span class="text-rose-400">Total Keluar: <span id="sumTableExpense">Rp 0</span></span>
+            <span id="sumTableVoucherWrap" class="text-amber-400 hidden">Voucher Diskon: <span id="sumTableVoucher">Rp 0</span></span>
           </div>
         </div>
       </div>
@@ -1026,6 +1063,17 @@
           </div>
         </div>
 
+        <!-- Banner Info Khusus Voucher Discount / Penghematan -->
+        <div id="txVoucherNotice" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
+          <span class="text-base leading-none mt-0.5">🏷️</span>
+          <div>
+            <span class="font-extrabold text-amber-300">Voucher Discount Pembelanjaan (Penghematan):</span>
+            <p class="text-slate-300 text-[11px] mt-0.5 leading-relaxed">
+              Tercatat khusus sebagai potongan diskon (Non-Kas: bukan Tunai/Laci, QRIS, maupun Bank). Transaksi ini memiliki laporan dan rekap tersendiri di menu <strong>Report Voucher</strong>.
+            </p>
+          </div>
+        </div>
+
         <div>
           <label class="block font-bold text-slate-300 mb-1">Keterangan / Rincian Transaksi</label>
           <input type="text" id="txNotes" placeholder="Contoh: Oli Shell Helix HX7 4L + Filter Oli" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
@@ -1191,6 +1239,109 @@
     </div>
   </div>
 
+  <!-- ================= MODAL LAPORAN KHUSUS VOUCHER DISCOUNT PEMBELANJAAN ================= -->
+  <div id="voucherReportModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0f19]/85 p-4 hidden overflow-y-auto">
+    <div class="card-box w-full max-w-4xl p-6 border-amber-500/40 shadow-2xl my-auto text-xs">
+      
+      <!-- Header Modal -->
+      <div class="flex items-center justify-between pb-3 border-b border-dark-border mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+            🏷️
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+              Laporan Voucher Discount Pembelanjaan
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">Penghematan Non-Kas</span>
+            </h3>
+            <p class="text-[11px] text-slate-400" id="voucherModalSubtitle">Rekapitulasi Voucher Diskon Khusus (Bukan Tunai, QRIS, maupun Transfer BCA)</p>
+          </div>
+        </div>
+        <button onclick="closeModal('voucherReportModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Ringkasan Statistik Voucher (4 Metrik) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div class="p-3 rounded-xl bg-dark-card border border-dark-border">
+          <span class="text-[10px] text-slate-400 font-semibold block">Total Transaksi Voucher</span>
+          <span id="voucherStatCount" class="text-lg font-black text-white mt-1 block">0 Transaksi</span>
+        </div>
+        <div class="p-3 rounded-xl bg-dark-card border border-dark-border">
+          <span class="text-[10px] text-slate-400 font-semibold block">Diskon Hari Ini</span>
+          <span id="voucherStatToday" class="text-lg font-black text-amber-400 mt-1 block">Rp 0</span>
+        </div>
+        <div class="p-3 rounded-xl bg-dark-card border border-dark-border">
+          <span class="text-[10px] text-slate-400 font-semibold block">Diskon s/d Kemarin</span>
+          <span id="voucherStatPast" class="text-lg font-black text-slate-300 mt-1 block">Rp 0</span>
+        </div>
+        <div class="p-3 rounded-xl bg-dark-card border border-amber-500/30 bg-amber-500/5">
+          <span class="text-[10px] text-amber-300 font-bold block">Total Kumulatif Diskon</span>
+          <span id="voucherStatCum" class="text-lg font-black text-amber-400 mt-1 block">Rp 0</span>
+        </div>
+      </div>
+
+      <!-- Filter & Aksi -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-dark-border">
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="voucherFilterPeriod" onchange="renderVoucherReportTable()" class="bg-dark-input border border-dark-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none">
+            <option value="all">Semua Waktu</option>
+            <option value="today">Hari Ini</option>
+            <option value="this_month">Bulan Ini</option>
+          </select>
+          <input type="text" id="voucherFilterSearch" oninput="renderVoucherReportTable()" placeholder="Cari keterangan / petugas / invoice..." 
+            class="bg-dark-input border border-dark-border rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 w-44 sm:w-56">
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportVoucherToExcel()" class="px-3 py-1.5 rounded-xl bg-dark-card2 border border-dark-border hover:border-amber-500 text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-all">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-amber-400"></i> Download Excel
+          </button>
+          <button onclick="printVoucherReport()" class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center gap-1.5 shadow transition-all">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Laporan Voucher
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabel Transaksi Voucher -->
+      <div class="overflow-x-auto mt-3 max-h-96">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-dark-input text-[11px] font-bold text-slate-400 uppercase tracking-wider sticky top-0">
+            <tr>
+              <th class="py-2.5 px-3">Tanggal & Waktu</th>
+              <th class="py-2.5 px-3">No. Invoice</th>
+              <th class="py-2.5 px-3">Cabang</th>
+              <th class="py-2.5 px-3">Rincian / Keterangan</th>
+              <th class="py-2.5 px-3">Petugas Kasir</th>
+              <th class="py-2.5 px-3 text-right">Nilai Voucher Discount</th>
+              <th class="py-2.5 px-3 text-center">Nota</th>
+            </tr>
+          </thead>
+          <tbody id="voucherTableBody" class="divide-y divide-dark-border font-medium">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+
+        <div id="emptyVoucherTableState" class="py-8 text-center text-slate-400 text-xs hidden">
+          <p class="font-bold text-slate-300">Belum ada transaksi Voucher Discount Pembelanjaan.</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">Saat mencatat pemasukan dengan kategori Penghematan/Voucher, transaksi akan otomatis muncul di sini.</p>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="mt-4 pt-3 border-t border-dark-border flex items-center justify-between text-xs text-slate-400">
+        <div class="flex items-center gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-amber-400 shrink-0"></i>
+          <span>Voucher Discount Pembelanjaan dicatat sebagai penghematan potongan non-kas, tidak memengaruhi fisik kasir ataupun saldo bank.</span>
+        </div>
+        <button onclick="closeModal('voucherReportModal')" class="px-4 py-2 rounded-xl bg-dark-card2 text-slate-200 font-bold text-xs hover:bg-dark-input shrink-0 ml-4">
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ================= PRINT AREA UNTUK LAPORAN KEUANGAN A4 ================= -->
   <div id="printArea" class="hidden">
     <div style="font-family: Arial, sans-serif; padding: 20px; color: #111;">
@@ -1235,9 +1386,24 @@
         </table>
       </div>
 
+      <!-- Ringkasan Voucher Discount (Penghematan / Non-Kas) -->
+      <div style="margin-bottom: 15px;">
+        <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 6px;">3. REKAPITULASI VOUCHER DISCOUNT PEMBELANJAAN (PENGHEMATAN / NON-KAS)</h3>
+        <p style="font-size: 10px; color: #666; margin: 0 0 6px 0;">*Catatan: Voucher Discount Pembelanjaan dicatat khusus sebagai potongan diskon (Non-Tunai) dan tidak memengaruhi saldo fisik Tunai/Laci, QRIS, maupun Rekening BCA.</p>
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px;">
+          <thead>
+            <tr style="background: #fffbeb;">
+              <th style="border: 1px solid #fde68a; padding: 6px; text-align: left;">Keterangan Dimensi</th>
+              <th style="border: 1px solid #fde68a; padding: 6px; text-align: right;">Total Nilai Voucher Discount (Rp)</th>
+            </tr>
+          </thead>
+          <tbody id="printVoucherTableBody"></tbody>
+        </table>
+      </div>
+
       <!-- Rincian Transaksi -->
       <div>
-        <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 6px;">3. CATATAN RINCIAN TRANSAKSI</h3>
+        <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 6px;">4. CATATAN RINCIAN TRANSAKSI</h3>
         <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
           <thead>
             <tr style="background: #f0f0f0;">
@@ -1390,6 +1556,7 @@
     function getPaymentChannel(methodStr) {
       if (!methodStr) return 'cash';
       const m = methodStr.toLowerCase();
+      if (m.includes('voucher') || m.includes('discount') || m.includes('penghematan')) return 'voucher';
       if (m.includes('qris')) return 'qris';
       if (m.includes('bca') || m.includes('rekening') || m.includes('transfer')) return 'bca';
       return 'cash';
@@ -1455,6 +1622,17 @@
       if (savedTx) {
         try { 
           transactions = JSON.parse(savedTx); 
+          // Normalisasi otomatis transaksi kategori Penghematan/Voucher
+          let txChanged = false;
+          transactions.forEach(t => {
+            if (t.category && (t.category.toLowerCase().includes('voucher') || t.category.toLowerCase().includes('penghematan'))) {
+              if (t.paymentMethod !== 'Voucher Discount Pembelanjaan') {
+                t.paymentMethod = 'Voucher Discount Pembelanjaan';
+                txChanged = true;
+              }
+            }
+          });
+          if (txChanged) saveTransactions();
         } catch(e) { 
           transactions = []; 
           saveTransactions();
@@ -1786,23 +1964,34 @@
         ? transactions 
         : transactions.filter(t => t.branchId === currentBranchId);
 
+      // Pisahkan transaksi kas riil (Tunai, QRIS, BCA) vs Voucher Discount (Penghematan Non-Kas)
+      const txReal = branchTx.filter(t => getPaymentChannel(t.paymentMethod) !== 'voucher');
+      const txVoucher = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'voucher');
+
       // 1. RUMUS DIMENSI HARI INI (t = today)
       const txToday = branchTx.filter(t => t.date === today);
-      const inToday = txToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const txRealToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) !== 'voucher');
+      const inToday = txRealToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
       const exToday = txToday.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
       const netToday = inToday - exToday;
 
       // 2. RUMUS DIMENSI s/d KEMARIN (Saldo Awal, t < today)
       const txPast = branchTx.filter(t => t.date < today);
-      const inPast = txPast.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const txRealPast = txPast.filter(t => getPaymentChannel(t.paymentMethod) !== 'voucher');
+      const inPast = txRealPast.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
       const exPast = txPast.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
       const netPast = inPast - exPast;
 
-      // 3. RUMUS DIMENSI TOTAL KAS TOKO / KUMULATIF (Grand Total)
+      // 3. RUMUS DIMENSI TOTAL KAS TOKO / KUMULATIF (Grand Total Kas Riil)
       const inCum = inPast + inToday;
       const exCum = exPast + exToday;
       const netCum = inCum - exCum;
       const totalTx = branchTx.length;
+
+      // 4. RUMUS DIMENSI VOUCHER DISCOUNT (PENGHEMATAN NON-TUNAI / KHUSUS)
+      const vToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'voucher').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const vPast = txPast.filter(t => getPaymentChannel(t.paymentMethod) === 'voucher').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const vCum = vPast + vToday;
 
       // Update Tampilan 3 Kartu Utama
       document.getElementById('todayTxBadge').innerText = `${txToday.length} Transaksi`;
@@ -1821,7 +2010,7 @@
       document.getElementById('cumNet').innerText = formatRupiah(netCum);
       document.getElementById('cumNet').className = `text-lg font-black ${netCum >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-      // 4. RUMUS SALURAN PEMBAYARAN & SUMBER DANA (Cash, QRIS, BCA)
+      // 5. RUMUS SALURAN PEMBAYARAN & SUMBER DANA KAS RIIL (Cash, QRIS, BCA) - BEBAS VOUCHER
       const cashToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'cash');
       const cashAll = branchTx.filter(t => getPaymentChannel(t.paymentMethod) === 'cash');
       const cInToday = cashToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
@@ -1854,6 +2043,14 @@
       document.getElementById('bcaInToday').innerText = formatRupiah(bInToday);
       document.getElementById('bcaOutToday').innerText = formatRupiah(bOutToday);
       document.getElementById('bcaBalance').innerText = formatRupiah(bInAll - bOutAll);
+
+      // 6. UPDATE KARTU KE-4: VOUCHER DISCOUNT (PENGHEMATAN)
+      const elVToday = document.getElementById('voucherInToday');
+      const elVPast = document.getElementById('voucherPast');
+      const elVBal = document.getElementById('voucherBalance');
+      if (elVToday) elVToday.innerText = formatRupiah(vToday);
+      if (elVPast) elVPast.innerText = formatRupiah(vPast);
+      if (elVBal) elVBal.innerText = formatRupiah(vCum);
     }
 
     function formatRupiah(num) {
@@ -1930,16 +2127,29 @@
 
       let sumIn = 0;
       let sumEx = 0;
+      let sumVoucher = 0;
 
       data.forEach(t => {
-        if (t.type === 'pemasukan') sumIn += Number(t.amount || 0);
-        else sumEx += Number(t.amount || 0);
-
         const isInc = t.type === 'pemasukan';
         const channel = getPaymentChannel(t.paymentMethod);
+
+        if (channel === 'voucher') {
+          sumVoucher += Number(t.amount || 0);
+        } else if (isInc) {
+          sumIn += Number(t.amount || 0);
+        } else {
+          sumEx += Number(t.amount || 0);
+        }
         
         let badge = '💵 Tunai';
-        if (isInc) {
+        let badgeClass = 'bg-dark-input border-dark-border text-slate-300';
+        let amountClass = isInc ? 'text-emerald-400' : 'text-rose-400';
+
+        if (channel === 'voucher') {
+          badge = '🏷️ Voucher Discount';
+          badgeClass = 'bg-amber-500/15 border-amber-500/30 text-amber-300';
+          amountClass = 'text-amber-400 font-black';
+        } else if (isInc) {
           if (channel === 'qris') badge = '📱 QRIS';
           else if (channel === 'bca') badge = '🏦 Transfer BCA';
           else badge = '💵 Tunai';
@@ -1972,9 +2182,9 @@
             <span class="text-[11px] font-semibold text-slate-300">${escapeHtml(t.category)}</span>
           </td>
           <td class="py-2.5 px-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-dark-input border border-dark-border text-slate-300">${badge}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${badge}</span>
           </td>
-          <td class="py-2.5 px-3 text-right font-bold ${isInc ? 'text-emerald-400' : 'text-rose-400'}">
+          <td class="py-2.5 px-3 text-right font-bold ${amountClass}">
             ${isInc ? '+' : '-'} ${formatRupiah(t.amount)}
           </td>
           <td class="py-2.5 px-3 text-center">
@@ -2003,6 +2213,17 @@
       document.getElementById('displayedCount').innerText = data.length;
       document.getElementById('sumTableIncome').innerText = formatRupiah(sumIn);
       document.getElementById('sumTableExpense').innerText = formatRupiah(sumEx);
+      
+      const vWrap = document.getElementById('sumTableVoucherWrap');
+      const vSpan = document.getElementById('sumTableVoucher');
+      if (vWrap && vSpan) {
+        if (sumVoucher > 0) {
+          vSpan.innerText = formatRupiah(sumVoucher);
+          vWrap.classList.remove('hidden');
+        } else {
+          vWrap.classList.add('hidden');
+        }
+      }
 
       lucide.createIcons();
     }
@@ -2149,7 +2370,8 @@
         const optionsIn = [
           { val: 'Tunai', text: '💵 Tunai (Cash)' },
           { val: 'QRIS', text: '📱 QRIS' },
-          { val: 'Transfer BCA', text: '🏦 Transfer BCA' }
+          { val: 'Transfer BCA', text: '🏦 Transfer BCA' },
+          { val: 'Voucher Discount Pembelanjaan', text: '🏷️ Voucher Discount Pembelanjaan (Penghematan)' }
         ];
         optionsIn.forEach(o => {
           const opt = document.createElement('option');
@@ -2183,6 +2405,35 @@
       }
 
       populateCategoriesForBranch(defaultBranch, type);
+
+      const catSelect = document.getElementById('txCategory');
+      const voucherNotice = document.getElementById('txVoucherNotice');
+      if (voucherNotice) voucherNotice.classList.add('hidden');
+
+      catSelect.onchange = function() {
+        const val = this.value || '';
+        const curType = document.getElementById('txType').value;
+        if (curType === 'pemasukan' && (val.toLowerCase().includes('voucher') || val.toLowerCase().includes('penghematan'))) {
+          methodSelect.value = 'Voucher Discount Pembelanjaan';
+          if (voucherNotice) voucherNotice.classList.remove('hidden');
+        } else if (curType === 'pemasukan' && methodSelect.value === 'Voucher Discount Pembelanjaan') {
+          methodSelect.value = 'Tunai';
+          if (voucherNotice) voucherNotice.classList.add('hidden');
+        }
+      };
+
+      methodSelect.onchange = function() {
+        if (this.value === 'Voucher Discount Pembelanjaan') {
+          if (voucherNotice) voucherNotice.classList.remove('hidden');
+        } else {
+          if (voucherNotice) voucherNotice.classList.add('hidden');
+        }
+      };
+
+      if (type === 'pemasukan' && catSelect.value && (catSelect.value.toLowerCase().includes('voucher') || catSelect.value.toLowerCase().includes('penghematan'))) {
+        methodSelect.value = 'Voucher Discount Pembelanjaan';
+        if (voucherNotice) voucherNotice.classList.remove('hidden');
+      }
 
       const now = new Date();
       document.getElementById('txId').value = '';
@@ -2222,7 +2473,10 @@
       const time = document.getElementById('txTime').value;
       const customer = document.getElementById('txCustomer').value.trim() || (type === 'pemasukan' ? 'Pelanggan Umum' : '-');
       const category = document.getElementById('txCategory').value;
-      const paymentMethod = document.getElementById('txPaymentMethod').value;
+      let paymentMethod = document.getElementById('txPaymentMethod').value;
+      if (type === 'pemasukan' && category && (category.toLowerCase().includes('voucher') || category.toLowerCase().includes('penghematan'))) {
+        paymentMethod = 'Voucher Discount Pembelanjaan';
+      }
       const notes = document.getElementById('txNotes').value.trim();
       const amount = Number(document.getElementById('txAmount').value);
 
@@ -2315,7 +2569,8 @@
       const rcpLabel = document.getElementById('rcpMethodLabel');
       if (rcpLabel) rcpLabel.innerText = tx.type === 'pengeluaran' ? 'Sumber Dana:' : 'Metode Pembayaran:';
 
-      document.getElementById('rcpMethod').innerText = tx.paymentMethod || 'Tunai';
+      const isVoucherTx = getPaymentChannel(tx.paymentMethod) === 'voucher';
+      document.getElementById('rcpMethod').innerText = isVoucherTx ? '🏷️ Voucher Discount (Penghematan)' : (tx.paymentMethod || 'Tunai');
       document.getElementById('rcpTotal').innerText = formatRupiah(tx.amount);
 
       document.getElementById('receiptModal').classList.remove('hidden');
@@ -2883,11 +3138,13 @@
         : transactions.filter(t => t.branchId === currentBranchId);
 
       const txToday = branchTx.filter(t => t.date === today);
-      const inToday = txToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const txRealToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) !== 'voucher');
+      const inToday = txRealToday.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
       const exToday = txToday.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
 
       const txPast = branchTx.filter(t => t.date < today);
-      const inPast = txPast.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
+      const txRealPast = txPast.filter(t => getPaymentChannel(t.paymentMethod) !== 'voucher');
+      const inPast = txRealPast.filter(t => t.type === 'pemasukan').reduce((s, t) => s + Number(t.amount || 0), 0);
       const exPast = txPast.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + Number(t.amount || 0), 0);
 
       const inCum = inPast + inToday;
@@ -2907,7 +3164,7 @@
           <td style="border: 1px solid #ccc; padding: 6px; text-align: right; font-weight: bold;">${formatRupiah(inPast - exPast)}</td>
         </tr>
         <tr style="background: #fdfdfd; font-weight: bold;">
-          <td style="border: 1px solid #ccc; padding: 6px;">TOTAL KAS (KUMULATIF)</td>
+          <td style="border: 1px solid #ccc; padding: 6px;">TOTAL KAS RIIL (KUMULATIF)</td>
           <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #047857;">${formatRupiah(inCum)}</td>
           <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #b91c1c;">${formatRupiah(exCum)}</td>
           <td style="border: 1px solid #ccc; padding: 6px; text-align: right; color: #1d4ed8;">${formatRupiah(inCum - exCum)}</td>
@@ -2951,26 +3208,311 @@
         </tr>
       `;
 
+      // REKAPITULASI VOUCHER DISCOUNT (NON-KAS / PENGHEMATAN)
+      const vToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) === 'voucher').reduce((s,t)=>s+Number(t.amount||0),0);
+      const vPast = txPast.filter(t => getPaymentChannel(t.paymentMethod) === 'voucher').reduce((s,t)=>s+Number(t.amount||0),0);
+      const vCum = vPast + vToday;
+
+      const printVoucherBody = document.getElementById('printVoucherTableBody');
+      if (printVoucherBody) {
+        printVoucherBody.innerHTML = `
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">🏷️ Diskon Hari Ini (${formatDateIndo(today)})</td>
+            <td style="border: 1px solid #ccc; padding: 5px; text-align: right; font-weight: bold; color: #b45309;">${formatRupiah(vToday)}</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 5px;">🏷️ Diskon s/d Kemarin (Lalu)</td>
+            <td style="border: 1px solid #ccc; padding: 5px; text-align: right;">${formatRupiah(vPast)}</td>
+          </tr>
+          <tr style="background: #fffbeb; font-weight: bold;">
+            <td style="border: 1px solid #fde68a; padding: 5px; color: #92400e;">TOTAL KUMULATIF VOUCHER DISCOUNT (PENGHEMATAN)</td>
+            <td style="border: 1px solid #fde68a; padding: 5px; text-align: right; color: #b45309; font-size: 11px;">${formatRupiah(vCum)}</td>
+          </tr>
+        `;
+      }
+
       const txTbody = document.getElementById('printTxTableBody');
       txTbody.innerHTML = '';
       const sorted = [...branchTx].sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
 
       sorted.forEach(t => {
         const isInc = t.type === 'pemasukan';
+        const channel = getPaymentChannel(t.paymentMethod);
+        const isVoucher = channel === 'voucher';
+        
+        let typeBadge = isInc ? 'MASUK' : 'KELUAR';
+        let amountColor = isInc ? '#047857' : '#b91c1c';
+        let methodText = escapeHtml(t.paymentMethod || 'Tunai');
+
+        if (isVoucher) {
+          typeBadge = 'VOUCHER';
+          amountColor = '#b45309';
+          methodText = '🏷️ Voucher Discount';
+        }
+
         const row = document.createElement('tr');
         row.innerHTML = `
           <td style="border: 1px solid #ccc; padding: 5px;">${t.id}<br><span style="color:#666; font-size:9px;">${formatDateIndo(t.date)} ${t.time || ''}</span></td>
           <td style="border: 1px solid #ccc; padding: 5px; font-weight: bold;">${getBranchShortName(t.branchId)}</td>
           <td style="border: 1px solid #ccc; padding: 5px;"><strong>${escapeHtml(t.customer || '-')}</strong><br><span style="color:#555; font-size:9px;">${escapeHtml(t.notes || '')}</span></td>
           <td style="border: 1px solid #ccc; padding: 5px;">${escapeHtml(t.category)}</td>
-          <td style="border: 1px solid #ccc; padding: 5px;"><strong>${escapeHtml(t.paymentMethod || 'Tunai')}</strong></td>
-          <td style="border: 1px solid #ccc; padding: 5px; text-align: center;"><strong>${isInc ? 'MASUK' : 'KELUAR'}</strong></td>
-          <td style="border: 1px solid #ccc; padding: 5px; text-align: right; font-weight: bold; color: ${isInc ? '#047857' : '#b91c1c'};">${isInc ? '+' : '-'} ${formatRupiah(t.amount)}</td>
+          <td style="border: 1px solid #ccc; padding: 5px;"><strong>${methodText}</strong></td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: center;"><strong>${typeBadge}</strong></td>
+          <td style="border: 1px solid #ccc; padding: 5px; text-align: right; font-weight: bold; color: ${amountColor};">${isInc ? '+' : '-'} ${formatRupiah(t.amount)}</td>
         `;
         txTbody.appendChild(row);
       });
 
       window.print();
+    }
+
+    // =========================================================================
+    // MODUL REPORT TERSENDIRI: VOUCHER DISCOUNT PEMBELANJAAN (PENGHEMATAN)
+    // =========================================================================
+    function openVoucherReportModal() {
+      if (!currentUser) return;
+      const subtitle = document.getElementById('voucherModalSubtitle');
+      if (subtitle) {
+        subtitle.innerText = `Cabang: ${getBranchName(currentBranchId)} • Rekapitulasi Voucher Diskon Khusus (Bukan Tunai, QRIS, maupun Bank)`;
+      }
+      renderVoucherReportTable();
+      document.getElementById('voucherReportModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function renderVoucherReportTable() {
+      const tbody = document.getElementById('voucherTableBody');
+      const emptyState = document.getElementById('emptyVoucherTableState');
+      const searchInput = document.getElementById('voucherFilterSearch');
+      const periodSelect = document.getElementById('voucherFilterPeriod');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      const period = periodSelect ? periodSelect.value : 'all';
+      const today = getTodayDateStr();
+
+      let branchTx = currentBranchId === 'all' 
+        ? transactions 
+        : transactions.filter(t => t.branchId === currentBranchId);
+
+      // Saring hanya transaksi Voucher Discount Pembelanjaan
+      let vTxList = branchTx.filter(t => 
+        getPaymentChannel(t.paymentMethod) === 'voucher' || 
+        (t.category && (t.category.toLowerCase().includes('voucher') || t.category.toLowerCase().includes('penghematan')))
+      );
+
+      // Metrik statistik keseluruhan voucher di cabang ini
+      const todayVouchers = vTxList.filter(t => t.date === today);
+      const pastVouchers = vTxList.filter(t => t.date < today);
+      const sumToday = todayVouchers.reduce((s, t) => s + Number(t.amount || 0), 0);
+      const sumPast = pastVouchers.reduce((s, t) => s + Number(t.amount || 0), 0);
+      const sumCum = sumPast + sumToday;
+
+      document.getElementById('voucherStatCount').innerText = `${vTxList.length} Transaksi`;
+      document.getElementById('voucherStatToday').innerText = formatRupiah(sumToday);
+      document.getElementById('voucherStatPast').innerText = formatRupiah(sumPast);
+      document.getElementById('voucherStatCum').innerText = formatRupiah(sumCum);
+
+      // Filter periode
+      if (period === 'today') {
+        vTxList = vTxList.filter(t => t.date === today);
+      } else if (period === 'this_month') {
+        const curMonth = today.substring(0, 7);
+        vTxList = vTxList.filter(t => t.date.startsWith(curMonth));
+      }
+
+      // Filter pencarian
+      if (search) {
+        vTxList = vTxList.filter(t => 
+          (t.id && t.id.toLowerCase().includes(search)) ||
+          (t.notes && t.notes.toLowerCase().includes(search)) ||
+          (t.customer && t.customer.toLowerCase().includes(search)) ||
+          (t.createdByName && t.createdByName.toLowerCase().includes(search)) ||
+          (t.createdBy && t.createdBy.toLowerCase().includes(search))
+        );
+      }
+
+      vTxList.sort((a, b) => (b.date + ' ' + (b.time || '00:00')).localeCompare(a.date + ' ' + (a.time || '00:00')));
+
+      if (vTxList.length === 0) {
+        if (emptyState) emptyState.classList.remove('hidden');
+      } else {
+        if (emptyState) emptyState.classList.add('hidden');
+      }
+
+      vTxList.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-dark-input/50';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3">
+            <div class="font-bold text-white">${formatDateIndo(t.date)}</div>
+            <div class="text-[10px] text-slate-400">${t.time || ''}</div>
+          </td>
+          <td class="py-2.5 px-3 font-mono font-bold text-amber-300">${t.id}</td>
+          <td class="py-2.5 px-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-dark-input border border-dark-border text-slate-300">
+              ${getBranchShortName(t.branchId)}
+            </span>
+          </td>
+          <td class="py-2.5 px-3">
+            <div class="font-semibold text-slate-200">${escapeHtml(t.notes || t.category || 'Voucher Discount')}</div>
+            <div class="text-[10px] text-amber-400/80">Kategori: ${escapeHtml(t.category)}</div>
+          </td>
+          <td class="py-2.5 px-3 text-slate-300 font-medium">${escapeHtml(t.createdByName || t.createdBy || 'Petugas')}</td>
+          <td class="py-2.5 px-3 text-right font-black text-amber-400 text-xs">
+            ${formatRupiah(t.amount)}
+          </td>
+          <td class="py-2.5 px-3 text-center">
+            <button onclick="openReceiptModal('${t.id}')" class="p-1 rounded bg-amber-500/10 text-amber-300 hover:bg-amber-500/20" title="Cetak Nota">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function exportVoucherToExcel() {
+      let branchTx = currentBranchId === 'all' 
+        ? transactions 
+        : transactions.filter(t => t.branchId === currentBranchId);
+
+      const vList = branchTx.filter(t => 
+        getPaymentChannel(t.paymentMethod) === 'voucher' || 
+        (t.category && (t.category.toLowerCase().includes('voucher') || t.category.toLowerCase().includes('penghematan')))
+      );
+
+      let csv = 'data:text/csv;charset=utf-8,';
+      csv += `LAPORAN KHUSUS VOUCHER DISCOUNT PEMBELANJAAN (PENGHEMATAN) - ${getBranchName(currentBranchId).toUpperCase()}\r\n`;
+      csv += `Tanggal Unduh: ${getTodayDateStr()}\r\n`;
+      csv += `Catatan: Voucher Discount Pembelanjaan merupakan potongan non-kas (Bukan Tunai, QRIS, atau Transfer)\r\n\r\n`;
+      csv += 'No Invoice,Cabang,Tanggal,Jam,Rincian / Keterangan,Kategori,Nominal Voucher Diskon (Rp),Petugas\r\n';
+
+      vList.forEach(t => {
+        csv += `"${t.id}","${getBranchShortName(t.branchId)}","${t.date}","${t.time||''}","${(t.notes||'').replace(/"/g,'""')}","${t.category}",${t.amount},"${t.createdByName||t.createdBy||''}"\r\n`;
+      });
+
+      const link = document.createElement('a');
+      link.setAttribute('href', encodeURI(csv));
+      link.setAttribute('download', `Laporan_Voucher_Discount_${currentBranchId}_${getTodayDateStr()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('File Excel Laporan Voucher berhasil diunduh!', 'success');
+    }
+
+    function printVoucherReport() {
+      const today = getTodayDateStr();
+      const brTitle = currentBranchId === 'all' ? 'KONSOLIDASI GIGIN SWANTO ENTERPRISE' : getBranchName(currentBranchId).toUpperCase();
+
+      let branchTx = currentBranchId === 'all' 
+        ? transactions 
+        : transactions.filter(t => t.branchId === currentBranchId);
+
+      const vList = branchTx.filter(t => 
+        getPaymentChannel(t.paymentMethod) === 'voucher' || 
+        (t.category && (t.category.toLowerCase().includes('voucher') || t.category.toLowerCase().includes('penghematan')))
+      );
+
+      const vToday = vList.filter(t => t.date === today).reduce((s,t) => s + Number(t.amount||0), 0);
+      const vPast = vList.filter(t => t.date < today).reduce((s,t) => s + Number(t.amount||0), 0);
+      const vCum = vToday + vPast;
+
+      const printWin = window.open('', '_blank');
+      let tableRows = '';
+      vList.forEach(t => {
+        tableRows += `
+          <tr>
+            <td style="border:1px solid #ccc; padding:6px;">${t.id}<br><span style="font-size:10px;color:#666;">${formatDateIndo(t.date)} ${t.time||''}</span></td>
+            <td style="border:1px solid #ccc; padding:6px; font-weight:bold;">${getBranchShortName(t.branchId)}</td>
+            <td style="border:1px solid #ccc; padding:6px;">${escapeHtml(t.notes || t.category || '-')}</td>
+            <td style="border:1px solid #ccc; padding:6px;">${escapeHtml(t.createdByName || t.createdBy || '-')}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right; font-weight:bold; color:#b45309;">${formatRupiah(t.amount)}</td>
+          </tr>
+        `;
+      });
+
+      printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Laporan Voucher Discount - ${brTitle}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 25px; color: #1e293b; }
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11px; }
+            th { background: #fef3c7; border: 1px solid #d97706; padding: 8px; text-align: left; }
+            td { border: 1px solid #e2e8f0; padding: 6px; }
+            .header { display: flex; align-items: center; gap: 15px; border-bottom: 2px solid #d97706; padding-bottom: 12px; margin-bottom: 15px; }
+            .box { padding: 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; margin-bottom: 15px; }
+            @media print { .no-print { display: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <img src="snaprint_logo.jpg" style="width:50px;height:50px;border-radius:10px;object-fit:contain;border:1px solid #d97706;">
+            <div>
+              <h2 style="margin:0;color:#92400e;font-size:18px;">LAPORAN KHUSUS VOUCHER DISCOUNT PEMBELANJAAN</h2>
+              <p style="margin:2px 0;font-size:13px;font-weight:bold;">${brTitle}</p>
+              <p style="margin:0;font-size:11px;color:#64748b;">Dicetak pada: ${formatDateIndo(today)} oleh ${currentUser ? currentUser.fullName : 'Petugas'}</p>
+            </div>
+          </div>
+
+          <div class="box">
+            <strong style="color:#92400e;">⚠️ Catatan Akuntansi / Pelaporan:</strong>
+            <p style="margin:3px 0 0 0;font-size:11px;color:#78350f;">
+              Voucher Discount Pembelanjaan adalah potongan harga promosi/penghematan non-kas. Transaksi ini <strong>TIDAK</strong> dihitung dalam penerimaan Kas Tunai Laci, QRIS, maupun Rekening BCA.
+            </p>
+          </div>
+
+          <table style="margin-bottom:15px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #cbd5e1;">Dimensi Penghematan</th>
+                <th style="border:1px solid #cbd5e1;text-align:right;">Total Diskon / Penghematan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="border:1px solid #cbd5e1;padding:6px;">Diskon Hari Ini (${formatDateIndo(today)})</td><td style="border:1px solid #cbd5e1;padding:6px;text-align:right;font-weight:bold;color:#b45309;">${formatRupiah(vToday)}</td></tr>
+              <tr><td style="border:1px solid #cbd5e1;padding:6px;">Diskon s/d Kemarin</td><td style="border:1px solid #cbd5e1;padding:6px;text-align:right;font-weight:bold;">${formatRupiah(vPast)}</td></tr>
+              <tr style="background:#fffbeb;font-weight:bold;"><td style="border:1px solid #fde68a;padding:6px;color:#92400e;">TOTAL KUMULATIF VOUCHER DISCOUNT</td><td style="border:1px solid #fde68a;padding:6px;text-align:right;color:#b45309;font-size:13px;">${formatRupiah(vCum)}</td></tr>
+            </tbody>
+          </table>
+
+          <h4 style="margin:15px 0 5px 0;font-size:12px;">DAFTAR TRANSAKSI VOUCHER DISCOUNT (${vList.length} Transaksi)</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>No. Invoice & Waktu</th>
+                <th>Cabang</th>
+                <th>Rincian Keterangan</th>
+                <th>Petugas</th>
+                <th style="text-align:right;">Nilai Diskon (Rp)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows || '<tr><td colspan="5" style="text-align:center;padding:15px;color:#64748b;">Belum ada data transaksi voucher.</td></tr>'}
+            </tbody>
+          </table>
+
+          <div style="margin-top:35px;display:flex;justify-content:space-between;text-align:center;font-size:11px;">
+            <div style="width:200px;">
+              <p>Petugas Kasir,</p><br><br><p><strong>(${currentUser ? currentUser.fullName : '....................'})</strong></p>
+            </div>
+            <div style="width:200px;">
+              <p>Mengetahui (Owner),</p><br><br><p><strong>(H. Swanto)</strong></p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => {
+        printWin.print();
+      }, 500);
     }
 
     function showToast(message, type = 'info') {
