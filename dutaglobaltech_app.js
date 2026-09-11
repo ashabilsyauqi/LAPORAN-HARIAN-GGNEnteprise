@@ -7,8 +7,32 @@
 // --- Data Models ---
 const caseStudiesData = [
   {
+    id: "cs-snaprint",
+    category: "webapp",
+    categories: ["webapp", "enterprise"],
+    title_id: "SERP Snaprint - Platform ERP & POS Percetakan Digital Terpadu",
+    title_en: "SERP Snaprint - Unified Digital Printing ERP & POS Platform",
+    client: "Snaprint Indonesia",
+    live_url: "https://serp.mysnaprint.com",
+    live_url_display: "serp.mysnaprint.com",
+    client_id_desc: "Jaringan industri percetakan modern, digital printing, dan kustom merchandise berskala multi-cabang.",
+    client_en_desc: "Modern digital printing, apparel, and custom merchandise enterprise network with multi-branch synchronization.",
+    tag: "Web App / Enterprise ERP",
+    impact_id: "Kalkulasi HPP & order instan, efisiensi operasional workshop +60%, rekonsiliasi kas cabang 100% presisi",
+    impact_en: "Instant print COGS & order calculations, +60% workshop operational efficiency, 100% precise branch cash reconciliation",
+    desc_id: "Pembangunan platform sistem ERP & POS terintegrasi (serp.mysnaprint.com) untuk manajemen pesanan cetak custom, kalkulator bahan/mesin, antrean SPK workshop, dan pembukuan laba rugi multi-cabang.",
+    desc_en: "Development of an integrated print ERP & POS system (serp.mysnaprint.com) featuring dynamic material pricing calculators, automated workshop job tracking, and multi-branch financial accounting.",
+    challenge_id: "Kompleksitas kalkulasi ukuran cetak kustom (meteran/lembaran), koordinasi antrian mesin workshop dengan kasir depan, serta pemantauan arus kas harian antar cabang secara akurat.",
+    challenge_en: "Complex custom print dimension calculations, disconnected shop-floor production queues, and multi-branch daily cash reconciliation.",
+    solution_id: "Dutaglobaltech merancang portal ERP berbasis cloud (serp.mysnaprint.com) dengan database real-time terenkripsi, modul kasir POS responsif, generator SPK cetak otomatis, dan live reporting analitik.",
+    solution_en: "Dutaglobaltech engineered a cloud-based ERP platform (serp.mysnaprint.com) featuring encrypted real-time databases, responsive POS cashier modules, automated print tickets, and live business analytics.",
+    tech_stack: ["React/Next.js", "Node.js", "PostgreSQL", "TailwindCSS", "WebSocket", "Cloud POS"],
+    badge_color: "from-blue-600 to-cyan-500"
+  },
+  {
     id: "cs-1",
     category: "enterprise",
+    categories: ["enterprise", "webapp"],
     title_id: "Arsitektur ERP & Manajemen Logistik Multinasional",
     title_en: "Multinational Logistics ERP & Supply Chain System",
     client: "Global Cargo Nusantara Corp",
@@ -479,7 +503,7 @@ function renderCaseStudies() {
 
   const filtered = activeCategory === "all" 
     ? caseStudiesData 
-    : caseStudiesData.filter(item => item.category === activeCategory);
+    : caseStudiesData.filter(item => item.category === activeCategory || (item.categories && item.categories.includes(activeCategory)));
 
   container.innerHTML = filtered.map(item => {
     const title = currentLang === "id" ? item.title_id : item.title_en;
@@ -507,9 +531,16 @@ function renderCaseStudies() {
           <div class="tech-tags" style="margin-bottom: 18px;">
             ${techBadges}
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="openCaseStudyModal('${item.id}')">
-            ${btnText}
-          </button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-secondary btn-sm" onclick="openCaseStudyModal('${item.id}')">
+              ${btnText}
+            </button>
+            ${item.live_url ? `
+              <a href="${item.live_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size: 0.8rem; padding: 7px 12px; background: linear-gradient(135deg, #059669 0%, #0d9488 100%);" title="Buka website ${item.live_url_display}">
+                🌐 ${item.live_url_display} ↗
+              </a>
+            ` : ""}
+          </div>
         </div>
       </div>
     `;
@@ -566,7 +597,12 @@ function openCaseStudyModal(id) {
       <p style="font-size: 0.92rem; font-weight: 600; color: var(--text-primary);">${isId ? study.impact_id : study.impact_en}</p>
     </div>
 
-    <div style="margin-top: 20px; text-align: right;">
+    <div style="margin-top: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      ${study.live_url ? `
+        <a href="${study.live_url}" target="_blank" class="btn btn-secondary btn-sm" style="border-color: var(--accent-primary); color: var(--accent-primary); display: inline-flex; align-items: center; gap: 6px;">
+          🌐 ${isId ? "Kunjungi Website Langsung" : "Visit Live Platform"}: <strong>${study.live_url_display}</strong> ↗
+        </a>
+      ` : "<div></div>"}
       <a href="#contact" onclick="closeCaseStudyModal();" class="btn btn-primary btn-sm">
         ${isId ? "Diskusikan Proyek Serupa 🚀" : "Discuss Similar Project 🚀"}
       </a>
