@@ -1278,13 +1278,10 @@
         icon: 'car',
         badge: '🚗 Shop & Drive GW',
         incomeCategories: [
-          'Ganti Oli Mesin & Filter',
-          'Aki GS Astra (Incoe / Hybrid / MF)',
-          'Shock Absorber & Kaki-kaki',
-          'Jasa Servis & Tune Up',
-          'Ban Mobil & Balancing / Spooring',
-          'Aksesoris & Chemical Mobil',
-          'Layanan Bengkel Lainnya'
+          'Penjualan Shop & Drive',
+          'Bima Motor',
+          'Penghematan/Voucher',
+          'Pemasukan lain'
         ],
         expenseCategories: [
           'Stok Oli & Filter Mesin',
@@ -1401,7 +1398,19 @@
     function initDatabase() {
       const savedBranches = localStorage.getItem(STORAGE_KEY_BRANCHES);
       if (savedBranches) {
-        try { branchesData = JSON.parse(savedBranches); } catch(e) { branchesData = DEFAULT_BRANCHES; }
+        try { 
+          branchesData = JSON.parse(savedBranches); 
+          // Pastikan cabang snd_gw menggunakan 4 kategori pemasukan yang diminta
+          if (branchesData.snd_gw) {
+            branchesData.snd_gw.incomeCategories = [
+              'Penjualan Shop & Drive',
+              'Bima Motor',
+              'Penghematan/Voucher',
+              'Pemasukan lain'
+            ];
+            saveBranchesData();
+          }
+        } catch(e) { branchesData = DEFAULT_BRANCHES; }
       } else {
         branchesData = DEFAULT_BRANCHES;
         saveBranchesData();
