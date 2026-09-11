@@ -1,0 +1,30 @@
+{
+  "name": "KasirGo POS - Aplikasi Kasir Toko & Gudang",
+  "short_name": "KasirGo POS",
+  "description": "Aplikasi Kasir POS Multi-User, Manajemen Stok Gudang, Rekapitulasi Penjualan & Pengeluaran Kasir Toko",
+  "start_url": "./KASIR_CUSTOM_APP.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#047857",
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%23059669'/><path fill='%23ffffff' d='M128 160h256v48H128zm0 80h256v48H128zm-32-144a32 32 0 00-32 32v256a64 64 0 0064 64h224a64 64 0 0064-64V128a32 32 0 00-32-32H96zm256 288H160a32 32 0 01-32-32V128h256v256a32 32 0 01-32 32z'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='48' fill='%23059669'/><path fill='%23ffffff' d='M48 60h96v18H48zm0 30h96v18H48zm-12-54a12 12 0 00-12 12v96a24 24 0 0024 24h84a24 24 0 0024-24V48a12 12 0 00-12-12H36zm96 108H60a12 12 0 01-12-12V48h96v96a12 12 0 01-12 12z'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

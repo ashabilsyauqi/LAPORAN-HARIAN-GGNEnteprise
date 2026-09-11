@@ -542,7 +542,7 @@
             <thead class="bg-dark-input text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               <tr>
                 <th class="py-2.5 px-3">Tanggal & Waktu</th>
-                <th class="py-2.5 px-3">Pelanggan / Keterangan</th>
+                <th class="py-2.5 px-3">Keterangan / Rincian</th>
                 <th class="py-2.5 px-3">Cabang</th>
                 <th class="py-2.5 px-3">Kategori</th>
                 <th class="py-2.5 px-3">Cara Bayar / Sumber Dana</th>
@@ -1004,9 +1004,10 @@
           </div>
         </div>
 
-        <div>
-          <label id="txCustomerLabel" class="block font-bold text-slate-300 mb-1">Nama Pelanggan / Kontak / Nopol Kendaraan</label>
-          <input type="text" id="txCustomer" required placeholder="Contoh: Bpk. Hendra / B 1234 XYZ" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        <!-- Input Pelanggan / Nopol (Disembunyikan pada Pemasukan sesuai permintaan) -->
+        <div id="txCustomerWrapper" class="hidden">
+          <label id="txCustomerLabel" class="block font-bold text-slate-300 mb-1">Penerima / Toko / Supplier (Opsional)</label>
+          <input type="text" id="txCustomer" placeholder="Contoh: Toko Sparepart / Pembelian Bahan" class="w-full bg-dark-input border border-dark-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1152,7 +1153,7 @@
           <div class="flex justify-between"><span>No. Nota:</span><span id="rcpInvoice" class="font-bold">-</span></div>
           <div class="flex justify-between"><span>Cabang:</span><span id="rcpBranch" class="font-bold">-</span></div>
           <div class="flex justify-between"><span>Tanggal:</span><span id="rcpDate">-</span></div>
-          <div class="flex justify-between"><span>Pelanggan/Nopol:</span><span id="rcpCustomer" class="font-bold">-</span></div>
+          <div class="flex justify-between" id="rcpCustomerRow"><span>Pelanggan / Keterangan:</span><span id="rcpCustomer" class="font-bold">-</span></div>
           <div class="flex justify-between"><span>Kasir/Petugas:</span><span id="rcpCashier">-</span></div>
         </div>
 
@@ -1950,10 +1951,10 @@
           </td>
           <td class="py-2.5 px-3">
             <div class="font-bold text-slate-200 flex items-center gap-1.5">
-              <span>${escapeHtml(t.customer || '-')}</span>
+              <span>${escapeHtml(t.notes || t.category || (isInc ? 'Penjualan / Order' : 'Pengeluaran'))}</span>
               ${t.proofImage ? `<span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[9px] font-bold border border-rose-500/30 flex items-center gap-0.5">📷 Bukti</span>` : ''}
             </div>
-            <div class="text-[11px] text-slate-400 truncate max-w-xs">${escapeHtml(t.notes || '-')}</div>
+            ${(t.customer && t.customer !== '-' && t.customer !== 'Pelanggan Umum' && t.customer !== t.notes) ? `<div class="text-[11px] text-slate-400 truncate max-w-xs">${escapeHtml(t.customer)}</div>` : ''}
           </td>
           <td class="py-2.5 px-3">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-dark-input border border-emerald-500/30 text-emerald-400">${branchBadgeText}</span>
@@ -2122,9 +2123,15 @@
         branchLabel.innerText = `Cabang: ${getBranchName(this.value)}`;
       };
 
+      const custWrapper = document.getElementById('txCustomerWrapper');
+
       if (type === 'pemasukan') {
         title.innerText = 'Catat Pemasukan (Order / Penjualan)';
-        custLabel.innerText = 'Nama Pelanggan / Nopol Kendaraan';
+        // Sesuai permintaan: No Pol Kendaraan dan Nama Pelanggan tidak perlu
+        if (custWrapper) custWrapper.classList.add('hidden');
+        document.getElementById('txCustomer').value = '';
+        document.getElementById('txCustomer').required = false;
+
         methodLabel.innerText = 'Cara Pembayaran';
         btnSubmit.className = 'px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow flex items-center gap-1.5';
         proofWrapper.classList.add('hidden');
@@ -2144,7 +2151,11 @@
 
       } else {
         title.innerText = 'Catat Pengeluaran (Biaya / Belanja Stok)';
-        custLabel.innerText = 'Penerima / Toko / Supplier';
+        if (custWrapper) custWrapper.classList.remove('hidden');
+        if (custLabel) custLabel.innerText = 'Penerima / Toko / Supplier (Opsional)';
+        document.getElementById('txCustomer').required = false;
+        document.getElementById('txCustomer').placeholder = 'Contoh: Toko Sparepart / Pembelian Bahan';
+
         methodLabel.innerText = 'Sumber Dana';
         btnSubmit.className = 'px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow flex items-center gap-1.5';
         proofWrapper.classList.remove('hidden');
@@ -2200,7 +2211,7 @@
       const type = document.getElementById('txType').value;
       const date = document.getElementById('txDate').value;
       const time = document.getElementById('txTime').value;
-      const customer = document.getElementById('txCustomer').value.trim();
+      const customer = document.getElementById('txCustomer').value.trim() || (type === 'pemasukan' ? 'Pelanggan Umum' : '-');
       const category = document.getElementById('txCategory').value;
       const paymentMethod = document.getElementById('txPaymentMethod').value;
       const notes = document.getElementById('txNotes').value.trim();
@@ -2277,7 +2288,17 @@
       document.getElementById('rcpInvoice').innerText = tx.id;
       document.getElementById('rcpBranch').innerText = br.name;
       document.getElementById('rcpDate').innerText = `${formatDateIndo(tx.date)} ${tx.time || ''}`;
-      document.getElementById('rcpCustomer').innerText = tx.customer || 'Pelanggan Umum';
+      
+      const rcpCustRow = document.getElementById('rcpCustomerRow');
+      if (rcpCustRow) {
+        if (!tx.customer || tx.customer === '-' || tx.customer === 'Pelanggan Umum') {
+          rcpCustRow.classList.add('hidden');
+        } else {
+          rcpCustRow.classList.remove('hidden');
+          document.getElementById('rcpCustomer').innerText = tx.customer;
+        }
+      }
+
       document.getElementById('rcpCashier').innerText = tx.createdByName || 'Kasir';
       document.getElementById('rcpCategory').innerText = tx.category;
       document.getElementById('rcpNotes').innerText = tx.notes || '-';
