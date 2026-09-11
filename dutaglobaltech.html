@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dutaglobaltech - Digital Project Development Company | Software House & Digital Agency</title>
+  <meta name="description" content="Platform representasi profesional tingkat enterprise B2B tech provider. Layanan Web & Enterprise Systems, Mobile Apps, Cloud & DevOps, dan UI/UX Design berkinerja tinggi.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="dutaglobaltech_style.css">
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- Mobile Top Bar -->
+  <header class="mobile-topbar">
+    <a href="#home" class="sidebar-brand">
+      <div class="sidebar-brand-logo">DGT</div>
+      <span>Dutaglobaltech</span>
+    </a>
+    <button class="mobile-toggle-btn" id="mobile-toggle-btn" title="Buka Menu">☰</button>
+  </header>
+
+  <!-- Mobile Backdrop Overlay -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <!-- App Layout with Left Sidebar -->
+  <div class="app-layout">
+    
+    <!-- LEFT SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <!-- Sidebar Brand -->
+        <div class="sidebar-header">
+          <a href="#home" class="sidebar-brand">
+            <div class="sidebar-brand-logo">DGT</div>
+            <div>
+              <div>Dutaglobaltech</div>
+              <div class="sidebar-brand-subtitle">Digital Project Dev</div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Sidebar Navigation Menu -->
+        <nav>
+          <ul class="sidebar-menu">
+            <li>
+              <a href="#home" class="sidebar-link active" data-section="home">
+                <span class="sidebar-link-icon">🏠</span>
+                <span data-i18n="nav_home">Beranda</span>
+              </a>
+            </li>
+            <li>
+              <a href="#services" class="sidebar-link" data-section="services">
+                <span class="sidebar-link-icon">🛠️</span>
+                <span data-i18n="nav_services">Layanan</span>
+              </a>
+            </li>
+            <li>
+              <a href="#portfolio" class="sidebar-link" data-section="portfolio">
+                <span class="sidebar-link-icon">💼</span>
+                <span data-i18n="nav_cases">Portofolio & Studi Kasus</span>
+              </a>
+            </li>
+            <li>
+              <a href="#methodology" class="sidebar-link" data-section="methodology">
+                <span class="sidebar-link-icon">⚡</span>
+                <span data-i18n="nav_methodology">Metodologi</span>
+              </a>
+            </li>
+            <li>
+              <a href="#about" class="sidebar-link" data-section="about">
+                <span class="sidebar-link-icon">🏢</span>
+                <span data-i18n="nav_about">Tentang Kami</span>
+              </a>
+            </li>
+            <li>
+              <a href="#contact" class="sidebar-link" data-section="contact">
+                <span class="sidebar-link-icon">📊</span>
+                <span data-i18n="nav_contact">Kontak & Estimasi</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Sidebar Footer Controls -->
+      <div class="sidebar-footer">
+        
+        <!-- Live Viewer Count Widget -->
+        <div class="viewer-count-card">
+          <div class="viewer-row">
+            <span class="viewer-label">
+              <span class="pulse-dot"></span>
+              <span data-i18n="viewer_active">Aktif Online:</span>
+            </span>
+            <span class="viewer-val" id="active-viewers-count">14 Online</span>
+          </div>
+          <div class="viewer-row">
+            <span class="viewer-label">
+              <span>👁️</span>
+              <span data-i18n="viewer_total">Total Kunjungan:</span>
+            </span>
+            <span class="viewer-val" id="total-viewers-count">14,820</span>
+          </div>
+        </div>
+
+        <div class="sidebar-controls">
+          <!-- Dark/Light Theme Switcher -->
+          <button class="action-icon-btn" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
+            <span id="theme-icon">☀️</span>
+          </button>
+
+          <!-- Language Switcher ID / EN -->
+          <div class="lang-toggle">
+            <button class="lang-btn active" data-lang="id" onclick="switchLang('id')">ID</button>
+            <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+          </div>
+        </div>
+
+        <!-- Primary CTA Button -->
+        <a href="#contact" class="btn btn-primary sidebar-cta" data-i18n="nav_cta">
+          Konsultasi Proyek 🚀
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+
+      <!-- 1. Hero Section -->
+      <section class="hero-section" id="home">
+        <div class="container">
+          <div class="hero-content">
+            <div class="section-badge" data-i18n="hero_badge">Enterprise Digital Project Development</div>
+            <h1 class="hero-headline" data-i18n="hero_title">
+              Mentransformasi Ide Menjadi <span class="gradient-text">Solusi Digital Berkelanjutan</span>
+            </h1>
+            <p class="hero-subheadline" data-i18n="hero_subtitle">
+              Software house & digital agency rekanan strategis korporat untuk rekayasa perangkat lunak berstandar tinggi, skalabilitas enterprise, dan keamanan tingkat tinggi.
+            </p>
+
+            <div class="hero-cta-group">
+              <a href="#contact" class="btn btn-primary" data-i18n="hero_btn_discuss">Mulai Diskusi Proyek</a>
+              <a href="#portfolio" class="btn btn-secondary" data-i18n="hero_btn_portfolio">Jelajahi Portofolio</a>
+            </div>
+          </div>
+
+          <!-- Social Proof Metrics Strip -->
+          <div class="metrics-strip">
+            <div class="metric-item">
+              <span class="metric-value" data-i18n="stat_1_val">50+</span>
+              <span class="metric-label" data-i18n="stat_1_lbl">Proyek Berhasil</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-value" data-i18n="stat_2_val">99.8%</span>
+              <span class="metric-label" data-i18n="stat_2_lbl">Uptime SLA Guarantee</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-value" data-i18n="stat_3_val">15+</span>
+              <span class="metric-label" data-i18n="stat_3_lbl">Klien Korporat & Startup</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-value" data-i18n="stat_4_val">&lt; 2 Jam</span>
+              <span class="metric-label" data-i18n="stat_4_lbl">Respon Konsultasi Cepat</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Core Services Overview & Detail -->
+      <section class="section section-alt" id="services">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-badge" data-i18n="services_badge">Kapabilitas Teknis</span>
+            <h2 class="section-title" data-i18n="services_title">Layanan Rekayasa Digital Tingkat Enterprise</h2>
+            <p class="section-desc" data-i18n="services_desc">
+              Kami menggabungkan arsitektur software mutakhir, desain berpusat pada pengguna, dan infrastruktur cloud handal untuk memvalidasi bisnis Anda.
+            </p>
+          </div>
+
+          <!-- Grid 4 Layanan Inti -->
+          <div class="cards-grid-4" style="margin-bottom: 50px;">
+            <div class="feature-card">
+              <div class="card-icon-box">💻</div>
+              <h3 class="card-title" data-i18n="srv_web_title">Web & Enterprise Systems</h3>
+              <p class="card-desc" data-i18n="srv_web_desc">Pembangunan sistem internal kompleks, portal SaaS, ERP/CRM kustom, dashboard analitik data tingkat lanjut.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">React/Next.js</span>
+                <span class="tech-tag">Node.js</span>
+                <span class="tech-tag">Python</span>
+                <span class="tech-tag">PostgreSQL</span>
+              </div>
+            </div>
+
+            <div class="feature-card">
+              <div class="card-icon-box">📱</div>
+              <h3 class="card-title" data-i18n="srv_mobile_title">Mobile Apps Development</h3>
+              <p class="card-desc" data-i18n="srv_mobile_desc">Aplikasi mobile native maupun cross-platform berkinerja tinggi, responsif, dan optimal untuk ekosistem iOS & Android.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">Flutter</span>
+                <span class="tech-tag">React Native</span>
+                <span class="tech-tag">Swift</span>
+                <span class="tech-tag">Kotlin</span>
+              </div>
+            </div>
+
+            <div class="feature-card">
+              <div class="card-icon-box">🎨</div>
+              <h3 class="card-title" data-i18n="srv_uiux_title">UI/UX Design & Research</h3>
+              <p class="card-desc" data-i18n="srv_uiux_desc">Riset pengalaman pengguna, perancangan arsitektur informasi, wireframe interaktif, dan pembangunan Design System modular.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">Figma</span>
+                <span class="tech-tag">User Journey Map</span>
+                <span class="tech-tag">Design Tokens</span>
+              </div>
+            </div>
+
+            <div class="feature-card">
+              <div class="card-icon-box">☁️</div>
+              <h3 class="card-title" data-i18n="srv_cloud_title">Cloud, DevOps & Security</h3>
+              <p class="card-desc" data-i18n="srv_cloud_desc">Implementasi arsitektur cloud scalable, CI/CD pipeline otomatis, containerization, dan pengujian keamanan berlapis.</p>
+              <div class="tech-tags">
+                <span class="tech-tag">AWS</span>
+                <span class="tech-tag">GCP</span>
+                <span class="tech-tag">Docker</span>
+                <span class="tech-tag">Kubernetes</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail Layanan & Deliverables Breakdown -->
+          <div class="service-detail-item">
+            <div class="service-detail-info">
+              <span class="section-badge">Pilar 01</span>
+              <h3>Web & Scalable Enterprise Platforms</h3>
+              <p>Kami merancang aplikasi web berskala tinggi dengan fondasi arsitektur modern (Microservices / Modular Monolith) yang siap menangani volume transaksi besar dengan zero latency degradation.</p>
+              <ul class="deliverables-list">
+                <li><span class="bullet">✔</span> Custom ERP, CRM & Business Intelligence Dashboard</li>
+                <li><span class="bullet">✔</span> Multi-tenant SaaS Architecture & Billing Integrations</li>
+                <li><span class="bullet">✔</span> API Gateway, High Throughput Message Queues (Kafka/RabbitMQ)</li>
+                <li><span class="bullet">✔</span> Core Web Vitals Tier-1 (Sub-second page loading speed)</li>
+              </ul>
+            </div>
+            <div class="service-detail-visual">
+              <div style="background: rgba(0,0,0,0.4); border-radius: 10px; padding: 18px; font-family: monospace; font-size: 0.8rem; color: #38bdf8;">
+                <p style="color: #94a3b8; margin-bottom: 6px;">// Enterprise Architecture Spec</p>
+                <p>├── API Gateway [Kong / Ingress]</p>
+                <p>├── Auth Service [JWT / OAuth2 / SSO]</p>
+                <p>├── Core Microservices [Node / Go]</p>
+                <p>├── DB Partition [PostgreSQL Cluster]</p>
+                <p>└── Cache [Redis & Kafka]</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-detail-item">
+            <div class="service-detail-info">
+              <span class="section-badge">Pilar 02</span>
+              <h3>Cross-Platform & Native Mobile Engineering</h3>
+              <p>Membangun aplikasi mobile kelas dunia dengan user experience sehalus 60 FPS, konsumsi baterai efisien, integrasi push notification real-time, dan standar keamanan transaksi finansial.</p>
+              <ul class="deliverables-list">
+                <li><span class="bullet">✔</span> iOS & Android App Store Ready Compliance</li>
+                <li><span class="bullet">✔</span> Biometric Authentication & Hardware Integration</li>
+                <li><span class="bullet">✔</span> Offline-First Sync Engine & SQLite Database</li>
+                <li><span class="bullet">✔</span> Automated Mobile CI/CD Pipeline</li>
+              </ul>
+            </div>
+            <div class="service-detail-visual">
+              <div style="background: rgba(0,0,0,0.4); border-radius: 10px; padding: 18px; font-family: monospace; font-size: 0.8rem; color: #10b981;">
+                <p style="color: #94a3b8; margin-bottom: 6px;">// Mobile Pipeline Standard</p>
+                <p>[Flutter / React Native UI Engine]</p>
+                <p>  ↳ BLoC State Management</p>
+                <p>  ↳ Native Bridge (Camera, GPS, Biometrics)</p>
+                <p>  ↳ Automated End-to-End Test Suite</p>
+                <p>  ↳ Release to App Store & Google Play</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Methodology Section -->
+      <section class="section" id="methodology">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-badge" data-i18n="methodology_badge">Standar Pengerjaan</span>
+            <h2 class="section-title" data-i18n="methodology_title">Metodologi Pengembangan Transparan (Agile)</h2>
+            <p class="section-desc" data-i18n="methodology_desc">
+              Alur kerja terstruktur 4 tahap untuk memastikan deliverables presisi, mitigasi risiko, dan deployment tepat waktu.
+            </p>
+          </div>
+
+          <div class="methodology-grid">
+            <div class="step-card">
+              <div class="step-number">01</div>
+              <h3 class="step-title" data-i18n="step1_title">1. Discovery & Strategy</h3>
+              <p class="step-desc" data-i18n="step1_desc">Analisis kebutuhan bisnis, penentuan arsitektur sistem, feasibility study, dan timeline roadmap yang detail.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">02</div>
+              <h3 class="step-title" data-i18n="step2_title">2. UI/UX & Prototyping</h3>
+              <p class="step-desc" data-i18n="step2_desc">Pemetaan user journey, wireframe klik interaktif, penyusunan design token, dan usability testing.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">03</div>
+              <h3 class="step-title" data-i18n="step3_title">3. Agile Dev & QA</h3>
+              <p class="step-desc" data-i18n="step3_desc">Sprint koding iteratif, Clean Code standard, unit & integration testing, serta continuous integration.</p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">04</div>
+              <h3 class="step-title" data-i18n="step4_title">4. Cloud Deployment & SLA</h3>
+              <p class="step-desc" data-i18n="step4_desc">Orkestrasi kontainer, automated CI/CD, load balancing, monitoring performa 24/7, dan garansi SLA.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Portfolio & Featured Case Studies -->
+      <section class="section section-alt" id="portfolio">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-badge" data-i18n="portfolio_badge">Rekam Jejak Nyata</span>
+            <h2 class="section-title" data-i18n="portfolio_title">Portofolio & Studi Kasus Unggulan</h2>
+            <p class="section-desc" data-i18n="portfolio_desc">
+              Eksplorasi bagaimana kami membantu korporat dan institusi membangun solusi digital berdampak terukur.
+            </p>
+          </div>
+
+          <!-- Filter Kategori -->
+          <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterCategory('all', this)" data-i18n="filter_all">Semua Kategori</button>
+            <button class="filter-btn" onclick="filterCategory('webapp', this)" data-i18n="filter_web">Web App</button>
+            <button class="filter-btn" onclick="filterCategory('mobile', this)" data-i18n="filter_mobile">Mobile App</button>
+            <button class="filter-btn" onclick="filterCategory('enterprise', this)" data-i18n="filter_enterprise">Enterprise System</button>
+            <button class="filter-btn" onclick="filterCategory('uiux', this)" data-i18n="filter_uiux">UI/UX & Design</button>
+          </div>
+
+          <!-- Grid Case Studies -->
+          <div class="cards-grid" id="case-studies-container">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. About Us & Engineering Culture -->
+      <section class="section" id="about">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-badge" data-i18n="about_badge">Integritas & Rekayasa</span>
+            <h2 class="section-title" data-i18n="about_title">Tentang Kami & Engineering Culture</h2>
+            <p class="section-desc" data-i18n="about_desc">
+              Kami didirikan dengan visi menjadi katalis transformasi digital berskala global melalui solusi rekayasa teknologi presisi.
+            </p>
+          </div>
+
+          <div class="about-grid">
+            <div>
+              <div class="culture-item">
+                <div class="culture-icon">⚡</div>
+                <div class="culture-info">
+                  <h4 data-i18n="culture_1_title">Standar Clean Code & Refactoring</h4>
+                  <p data-i18n="culture_1_desc">Kode yang modular, mudah dirawat (maintainable), terdokumentasi rapi, dan sesuai standar industri internasional.</p>
+                </div>
+              </div>
+
+              <div class="culture-item">
+                <div class="culture-icon">🛡️</div>
+                <div class="culture-info">
+                  <h4 data-i18n="culture_2_title">Comprehensive Automated Testing</h4>
+                  <p data-i18n="culture_2_desc">Unit test, integration test, dan end-to-end testing menyeluruh untuk meminimalkan regression bug sebelum rilis.</p>
+                </div>
+              </div>
+
+              <div class="culture-item">
+                <div class="culture-icon">🔒</div>
+                <div class="culture-info">
+                  <h4 data-i18n="culture_3_title">Zero-Trust Security & Data Protection</h4>
+                  <p data-i18n="culture_3_desc">Enkripsi data berlapis, audit kerentanan berkala, dan kepatuhan privasi data berstandar enterprise.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px;">
+              <h3 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 14px;">Visi & Komitmen Dutaglobaltech</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 18px; line-height: 1.7; font-size: 0.92rem;">
+                Menjadi Software House & Digital Project Development Company terdepan yang mendemokratisasikan teknologi enterprise bagi bisnis skala menengah hingga korporat multinasional.
+              </p>
+              <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                <div style="padding: 8px 14px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; font-weight: 600; font-size: 0.82rem; color: var(--accent-primary);">
+                  ⚡ High-Speed Delivery
+                </div>
+                <div style="padding: 8px 14px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; font-weight: 600; font-size: 0.82rem; color: var(--accent-emerald);">
+                  🛡️ ISO-Ready Standards
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Core Leadership Team -->
+          <div style="margin-top: 50px;">
+            <h3 style="text-align: center; font-size: 1.5rem; font-weight: 800; margin-bottom: 26px;" data-i18n="team_title">
+              Kepemimpinan Teknis & Core Team
+            </h3>
+            <div class="team-grid" id="team-container">
+              <!-- Injected via JavaScript -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Social Proof & Testimonials -->
+      <section class="section section-alt">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-badge" data-i18n="testi_badge">Validasi Klien</span>
+            <h2 class="section-title" data-i18n="testi_title">Apa Kata Klien & Rekan Bisnis Kami</h2>
+          </div>
+
+          <div class="testimonials-grid" id="testimonials-container">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Interactive Scope Estimator & Contact Form -->
+      <section class="section" id="contact">
+        <div class="container">
+          <div class="section-header">
+            <span class="section-badge" data-i18n="estimator_badge">Mulai Kolaborasi</span>
+            <h2 class="section-title" data-i18n="estimator_title">Formulir Kontak & Interactive Scope Estimator</h2>
+            <p class="section-desc" data-i18n="estimator_desc">
+              Gunakan kalkulator estimasi kebutuhan di bawah ini untuk merancang ruang lingkup proyek Anda dan dapatkan proposal teknis cepat.
+            </p>
+          </div>
+
+          <div class="contact-section-grid">
+            <!-- Interactive Estimator Form -->
+            <div class="estimator-box">
+              <form onsubmit="handleLeadSubmit(event)">
+                <h3 data-i18n="scope_title">1. Pilih Lingkup Solusi yang Dibutuhkan:</h3>
+                <div class="scope-options-grid">
+                  <label class="scope-option-card">
+                    <input type="checkbox" value="Web & Enterprise System">
+                    <span class="scope-option-icon">💻</span>
+                    <span style="font-size: 0.88rem; font-weight: 600;" data-i18n="scope_opt_web">Web & Enterprise System</span>
+                  </label>
+
+                  <label class="scope-option-card">
+                    <input type="checkbox" value="Mobile App (iOS/Android)">
+                    <span class="scope-option-icon">📱</span>
+                    <span style="font-size: 0.88rem; font-weight: 600;" data-i18n="scope_opt_mobile">Mobile App (iOS/Android)</span>
+                  </label>
+
+                  <label class="scope-option-card">
+                    <input type="checkbox" value="Cloud & DevOps Architecture">
+                    <span class="scope-option-icon">☁️</span>
+                    <span style="font-size: 0.88rem; font-weight: 600;" data-i18n="scope_opt_cloud">Cloud & DevOps Architecture</span>
+                  </label>
+
+                  <label class="scope-option-card">
+                    <input type="checkbox" value="UI/UX & Design System">
+                    <span class="scope-option-icon">🎨</span>
+                    <span style="font-size: 0.88rem; font-weight: 600;" data-i18n="scope_opt_uiux">UI/UX & Design System</span>
+                  </label>
+                </div>
+
+                <!-- Dynamic Estimate Summary Badge -->
+                <div class="estimate-summary-badge">
+                  <div style="font-size: 0.88rem;" id="estimator-summary-text">
+                    Pilih minimal 1 modul untuk melihat estimasi arsitektur.
+                  </div>
+                  <span class="section-badge" style="margin-bottom: 0; background: rgba(59, 130, 246, 0.2);" id="estimator-summary-count">
+                    0 Modul Terpilih
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" data-i18n="budget_lbl">2. Estimasi Anggaran Proyek (Budget Range):</label>
+                  <select class="form-select" id="lead-budget" required>
+                    <option value="IDR 35M - 75M" data-i18n="budget_opt_2">Rp 35 Juta - Rp 75 Juta (Fase MVP / Modul Spesifik)</option>
+                    <option value="IDR 75M - 200M" data-i18n="budget_opt_3" selected>Rp 75 Juta - Rp 200 Juta (Sistem Skala Menengah)</option>
+                    <option value="IDR 200M+" data-i18n="budget_opt_4">Rp 200 Juta+ (Sistem Enterprise Penuh / Multi-Platform)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" data-i18n="timeline_lbl">3. Target Waktu Peluncuran (Timeline):</label>
+                  <select class="form-select" id="lead-timeline" required>
+                    <option value="1-2 Bulan" data-i18n="timeline_opt_2">1 - 2 Bulan (Fast-Track / Sprint Intensif)</option>
+                    <option value="3-5 Bulan" data-i18n="timeline_opt_3" selected>3 - 5 Bulan (Standar Produksi Menyeluruh)</option>
+                    <option value="6+ Bulan" data-i18n="timeline_opt_4">6+ Bulan (Transformasi Sistem Jangka Panjang)</option>
+                  </select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div class="form-group">
+                    <label class="form-label">Nama Lengkap *</label>
+                    <input type="text" class="form-input" id="lead-name" placeholder="John Doe" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Perusahaan / Organisasi</label>
+                    <input type="text" class="form-input" id="lead-company" placeholder="PT Global Teknologi">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Email Korporat *</label>
+                  <input type="email" class="form-input" id="lead-email" placeholder="john@company.com" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" data-i18n="summary_lbl">4. Ringkasan Kebutuhan Proyek & Problem Statement:</label>
+                  <textarea class="form-textarea" rows="3" id="lead-summary" data-i18n-placeholder="summary_placeholder" placeholder="Deskripsikan tujuan proyek Anda, tantangan utama yang ingin diselesaikan, atau fitur kunci yang diharapkan..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;" data-i18n="btn_submit_lead">
+                  Kirim Permintaan Konsultasi & Proposal 🚀
+                </button>
+              </form>
+            </div>
+
+            <!-- Direct Channel Contact Cards -->
+            <div class="contact-info-card">
+              <div>
+                <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">Direct Booking & Official Channels</h3>
+                <p style="color: var(--text-secondary); font-size: 0.88rem;">
+                  Untuk penanganan prioritas atau tender RFQ/RFP korporat, hubungi tim teknis kami secara langsung.
+                </p>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">💬</div>
+                <div class="contact-text">
+                  <h5>WhatsApp Business Resmi</h5>
+                  <a href="https://wa.me/6281234567890?text=Halo%20Dutaglobaltech%2C%20saya%20ingin%20konsultasi%20proyek%20digital" target="_blank">+62 812-3456-7890 (24/7 Response)</a>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">📧</div>
+                <div class="contact-text">
+                  <h5>Email Korporat</h5>
+                  <a href="mailto:contact@dutaglobaltech.com">contact@dutaglobaltech.com</a>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-icon">🏢</div>
+                <div class="contact-text">
+                  <h5>Kantor Operasional</h5>
+                  <p>Cyber 2 Tower Lt. 18, Jl. H.R. Rasuna Said, Jakarta Selatan, Indonesia</p>
+                </div>
+              </div>
+
+              <div style="padding-top: 6px;">
+                <a href="https://meet.google.com" target="_blank" class="btn btn-secondary" style="width: 100%;" data-i18n="direct_meet_btn">
+                  📅 Booking Video Conference (Google Meet)
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. Case Study Detail Modal -->
+      <div class="modal-backdrop" id="case-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="case-modal-title" style="font-size: 1.2rem; font-weight: 800;">Studi Kasus</h3>
+            <button class="modal-close-btn" onclick="closeCaseStudyModal()">✕</button>
+          </div>
+          <div class="modal-body" id="case-modal-body">
+            <!-- Modal content dynamically injected -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Global Footer -->
+      <footer class="footer">
+        <div class="container">
+          <div class="footer-grid">
+            <div class="footer-brand">
+              <div class="sidebar-brand" style="margin-bottom: 12px;">
+                <div class="sidebar-brand-logo">DGT</div>
+                <span>Dutaglobaltech</span>
+              </div>
+              <p data-i18n="footer_summary">
+                Dutaglobaltech adalah Software House & Digital Project Development Company terdepan yang berfokus pada pembangunan solusi digital B2B dan korporat berstandar enterprise.
+              </p>
+              <div class="social-links">
+                <a href="https://linkedin.com" target="_blank" class="social-icon-btn" title="LinkedIn">in</a>
+                <a href="https://github.com" target="_blank" class="social-icon-btn" title="GitHub">gh</a>
+                <a href="https://instagram.com" target="_blank" class="social-icon-btn" title="Instagram">ig</a>
+                <a href="https://twitter.com" target="_blank" class="social-icon-btn" title="X (Twitter)">𝕏</a>
+              </div>
+            </div>
+
+            <div class="footer-col">
+              <h5 data-i18n="footer_quick_links">Tautan Cepat</h5>
+              <ul class="footer-links">
+                <li><a href="#home" data-i18n="nav_home">Beranda</a></li>
+                <li><a href="#services" data-i18n="nav_services">Layanan</a></li>
+                <li><a href="#portfolio" data-i18n="nav_cases">Portofolio</a></li>
+                <li><a href="#methodology" data-i18n="nav_methodology">Metodologi</a></li>
+                <li><a href="#about" data-i18n="nav_about">Tentang Kami</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-col">
+              <h5 data-i18n="footer_services">Layanan Teknis</h5>
+              <ul class="footer-links">
+                <li><a href="#services">Web & Enterprise</a></li>
+                <li><a href="#services">Mobile Apps (iOS/Android)</a></li>
+                <li><a href="#services">UI/UX Design System</a></li>
+                <li><a href="#services">Cloud & DevOps</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-col">
+              <h5 data-i18n="footer_contact_title">Newsletter & Riset</h5>
+              <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 10px;">
+                Langganan artikel riset teknologi dan tren rekayasa perangkat lunak berkala.
+              </p>
+              <form onsubmit="event.preventDefault(); alert('Terima kasih telah berlangganan newsletter Dutaglobaltech!');" class="newsletter-form">
+                <input type="email" class="form-input" placeholder="email@perusahaan.com" required style="font-size: 0.82rem; padding: 8px 10px;">
+                <button type="submit" class="btn btn-primary btn-sm">Join</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <div data-i18n="footer_rights">© 2026 Dutaglobaltech. Hak Cipta Dilindungi. All Rights Reserved.</div>
+            <div style="display: flex; gap: 16px;">
+              <a href="#" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
+              <a href="#" style="color: var(--text-muted); text-decoration: none;">Terms of Service</a>
+              <a href="#" style="color: var(--text-muted); text-decoration: none;">Sitemap</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="dutaglobaltech_app.js"></script>
+</body>
+</html>
