@@ -14,7 +14,7 @@ Folder ini berisi seluruh sistem aplikasi dan website operasional usaha **GIGIN 
   2. 🖨️ **SNAPRINT Grand Wisata** (Digital Printing, Spanduk Flexi, Stiker A3+, DTF)
   3. 🖨️ **SNAPRINT Zamrud** (Digital Printing, Banner, Label Kemasan, Stempel)
 - **Fitur Utama**:
-  - 👑 **Super Owner (`boss_01` / `owner`)**: Akses bebas ke semua cabang & Laporan **Konsolidasi Gigin Swanto Enterprise**, manajemen staf tim.
+  - 👑 **Super Owner Tunggal (`boss_01`)**: Satu-satunya akun yang berhak mengakses semua cabang & Laporan **Konsolidasi Gigin Swanto Enterprise** (Sistem hanya mengizinkan 1 akun Owner tunggal).
   - 👔 **Manager Cabang (`Snap_001`, `manager_snd`, `manager_zmr`)**: Akses terisolasi khusus 1 cabang tugasnya.
   - 💻 **Kasir (`kasir1`)**: Input pesanan masuk, cetak struk nota kasir otomatis, catat operasional.
   - 🛠️ **Operator (`operator1`)**: Catat pengeluaran belanja bahan/stok & upload bukti struk foto.

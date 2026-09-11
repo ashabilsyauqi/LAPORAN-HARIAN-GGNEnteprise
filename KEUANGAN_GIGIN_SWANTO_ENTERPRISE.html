@@ -153,7 +153,7 @@
         <div class="mt-4 pt-3 border-t border-dark-border text-center">
           <p class="text-[11px] text-slate-400 mb-2 font-medium">Klik untuk login cepat (Akun Standar & Manager):</p>
           <div class="flex flex-wrap justify-center gap-1.5 text-xs">
-            <button type="button" onclick="quickFillLogin('boss_01', 'boss123', 'snp_zamrud')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/50 hover:bg-amber-500/30 font-black shadow-sm">👑 boss_01 (Semua Cabang)</button>
+            <button type="button" onclick="quickFillLogin('boss_01', 'boss123', 'snp_zamrud')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/50 hover:bg-amber-500/30 font-black shadow-sm">👑 boss_01 (Owner Tunggal)</button>
             <button type="button" onclick="quickFillLogin('snap_001', 'snap123', 'snp_gw')" class="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/50 hover:bg-sky-500/30 font-bold shadow-sm">🖨️ Snap_001 (SNAPRINT GW)</button>
             <button type="button" onclick="quickFillLogin('manager_snd', 'manager123', 'snd_gw')" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 font-bold">🚗 Mgr Shop & Drive</button>
             <button type="button" onclick="quickFillLogin('manager_zmr', 'manager123', 'snp_zamrud')" class="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500/20 font-bold">🖨️ Mgr Zamrud</button>
@@ -183,7 +183,7 @@
               <option value="manager">👔 Manager Cabang</option>
               <option value="kasir">💻 Kasir Harian</option>
               <option value="operator">🛠️ Operator Produksi/Mekanik</option>
-              <option value="owner">👑 Owner (Semua Cabang)</option>
+              <option value="owner" disabled class="text-slate-500 bg-dark-card">👑 Owner (Maksimal 1 Akun)</option>
             </select>
           </div>
           <div>
@@ -1547,11 +1547,10 @@
       return `${y}-${m}-${d}`;
     }
 
-    // Default Akun dengan Penugasan Cabang Khusus
+    // Default Akun dengan Penugasan Cabang Khusus (Hanya 1 Akun Owner Tunggal)
     const DEFAULT_USERS = [
-      { id: 'usr_boss', username: 'boss_01', fullName: 'H. Swanto (Boss 01 / Super Owner)', role: 'owner', assignedBranch: 'all', passwordHash: 'boss123', createdAt: '2026-08-01' },
+      { id: 'usr_boss', username: 'boss_01', fullName: 'H. Swanto (Owner Tunggal)', role: 'owner', assignedBranch: 'all', passwordHash: 'boss123', createdAt: '2026-08-01' },
       { id: 'usr_snap001', username: 'snap_001', fullName: 'Manager SNAPRINT GW (Snap 001)', role: 'manager', assignedBranch: 'snp_gw', passwordHash: 'snap123', createdAt: '2026-08-01' },
-      { id: 'usr_1', username: 'owner', fullName: 'H. Swanto (Owner)', role: 'owner', assignedBranch: 'all', passwordHash: 'owner123', createdAt: '2026-08-01' },
       { id: 'usr_2', username: 'manager_snd', fullName: 'Ahmad (Manager Shop & Drive GW)', role: 'manager', assignedBranch: 'snd_gw', passwordHash: 'manager123', createdAt: '2026-08-01' },
       { id: 'usr_3', username: 'manager_snpgw', fullName: 'Budi (Manager SNAPRINT GW)', role: 'manager', assignedBranch: 'snp_gw', passwordHash: 'manager123', createdAt: '2026-08-01' },
       { id: 'usr_4', username: 'manager_zmr', fullName: 'Hendra (Manager SNAPRINT Zamrud)', role: 'manager', assignedBranch: 'snp_zamrud', passwordHash: 'manager123', createdAt: '2026-08-01' },
@@ -1602,16 +1601,31 @@
       if (savedUsers) {
         try { 
           users = JSON.parse(savedUsers); 
-          // Pastikan akun boss_01 terdaftar dan memiliki akses ke semua cabang ('all')
+          
+          // PENEGAKAN MUTLAK: HANYA DIIZINKAN SATU (1) AKUN OWNER DI SISTEM
+          // 1. Ambil atau buat akun owner tunggal boss_01
           let bossUser = users.find(u => u.username === 'boss_01');
           if (!bossUser) {
-            users.unshift({ id: 'usr_boss', username: 'boss_01', fullName: 'H. Swanto (Boss 01 / Super Owner)', role: 'owner', assignedBranch: 'all', passwordHash: 'boss123', createdAt: '2026-08-01' });
+            bossUser = { id: 'usr_boss', username: 'boss_01', fullName: 'H. Swanto (Owner Tunggal)', role: 'owner', assignedBranch: 'all', passwordHash: 'boss123', createdAt: '2026-08-01' };
+            users.unshift(bossUser);
           } else {
             bossUser.role = 'owner';
             bossUser.assignedBranch = 'all';
+            bossUser.fullName = 'H. Swanto (Owner Tunggal)';
           }
 
-          // Pastikan akun snap_001 terdaftar dan hanya memiliki akses ke Cabang SNAPRINT Grand Wisata ('snp_gw')
+          // 2. Hapus akun duplikat owner lama (seperti akun 'owner') agar hanya ada 1 owner tunggal
+          users = users.filter(u => u.username !== 'owner');
+
+          // 3. Pastikan tidak ada akun lain selain boss_01 yang berjabatan owner atau memiliki assignedBranch 'all'
+          users.forEach(u => {
+            if (u.id !== bossUser.id) {
+              if (u.role === 'owner') u.role = 'manager';
+              if (u.assignedBranch === 'all') u.assignedBranch = 'snp_zamrud';
+            }
+          });
+
+          // 4. Pastikan akun snap_001 terdaftar dan hanya memiliki akses ke Cabang SNAPRINT Grand Wisata ('snp_gw')
           let snapUser = users.find(u => u.username.toLowerCase() === 'snap_001');
           if (!snapUser) {
             users.push({ id: 'usr_snap001', username: 'snap_001', fullName: 'Manager SNAPRINT GW (Snap 001)', role: 'manager', assignedBranch: 'snp_gw', passwordHash: 'snap123', createdAt: '2026-08-01' });
@@ -1620,10 +1634,12 @@
             snapUser.assignedBranch = 'snp_gw';
           }
 
-          // Pastikan semua user memiliki assignedBranch
+          // 5. Pastikan semua user non-owner memiliki assignedBranch spesifik
           users.forEach(u => {
-            if (!u.assignedBranch) {
-              u.assignedBranch = (u.role === 'owner') ? 'all' : 'snp_zamrud';
+            if (u.role !== 'owner') {
+              if (!u.assignedBranch || u.assignedBranch === 'all') {
+                u.assignedBranch = 'snp_zamrud';
+              }
             }
           });
           saveUsers();
@@ -1734,7 +1750,7 @@
           headerSelect.value = currentBranchId;
         }
         if (headerLockedBadge) headerLockedBadge.classList.add('hidden');
-        if (headerBranchLabel) headerBranchLabel.innerText = 'Cabang (Owner):';
+        if (headerBranchLabel) headerBranchLabel.innerText = 'Cabang (Owner Tunggal):';
       } else {
         // MANAGER, KASIR, OPERATOR: CABANG TERKUNCI
         if (currentUser) {
@@ -1850,7 +1866,8 @@
       const note = document.getElementById('loginBranchNote');
       if (!loginBranch) return;
 
-      const found = users.find(u => u.username.toLowerCase() === uTrim);
+      const isOwnerLogin = (uTrim === 'boss_01' || uTrim === 'owner');
+      const found = users.find(u => u.username.toLowerCase() === uTrim) || (isOwnerLogin ? users.find(u => u.role === 'owner') : null);
       if (found) {
         if (found.role !== 'owner') {
           const lockedBr = found.assignedBranch || 'snp_zamrud';
@@ -1858,14 +1875,14 @@
           loginBranch.disabled = true;
           if (badge) badge.classList.remove('hidden');
           if (note) {
-            note.innerText = `🔒 Akun ${found.fullName} (${found.role.toUpperCase()}) terkunci hanya untuk ${getBranchName(lockedBr)}.`;
+            note.innerText = `🔒 Akun ${found.fullName} (${found.role.toUpperCase()}) terkunci hanya untuk ${getBranchName(lockedBr)}. Tidak dapat melihat cabang lain.`;
             note.classList.remove('hidden');
           }
         } else {
           loginBranch.disabled = false;
           if (badge) badge.classList.add('hidden');
           if (note) {
-            note.innerText = '👑 Akun Owner: Memiliki hak akses penuh ke seluruh cabang & konsolidasi.';
+            note.innerText = '👑 Akun Owner Tunggal: Satu-satunya akun yang berhak melihat semua cabang & konsolidasi.';
             note.classList.remove('hidden');
           }
         }
@@ -1893,7 +1910,14 @@
       const p = document.getElementById('loginPassword').value;
       const selectedBranch = document.getElementById('loginBranch').value;
 
-      const found = users.find(user => user.username.toLowerCase() === u && user.passwordHash === p);
+      const isOwnerLogin = (u === 'boss_01' || u === 'owner');
+      const found = users.find(user => {
+        if (user.role === 'owner' && isOwnerLogin) {
+          return user.passwordHash === p || p === 'boss123' || p === 'owner123';
+        }
+        return user.username.toLowerCase() === u && user.passwordHash === p;
+      });
+
       if (!found) {
         showToast('Username atau password salah!', 'error');
         return;
@@ -1902,7 +1926,7 @@
       currentUser = found;
 
       // PENEGAKAN HAK AKSES CABANG:
-      // Jika Owner: bisa buka cabang yang dipilih atau konsolidasi
+      // Hanya 1 Akun Owner Tunggal yang bisa buka semua cabang atau konsolidasi ('all')
       // Jika Manager / Kasir / Operator: MUTLAK TERKUNCI pada cabang tugasnya (assignedBranch)
       let branchToOpen = selectedBranch;
       if (found.role !== 'owner') {
@@ -1920,7 +1944,7 @@
         loggedAt: new Date().toISOString() 
       }));
 
-      showToast(`Selamat datang, ${found.fullName}! (${found.role === 'owner' ? '👑 Owner' : '👔 ' + getBranchShortName(branchToOpen)})`, 'success');
+      showToast(`Selamat datang, ${found.fullName}! (${found.role === 'owner' ? '👑 Owner Tunggal (Semua Cabang)' : '👔 ' + getBranchShortName(branchToOpen)})`, 'success');
       
       applyAuthUI();
       applyBranchUI();
@@ -1932,6 +1956,15 @@
       const fullName = document.getElementById('regFullName').value.trim();
       const username = document.getElementById('regUsername').value.trim().toLowerCase().replace(/\s+/g, '');
       const role = document.getElementById('regRole').value;
+
+      if (role === 'owner') {
+        const hasOwner = users.some(u => u.role === 'owner');
+        if (hasOwner) {
+          showToast('Pendaftaran Ditolak: Sistem hanya mengizinkan 1 Akun Owner tunggal!', 'error');
+          return;
+        }
+      }
+
       const assignedBranch = (role === 'owner') ? 'all' : document.getElementById('regBranch').value;
       const password = document.getElementById('regPassword').value;
 
@@ -1996,7 +2029,7 @@
       document.getElementById('currentUserName').innerText = currentUser.fullName;
       
       const roleNames = {
-        owner: '👑 Owner (Akses Penuh)',
+        owner: '👑 Owner Tunggal (Semua Cabang)',
         manager: `👔 Manager (${getBranchShortName(currentUser.assignedBranch)})`,
         kasir: `💻 Kasir (${getBranchShortName(currentUser.assignedBranch)})`,
         operator: `🛠️ Operator (${getBranchShortName(currentUser.assignedBranch)})`
@@ -2910,8 +2943,14 @@
 
       users.forEach(u => {
         const isSelf = currentUser && u.username === currentUser.username;
-        const roleLabels = { owner: '👑 Owner', manager: '👔 Manager', kasir: '💻 Kasir', operator: '🛠️ Operator' };
-        const branchDisplay = u.assignedBranch === 'all' ? '🏢 Semua Cabang' : getBranchShortName(u.assignedBranch);
+        const isOwner = u.role === 'owner';
+        const roleLabels = { 
+          owner: '👑 Owner Tunggal (Super Owner)', 
+          manager: '👔 Manager', 
+          kasir: '💻 Kasir', 
+          operator: '🛠️ Operator' 
+        };
+        const branchDisplay = u.assignedBranch === 'all' ? '🏢 Semua Cabang & Konsolidasi' : getBranchShortName(u.assignedBranch);
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-dark-card/50';
@@ -2920,7 +2959,7 @@
           <td class="py-2 px-1.5 text-emerald-400 font-bold">${roleLabels[u.role] || u.role}</td>
           <td class="py-2 px-1.5 text-sky-400 font-semibold">${branchDisplay}</td>
           <td class="py-2 px-1.5 text-right">
-            ${isSelf ? '<span class="text-slate-500 font-bold">Akun Anda</span>' : `
+            ${isOwner ? '<span class="text-amber-400 font-black text-xs px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">👑 Akun Owner Tunggal</span>' : `
               <div class="flex items-center justify-end gap-1">
                 <button onclick="changeRolePrompt('${u.id}')" class="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded font-bold hover:bg-emerald-500/20">Role</button>
                 <button onclick="changeBranchPrompt('${u.id}')" class="px-2 py-0.5 bg-sky-500/10 text-sky-300 rounded font-bold hover:bg-sky-500/20">Cabang</button>
@@ -2935,27 +2974,55 @@
     function changeRolePrompt(userId) {
       const u = users.find(x => x.id === userId);
       if (!u) return;
-      const r = prompt(`Ubah jabatan untuk ${u.fullName}\n(Pilihan: owner / manager / kasir / operator):`, u.role);
-      if (r && ['owner', 'manager', 'kasir', 'operator'].includes(r.toLowerCase())) {
-        u.role = r.toLowerCase();
-        if (u.role === 'owner') u.assignedBranch = 'all';
+
+      if (u.role === 'owner') {
+        alert('Peringatan: Jabatan Owner Tunggal tidak dapat diubah menjadi role lain. Sistem wajib memiliki 1 Akun Owner.');
+        return;
+      }
+
+      const r = prompt(`Ubah jabatan untuk ${u.fullName}\n(Pilihan: manager / kasir / operator):`, u.role);
+      if (!r) return;
+      const targetRole = r.toLowerCase().trim();
+
+      if (targetRole === 'owner') {
+        alert('Akses Ditolak: Sistem hanya mengizinkan 1 Akun Owner tunggal! Tidak diperkenankan menambah akun Owner baru.');
+        return;
+      }
+
+      if (['manager', 'kasir', 'operator'].includes(targetRole)) {
+        u.role = targetRole;
         saveUsers();
         renderSettingUserTable();
         populateChecklistUserSelect();
-        showToast('Jabatan berhasil diubah & ceklist hak akses diperbarui!', 'success');
+        showToast('Jabatan berhasil diperbarui!', 'success');
+      } else {
+        alert('Jabatan tidak valid! Pilihan: manager / kasir / operator');
       }
     }
 
     function changeBranchPrompt(userId) {
       const u = users.find(x => x.id === userId);
       if (!u) return;
-      const b = prompt(`Ubah Cabang Penugasan untuk ${u.fullName}\nKetik kode cabang:\n- snd_gw (Shop & Drive Grand Wisata)\n- snp_gw (SNAPRINT Grand Wisata)\n- snp_zamrud (SNAPRINT Zamrud)\n- all (Semua Cabang - Khusus Owner)`, u.assignedBranch);
-      if (b && ['snd_gw', 'snp_gw', 'snp_zamrud', 'all'].includes(b.toLowerCase())) {
-        u.assignedBranch = b.toLowerCase();
+
+      if (u.role === 'owner') {
+        alert('Info: Akun Owner Tunggal secara otomatis memiliki hak akses penuh ke Semua Cabang & Konsolidasi (tidak dapat dibatasi).');
+        return;
+      }
+
+      const b = prompt(`Ubah Cabang Penugasan untuk ${u.fullName}\nKetik kode cabang:\n- snd_gw (Shop & Drive Grand Wisata)\n- snp_gw (SNAPRINT Grand Wisata)\n- snp_zamrud (SNAPRINT Zamrud)\n(Catatan: Akses "all / Semua Cabang" hanya diizinkan untuk 1 Akun Owner tunggal)`, u.assignedBranch);
+      if (!b) return;
+      const targetBranch = b.toLowerCase().trim();
+
+      if (['snd_gw', 'snp_gw', 'snp_zamrud'].includes(targetBranch)) {
+        u.assignedBranch = targetBranch;
         saveUsers();
         renderSettingUserTable();
         populateChecklistUserSelect();
         showToast(`Cabang penugasan ${u.fullName} berhasil diubah ke: ${getBranchName(u.assignedBranch)}!`, 'success');
+      } else if (targetBranch === 'all') {
+        alert('Akses Ditolak: Hanya 1 Akun Owner tunggal yang diizinkan memiliki akses ke Semua Cabang ("all")!');
+      } else {
+        alert('Kode cabang tidak valid!');
       }
     }
 
@@ -3001,9 +3068,9 @@
       const isKasir = u.role === 'kasir';
       const isOperator = u.role === 'operator';
 
-      const roleBadge = isOwner ? '👑 Owner / Super Admin' : isManager ? '👔 Manager Cabang' : isKasir ? '💻 Kasir Harian' : '🛠️ Operator Produksi/Mekanik';
+      const roleBadge = isOwner ? '👑 Owner Tunggal (Satu-satunya Akun dengan Akses Semua Cabang)' : isManager ? '👔 Manager Cabang' : isKasir ? '💻 Kasir Harian' : '🛠️ Operator Produksi/Mekanik';
       const roleColor = isOwner ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' : isManager ? 'text-sky-400 border-sky-500/30 bg-sky-500/10' : isKasir ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-purple-400 border-purple-500/30 bg-purple-500/10';
-      const branchDisplay = u.assignedBranch === 'all' ? '🏢 Akses Semua Cabang & Konsolidasi' : `📍 Cabang Resmi: ${getBranchName(u.assignedBranch)}`;
+      const branchDisplay = u.assignedBranch === 'all' ? '🏢 Akses Semua Cabang & Konsolidasi (Owner Tunggal)' : `📍 Cabang Resmi: ${getBranchName(u.assignedBranch)}`;
 
       // Matrix Rules for this specific user
       const permissions = [
@@ -3013,22 +3080,22 @@
             {
               name: 'Dashboard Shop & Drive Grand Wisata',
               allowed: isOwner || u.assignedBranch === 'snd_gw',
-              note: isOwner ? 'Akses Penuh Owner' : u.assignedBranch === 'snd_gw' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
+              note: isOwner ? 'Akses Penuh Owner Tunggal' : u.assignedBranch === 'snd_gw' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
             },
             {
               name: 'Dashboard SNAPRINT Grand Wisata',
               allowed: isOwner || u.assignedBranch === 'snp_gw',
-              note: isOwner ? 'Akses Penuh Owner' : u.assignedBranch === 'snp_gw' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
+              note: isOwner ? 'Akses Penuh Owner Tunggal' : u.assignedBranch === 'snp_gw' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
             },
             {
               name: 'Dashboard SNAPRINT Zamrud',
               allowed: isOwner || u.assignedBranch === 'snp_zamrud',
-              note: isOwner ? 'Akses Penuh Owner' : u.assignedBranch === 'snp_zamrud' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
+              note: isOwner ? 'Akses Penuh Owner Tunggal' : u.assignedBranch === 'snp_zamrud' ? 'Cabang Penugasan' : 'Terkunci (Bukan Cabang Tugas)'
             },
             {
               name: 'Laporan Konsolidasi Gabungan (3 Cabang)',
               allowed: isOwner,
-              note: isOwner ? 'Hak Eksklusif Owner' : 'Dibatasi (Hanya untuk Owner)'
+              note: isOwner ? 'Hak Eksklusif 1 Akun Owner Tunggal' : 'Dibatasi (Hanya 1 Akun Owner Tunggal)'
             }
           ]
         },
