@@ -114,21 +114,10 @@
       <!-- Form Login -->
       <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3.5">
         
-        <!-- Pilihan Cabang Usaha -->
-        <div>
-          <label class="block text-xs font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
-            <i data-lucide="store" class="w-3.5 h-3.5"></i> Pilih Cabang Usaha
-          </label>
-          <select id="loginBranch" required class="w-full bg-dark-input border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white font-bold focus:outline-none focus:border-emerald-400">
-            <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
-            <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
-            <option value="snp_zamrud" selected>🖨️ SNAPRINT Zamrud</option>
-          </select>
-        </div>
-
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Username</label>
-          <input type="text" id="loginUsername" required placeholder="Contoh: owner / manager_snd / kasir1" 
+          <input type="text" id="loginUsername" required placeholder="Contoh: boss_01 / manager_snd / kasir1" 
+            oninput="handleUsernameInput(this.value)"
             class="w-full bg-dark-input border border-dark-border rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
         </div>
 
@@ -136,6 +125,24 @@
           <label class="block text-xs font-bold text-slate-300 mb-1">Kata Sandi (Password)</label>
           <input type="password" id="loginPassword" required placeholder="Masukkan kata sandi" 
             class="w-full bg-dark-input border border-dark-border rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <!-- Pilihan Cabang Usaha (Terkunci Sesuai Tugas untuk Manager/Kasir/Operator) -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              <i data-lucide="store" class="w-3.5 h-3.5"></i> Cabang Penugasan / Usaha
+            </label>
+            <span id="loginBranchLockBadge" class="hidden text-[10px] font-bold text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded border border-amber-500/30 flex items-center gap-1">
+              <i data-lucide="lock" class="w-2.5 h-2.5"></i> Terkunci Sesuai Tugas
+            </span>
+          </div>
+          <select id="loginBranch" required class="w-full bg-dark-input border border-emerald-500/50 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white font-bold focus:outline-none focus:border-emerald-400 transition-all">
+            <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
+            <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
+            <option value="snp_zamrud" selected>🖨️ SNAPRINT Zamrud</option>
+          </select>
+          <p id="loginBranchNote" class="text-[11px] text-amber-400/90 mt-1 font-medium hidden"></p>
         </div>
 
         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow-lg transition-all text-sm flex items-center justify-center gap-2 mt-2">
@@ -1785,22 +1792,23 @@
     }
 
     function confirmClearTodayData() {
+      const effectiveBranchId = getEffectiveBranchId();
       const today = getTodayDateStr();
-      const currentList = currentBranchId === 'all' 
+      const currentList = effectiveBranchId === 'all' 
         ? transactions.filter(t => t.date === today)
-        : transactions.filter(t => t.date === today && t.branchId === currentBranchId);
+        : transactions.filter(t => t.date === today && t.branchId === effectiveBranchId);
       
       if (currentList.length === 0) {
         showToast('Data hari ini di cabang ini sudah 0 (kosong).', 'info');
         return;
       }
 
-      const branchName = currentBranchId === 'all' ? 'Semua Cabang' : getBranchName(currentBranchId);
+      const branchName = effectiveBranchId === 'all' ? 'Semua Cabang' : getBranchName(effectiveBranchId);
       if (confirm(`Kosongkan ${currentList.length} transaksi HARI INI untuk [${branchName}]? Saldo lalu tetap aman.`)) {
-        if (currentBranchId === 'all') {
+        if (effectiveBranchId === 'all') {
           transactions = transactions.filter(t => t.date !== today);
         } else {
-          transactions = transactions.filter(t => !(t.date === today && t.branchId === currentBranchId));
+          transactions = transactions.filter(t => !(t.date === today && t.branchId === effectiveBranchId));
         }
         saveTransactions();
         refreshData();
@@ -1827,11 +1835,55 @@
       }
     }
 
+    function getEffectiveBranchId() {
+      if (!currentUser) return currentBranchId;
+      if (currentUser.role !== 'owner') {
+        return currentUser.assignedBranch || 'snp_zamrud';
+      }
+      return currentBranchId;
+    }
+
+    function handleUsernameInput(val) {
+      const uTrim = (val || '').trim().toLowerCase();
+      const loginBranch = document.getElementById('loginBranch');
+      const badge = document.getElementById('loginBranchLockBadge');
+      const note = document.getElementById('loginBranchNote');
+      if (!loginBranch) return;
+
+      const found = users.find(u => u.username.toLowerCase() === uTrim);
+      if (found) {
+        if (found.role !== 'owner') {
+          const lockedBr = found.assignedBranch || 'snp_zamrud';
+          loginBranch.value = lockedBr;
+          loginBranch.disabled = true;
+          if (badge) badge.classList.remove('hidden');
+          if (note) {
+            note.innerText = `🔒 Akun ${found.fullName} (${found.role.toUpperCase()}) terkunci hanya untuk ${getBranchName(lockedBr)}.`;
+            note.classList.remove('hidden');
+          }
+        } else {
+          loginBranch.disabled = false;
+          if (badge) badge.classList.add('hidden');
+          if (note) {
+            note.innerText = '👑 Akun Owner: Memiliki hak akses penuh ke seluruh cabang & konsolidasi.';
+            note.classList.remove('hidden');
+          }
+        }
+      } else {
+        loginBranch.disabled = false;
+        if (badge) badge.classList.add('hidden');
+        if (note) note.classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
     function quickFillLogin(u, p, branchId) {
       document.getElementById('loginUsername').value = u;
       document.getElementById('loginPassword').value = p;
-      if (branchId) {
-        document.getElementById('loginBranch').value = branchId;
+      handleUsernameInput(u);
+      const loginBranch = document.getElementById('loginBranch');
+      if (loginBranch && !loginBranch.disabled && branchId) {
+        loginBranch.value = branchId;
       }
     }
 
@@ -1851,12 +1903,13 @@
 
       // PENEGAKAN HAK AKSES CABANG:
       // Jika Owner: bisa buka cabang yang dipilih atau konsolidasi
-      // Jika Manager / Kasir / Operator: otomatis terkunci ke cabang tugasnya (assignedBranch)
+      // Jika Manager / Kasir / Operator: MUTLAK TERKUNCI pada cabang tugasnya (assignedBranch)
       let branchToOpen = selectedBranch;
       if (found.role !== 'owner') {
-        branchToOpen = found.assignedBranch || 'snp_zamrud';
-        if (selectedBranch !== branchToOpen) {
-          showToast(`Info: Anda dialihkan ke cabang resmi tugas Anda: ${getBranchName(branchToOpen)}`, 'info');
+        const strictBranch = found.assignedBranch || 'snp_zamrud';
+        branchToOpen = strictBranch;
+        if (selectedBranch !== strictBranch) {
+          showToast(`Akses Dibatasi: Akun ${found.role.toUpperCase()} hanya dapat mengakses ${getBranchName(strictBranch)}`, 'info');
         }
       }
 
@@ -1966,11 +2019,12 @@
        ========================================================================= */
     function calculateMetrics() {
       const today = getTodayDateStr();
+      const effectiveBranchId = getEffectiveBranchId();
 
-      // Filter Data Berdasarkan Cabang Aktif
-      const branchTx = currentBranchId === 'all' 
+      // Filter Data Berdasarkan Cabang Aktif (Terkunci ke cabang tugas jika bukan Owner)
+      const branchTx = effectiveBranchId === 'all' 
         ? transactions 
-        : transactions.filter(t => t.branchId === currentBranchId);
+        : transactions.filter(t => t.branchId === effectiveBranchId);
 
       // Pisahkan transaksi kas riil (Tunai, QRIS, BCA) vs Voucher Discount (Penghematan Non-Kas)
       const txReal = branchTx.filter(t => getPaymentChannel(t.paymentMethod) !== 'voucher');
@@ -2080,11 +2134,12 @@
       const method = document.getElementById('filterMethod').value;
       const period = document.getElementById('filterPeriod').value;
       const today = getTodayDateStr();
+      const effectiveBranchId = getEffectiveBranchId();
 
       // Manager/Kasir/Operator hanya dapat melihat transaksi cabang mereka
-      let filtered = currentBranchId === 'all' 
+      let filtered = effectiveBranchId === 'all' 
         ? [...transactions] 
-        : transactions.filter(t => t.branchId === currentBranchId);
+        : transactions.filter(t => t.branchId === effectiveBranchId);
 
       if (currentUser.role === 'operator') {
         filtered = filtered.filter(t => t.createdBy === currentUser.username);
@@ -2303,6 +2358,14 @@
       const tx = transactions.find(t => t.id === txId);
       if (!tx || !tx.proofImage) return;
 
+      // VALIDASI KEAMANAN CABANG: Non-owner dilarang melihat bukti cabang lain
+      if (currentUser && currentUser.role !== 'owner') {
+        if (tx.branchId !== currentUser.assignedBranch) {
+          showToast('Akses Ditolak: Anda tidak berhak melihat bukti transaksi cabang lain!', 'error');
+          return;
+        }
+      }
+
       document.getElementById('proofModalSubtitle').innerText = `No Invoice: ${tx.id} • ${formatDateIndo(tx.date)} ${tx.time || ''}`;
       document.getElementById('proofBranch').innerText = getBranchName(tx.branchId);
       document.getElementById('proofCust').innerText = tx.customer || '-';
@@ -2347,10 +2410,16 @@
       let defaultBranch = (currentBranchId === 'all') ? 'snp_zamrud' : currentBranchId;
       if (currentUser.role !== 'owner') {
         defaultBranch = currentUser.assignedBranch || 'snp_zamrud';
+        branchSelect.innerHTML = `<option value="${defaultBranch}">🔒 ${getBranchName(defaultBranch)} (Cabang Tugas)</option>`;
         branchSelect.value = defaultBranch;
         branchSelect.disabled = true; // Kunci pilihan cabang untuk non-owner
       } else {
         branchSelect.disabled = false;
+        branchSelect.innerHTML = `
+          <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
+          <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
+          <option value="snp_zamrud">🖨️ SNAPRINT Zamrud</option>
+        `;
         branchSelect.value = defaultBranch;
       }
 
@@ -2533,6 +2602,19 @@
     function deleteTransaction(id) {
       const item = transactions.find(t => t.id === id);
       if (!item) return;
+
+      // VALIDASI KEAMANAN CABANG: Non-owner hanya dapat menghapus transaksi di cabangnya sendiri
+      if (currentUser && currentUser.role !== 'owner') {
+        if (item.branchId !== currentUser.assignedBranch) {
+          showToast('Akses Ditolak: Anda tidak dapat menghapus transaksi cabang lain!', 'error');
+          return;
+        }
+        if (currentUser.role === 'operator' && item.createdBy !== currentUser.username) {
+          showToast('Akses Ditolak: Operator hanya dapat menghapus transaksi inputan sendiri!', 'error');
+          return;
+        }
+      }
+
       if (confirm(`Hapus transaksi ${item.id} (${formatRupiah(item.amount)})?`)) {
         transactions = transactions.filter(t => t.id !== id);
         saveTransactions();
@@ -2548,6 +2630,14 @@
     function openReceiptModal(txId) {
       const tx = transactions.find(t => t.id === txId);
       if (!tx) return;
+
+      // VALIDASI KEAMANAN CABANG: Non-owner dilarang melihat nota/struk cabang lain
+      if (currentUser && currentUser.role !== 'owner') {
+        if (tx.branchId !== currentUser.assignedBranch) {
+          showToast('Akses Ditolak: Anda tidak berhak melihat nota/struk dari cabang lain!', 'error');
+          return;
+        }
+      }
 
       const br = branchesData[tx.branchId] || branchesData.snp_zamrud;
 
@@ -2597,8 +2687,14 @@
       if (currentUser.role === 'owner') {
         settingActiveBranchId = (currentBranchId === 'all') ? 'snp_zamrud' : currentBranchId;
         settingBranchSelect.disabled = false;
+        settingBranchSelect.innerHTML = `
+          <option value="snd_gw">🚗 Shop & Drive Grand Wisata</option>
+          <option value="snp_gw">🖨️ SNAPRINT Grand Wisata</option>
+          <option value="snp_zamrud">🖨️ SNAPRINT Zamrud</option>
+        `;
       } else {
         settingActiveBranchId = currentUser.assignedBranch || 'snp_zamrud';
+        settingBranchSelect.innerHTML = `<option value="${settingActiveBranchId}">🔒 ${getBranchName(settingActiveBranchId)} (Cabang Tugas)</option>`;
         settingBranchSelect.disabled = true; // Kunci pengaturan cabang untuk Manager/Staf
       }
       settingBranchSelect.value = settingActiveBranchId;
@@ -2666,6 +2762,11 @@
     }
 
     function saveStoreSettings() {
+      if (currentUser && currentUser.role !== 'owner' && settingActiveBranchId !== currentUser.assignedBranch) {
+        showToast('Akses Ditolak: Anda hanya dapat mengubah profil cabang tugas Anda!', 'error');
+        return;
+      }
+
       const br = branchesData[settingActiveBranchId];
       if (!br) return;
 
@@ -2680,6 +2781,11 @@
     }
 
     function saveBankSettings() {
+      if (currentUser && currentUser.role !== 'owner' && settingActiveBranchId !== currentUser.assignedBranch) {
+        showToast('Akses Ditolak: Anda hanya dapat mengubah rekening cabang tugas Anda!', 'error');
+        return;
+      }
+
       const br = branchesData[settingActiveBranchId];
       if (!br) return;
 
@@ -2715,6 +2821,11 @@
     }
 
     function addCustomCategory(type) {
+      if (currentUser && currentUser.role !== 'owner' && settingActiveBranchId !== currentUser.assignedBranch) {
+        showToast('Akses Ditolak: Anda hanya dapat mengubah kategori cabang tugas Anda!', 'error');
+        return;
+      }
+
       const br = branchesData[settingActiveBranchId];
       if (!br) return;
 
@@ -2742,6 +2853,11 @@
     }
 
     function removeCategory(type, idx) {
+      if (currentUser && currentUser.role !== 'owner' && settingActiveBranchId !== currentUser.assignedBranch) {
+        showToast('Akses Ditolak: Anda hanya dapat mengubah kategori cabang tugas Anda!', 'error');
+        return;
+      }
+
       const br = branchesData[settingActiveBranchId];
       if (!br) return;
 
@@ -3110,14 +3226,15 @@
     }
 
     function exportToExcel() {
+      const effectiveBranchId = getEffectiveBranchId();
       let csv = 'data:text/csv;charset=utf-8,';
-      csv += `LAPORAN KEUANGAN - ${getBranchName(currentBranchId).toUpperCase()}\r\n`;
+      csv += `LAPORAN KEUANGAN - ${getBranchName(effectiveBranchId).toUpperCase()}\r\n`;
       csv += `Tanggal: ${getTodayDateStr()}\r\n\r\n`;
       csv += 'No Invoice,Cabang,Tanggal,Pelanggan/Keterangan,Kategori,Tipe,Cara Bayar / Sumber Dana,Nominal (Rp),Petugas,Catatan\r\n';
 
-      const dataToExport = currentBranchId === 'all' 
+      const dataToExport = effectiveBranchId === 'all' 
         ? transactions 
-        : transactions.filter(t => t.branchId === currentBranchId);
+        : transactions.filter(t => t.branchId === effectiveBranchId);
 
       dataToExport.forEach(t => {
         const brName = getBranchShortName(t.branchId);
@@ -3126,7 +3243,7 @@
 
       const link = document.createElement('a');
       link.setAttribute('href', encodeURI(csv));
-      link.setAttribute('download', `Laporan_Keuangan_${currentBranchId}_${getTodayDateStr()}.csv`);
+      link.setAttribute('download', `Laporan_Keuangan_${effectiveBranchId}_${getTodayDateStr()}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -3134,16 +3251,17 @@
     }
 
     function printFinancialReport() {
+      const effectiveBranchId = getEffectiveBranchId();
       const today = getTodayDateStr();
-      const brTitle = currentBranchId === 'all' ? 'KONSOLIDASI GIGIN SWANTO ENTERPRISE' : getBranchName(currentBranchId).toUpperCase();
+      const brTitle = effectiveBranchId === 'all' ? 'KONSOLIDASI GIGIN SWANTO ENTERPRISE' : getBranchName(effectiveBranchId).toUpperCase();
       
       document.getElementById('printStoreTitle').innerText = brTitle;
-      document.getElementById('printBranchSubtitle').innerText = currentBranchId === 'all' ? 'Laporan Keuangan Konsolidasi Seluruh Cabang Usaha' : `Cabang: ${getBranchName(currentBranchId)}`;
+      document.getElementById('printBranchSubtitle').innerText = effectiveBranchId === 'all' ? 'Laporan Keuangan Konsolidasi Seluruh Cabang Usaha' : `Cabang: ${getBranchName(effectiveBranchId)}`;
       document.getElementById('printReportDate').innerText = `Dicetak pada: ${formatDateIndo(today)} oleh ${currentUser ? currentUser.fullName : 'Petugas'}`;
 
-      const branchTx = currentBranchId === 'all' 
+      const branchTx = effectiveBranchId === 'all' 
         ? transactions 
-        : transactions.filter(t => t.branchId === currentBranchId);
+        : transactions.filter(t => t.branchId === effectiveBranchId);
 
       const txToday = branchTx.filter(t => t.date === today);
       const txRealToday = txToday.filter(t => getPaymentChannel(t.paymentMethod) !== 'voucher');
@@ -3279,9 +3397,10 @@
     // =========================================================================
     function openVoucherReportModal() {
       if (!currentUser) return;
+      const effectiveBranchId = getEffectiveBranchId();
       const subtitle = document.getElementById('voucherModalSubtitle');
       if (subtitle) {
-        subtitle.innerText = `Cabang: ${getBranchName(currentBranchId)} • Rekapitulasi Voucher Diskon Khusus (Bukan Tunai, QRIS, maupun Bank)`;
+        subtitle.innerText = `Cabang: ${getBranchName(effectiveBranchId)} • Rekapitulasi Voucher Diskon Khusus (Bukan Tunai, QRIS, maupun Bank)`;
       }
       renderVoucherReportTable();
       document.getElementById('voucherReportModal').classList.remove('hidden');
@@ -3299,10 +3418,11 @@
       const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
       const period = periodSelect ? periodSelect.value : 'all';
       const today = getTodayDateStr();
+      const effectiveBranchId = getEffectiveBranchId();
 
-      let branchTx = currentBranchId === 'all' 
+      let branchTx = effectiveBranchId === 'all' 
         ? transactions 
-        : transactions.filter(t => t.branchId === currentBranchId);
+        : transactions.filter(t => t.branchId === effectiveBranchId);
 
       // Saring hanya transaksi Voucher Discount Pembelanjaan
       let vTxList = branchTx.filter(t => 
@@ -3384,9 +3504,10 @@
     }
 
     function exportVoucherToExcel() {
-      let branchTx = currentBranchId === 'all' 
+      const effectiveBranchId = getEffectiveBranchId();
+      let branchTx = effectiveBranchId === 'all' 
         ? transactions 
-        : transactions.filter(t => t.branchId === currentBranchId);
+        : transactions.filter(t => t.branchId === effectiveBranchId);
 
       const vList = branchTx.filter(t => 
         getPaymentChannel(t.paymentMethod) === 'voucher' || 
@@ -3394,7 +3515,7 @@
       );
 
       let csv = 'data:text/csv;charset=utf-8,';
-      csv += `LAPORAN KHUSUS VOUCHER DISCOUNT PEMBELANJAAN (PENGHEMATAN) - ${getBranchName(currentBranchId).toUpperCase()}\r\n`;
+      csv += `LAPORAN KHUSUS VOUCHER DISCOUNT PEMBELANJAAN (PENGHEMATAN) - ${getBranchName(effectiveBranchId).toUpperCase()}\r\n`;
       csv += `Tanggal Unduh: ${getTodayDateStr()}\r\n`;
       csv += `Catatan: Voucher Discount Pembelanjaan merupakan potongan non-kas (Bukan Tunai, QRIS, atau Transfer)\r\n\r\n`;
       csv += 'No Invoice,Cabang,Tanggal,Jam,Rincian / Keterangan,Kategori,Nominal Voucher Diskon (Rp),Petugas\r\n';
@@ -3405,7 +3526,7 @@
 
       const link = document.createElement('a');
       link.setAttribute('href', encodeURI(csv));
-      link.setAttribute('download', `Laporan_Voucher_Discount_${currentBranchId}_${getTodayDateStr()}.csv`);
+      link.setAttribute('download', `Laporan_Voucher_Discount_${effectiveBranchId}_${getTodayDateStr()}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -3413,12 +3534,13 @@
     }
 
     function printVoucherReport() {
+      const effectiveBranchId = getEffectiveBranchId();
       const today = getTodayDateStr();
-      const brTitle = currentBranchId === 'all' ? 'KONSOLIDASI GIGIN SWANTO ENTERPRISE' : getBranchName(currentBranchId).toUpperCase();
+      const brTitle = effectiveBranchId === 'all' ? 'KONSOLIDASI GIGIN SWANTO ENTERPRISE' : getBranchName(effectiveBranchId).toUpperCase();
 
-      let branchTx = currentBranchId === 'all' 
+      let branchTx = effectiveBranchId === 'all' 
         ? transactions 
-        : transactions.filter(t => t.branchId === currentBranchId);
+        : transactions.filter(t => t.branchId === effectiveBranchId);
 
       const vList = branchTx.filter(t => 
         getPaymentChannel(t.paymentMethod) === 'voucher' || 
