@@ -1450,14 +1450,13 @@
           'Pemasukan lain'
         ],
         expenseCategories: [
-          'Stok Oli & Filter Mesin',
-          'Stok Aki GS Astra & Incoe',
-          'Stok Sparepart & Shock Absorber',
-          'Operasional Bengkel (Listrik, Wifi, Air)',
-          'Gaji & Uang Makan Mekanik / Staf',
-          'Maintenance Alat & Kompresor',
-          'Petty Cash Bengkel',
-          'Pengeluaran Lainnya'
+          'Perbaikan Mesin/Perlengkapan/Peralatan',
+          'Pembelian Tools',
+          'Pengeluaran ATK',
+          'Bayar Listrik/Internet',
+          'Pembelian Bahan Air Aki',
+          'Minyak BHD',
+          'Pengeluaran lain-lain'
         ]
       },
       snp_gw: {
@@ -1567,13 +1566,22 @@
       if (savedBranches) {
         try { 
           branchesData = JSON.parse(savedBranches); 
-          // Pastikan cabang snd_gw menggunakan 4 kategori pemasukan yang diminta
+          // Pastikan cabang snd_gw menggunakan 4 kategori pemasukan & 7 kategori pengeluaran yang diminta
           if (branchesData.snd_gw) {
             branchesData.snd_gw.incomeCategories = [
               'Penjualan Shop & Drive',
               'Bima Motor',
               'Penghematan/Voucher',
               'Pemasukan lain'
+            ];
+            branchesData.snd_gw.expenseCategories = [
+              'Perbaikan Mesin/Perlengkapan/Peralatan',
+              'Pembelian Tools',
+              'Pengeluaran ATK',
+              'Bayar Listrik/Internet',
+              'Pembelian Bahan Air Aki',
+              'Minyak BHD',
+              'Pengeluaran lain-lain'
             ];
             saveBranchesData();
           }
