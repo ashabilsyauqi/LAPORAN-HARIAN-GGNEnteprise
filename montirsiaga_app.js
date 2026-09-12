@@ -148,9 +148,8 @@ let ring2Circle = null;
 // --- Initialize App ---
 document.addEventListener('DOMContentLoaded', () => {
   initLiveTime();
-  initLeafletMap();
   bindEventHandlers();
-  updateTimeDisplay();
+  renderView();
   setInterval(updateTimeDisplay, 1000);
 });
 
@@ -171,6 +170,15 @@ function initLeafletMap() {
   if (!mapContainer || typeof L === 'undefined') return;
 
   try {
+    if (mapInstance) {
+      mapInstance.remove();
+      mapInstance = null;
+      userMarker = null;
+      mechanicMarker = null;
+      ring1Circle = null;
+      ring2Circle = null;
+    }
+
     mapInstance = L.map('leaflet-map', {
       zoomControl: false,
       attributionControl: false
@@ -189,6 +197,10 @@ function initLeafletMap() {
     });
 
     userMarker = L.marker([APP_STATE.userLocation.lat, APP_STATE.userLocation.lng], { icon: userIcon }).addTo(mapInstance);
+
+    if (APP_STATE.flowStep === 'SEARCHING') {
+      updateMapRadius(APP_STATE.searchRing);
+    }
   } catch (err) {
     console.error("Map init error:", err);
   }
