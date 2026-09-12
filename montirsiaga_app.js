@@ -1089,14 +1089,28 @@ function loadMockDocsForTesting() {
 function renderPartnerInfoStep() {
   return `
     <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="font-size: 1.15rem; font-weight: 800;">Gabung Kemitraan Bengkel & Montir</h3>
-        <span class="section-badge" style="background:rgba(37,99,235,0.2); color:#60a5fa; padding:2px 8px; font-size:0.7rem; border-radius:99px; font-weight:800;">Langkah 1/2</span>
+      <div style="background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.15)); border: 1px solid rgba(245,158,11,0.3); border-radius: var(--radius-md); padding: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="section-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 2px 8px; font-size: 0.7rem; border-radius: 99px; font-weight: 800;">
+            🔥 KUOTA MITRA TERBATAS
+          </span>
+          <span class="section-badge" style="background: rgba(37,99,235,0.2); color: #60a5fa; padding: 2px 8px; font-size: 0.7rem; border-radius: 99px; font-weight: 800;">
+            Langkah 1/2
+          </span>
+        </div>
+        <h3 style="font-size: 1.22rem; font-weight: 900; line-height: 1.3; color: #ffffff; margin-bottom: 6px;">
+          🚀 Raih Rp 5 – 10 Juta/Bulan Tambahan dari Order Darurat di Jalan!
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
+          Daftar sekarang sebagai Mitra Bengkel/Montir Siaga. Dapatkan panggilan darurat harian dalam radius 5 km dengan <strong style="color:#10b981;">Bagi Hasil 80% Langsung Cair</strong> setiap selesai order.
+        </p>
       </div>
-      
-      <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-        Dapatkan order darurat berkala dengan bagi hasil 80% langsung cair per pekerjaan.
-      </p>
+
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <span style="font-size: 0.7rem; background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); padding: 3px 8px; border-radius: 6px; font-weight: 700;">⚡ Order Masuk ke HP</span>
+        <span style="font-size: 0.7rem; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 3px 8px; border-radius: 6px; font-weight: 700;">💰 80% Milik Anda</span>
+        <span style="font-size: 0.7rem; background: rgba(245,158,11,0.15); color: #fde047; border: 1px solid rgba(245,158,11,0.3); padding: 3px 8px; border-radius: 6px; font-weight: 700;">📍 Radius Bebas Macet</span>
+      </div>
 
       <form onsubmit="handlePartnerStep1Submit(event)" class="price-sheet" style="display:flex; flex-direction:column; gap:12px;">
         <div>
@@ -1124,7 +1138,7 @@ function renderPartnerInfoStep() {
         </div>
 
         <button type="submit" onclick="handlePartnerStep1DirectClick()" class="btn-primary-block" style="margin-top: 8px;">
-          Kirim Pendaftaran Kemitraan 🤝
+          Lanjut ke Upload Foto & KTP ➔
         </button>
       </form>
     </div>
@@ -1134,17 +1148,35 @@ function renderPartnerInfoStep() {
 function renderPartnerUploadStep() {
   return `
     <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="font-size: 1.15rem; font-weight: 800;">Upload Foto & Dokumen</h3>
-        <span class="section-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7; padding:2px 8px; font-size:0.7rem; border-radius:99px; font-weight:800;">Langkah 2/2</span>
-      </div>
       
-      <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-        Unggah foto montir, foto e-KTP, dan dokumen legalitas agar akun mitra Anda aktif dan terverifikasi.
-      </p>
+      <!-- Persuasive Motivational Banner -->
+      <div style="background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(59,130,246,0.18)); border: 1px solid rgba(16,185,129,0.4); border-radius: var(--radius-md); padding: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+          <span class="section-badge" style="background: rgba(16,185,129,0.3); color: #6ee7b7; padding: 2px 8px; font-size: 0.7rem; border-radius: 99px; font-weight: 800;">
+            ⚡ 1 LANGKAH TERAKHIR!
+          </span>
+          <span class="section-badge" style="background: rgba(59,130,246,0.3); color: #93c5fd; padding: 2px 8px; font-size: 0.7rem; border-radius: 99px; font-weight: 800;">
+            Langkah 2/2
+          </span>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 900; line-height: 1.3; color: #ffffff; margin-bottom: 6px;">
+          🔥 Lengkapi Berkas Sekarang & Langsung Mulai Terima Order Hari Ini!
+        </h3>
+        <p style="font-size: 0.8rem; color: #e2e8f0; line-height: 1.45; margin: 0;">
+          Pengendara mogok memilih montir yang profilnya jelas. Upload pas foto wajah & e-KTP Anda untuk mengaktifkan status <strong style="color: #10b981;">Mitra Resmi Terverifikasi</strong> dan prioritas radar darurat.
+        </p>
+      </div>
 
-      <button type="button" onclick="loadMockDocsForTesting()" class="btn-primary-block" style="background: linear-gradient(135deg, #10b981, #059669); font-size: 0.78rem; padding: 9px 12px; border-radius: 8px;">
-        ⚡ Pakai Contoh Pas Foto & KTP (Simulasi Verifikasi Cepat)
+      <!-- Trust Benefit Points -->
+      <div style="background: rgba(0,0,0,0.25); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
+        <div style="color: #6ee7b7; font-weight: 700;">💎 Mengapa Wajib Upload Foto & KTP?</div>
+        <div>✔ Akun Anda langsung aktif di radar broadcast radius 5 km.</div>
+        <div>✔ Pengendara 100% lebih yakin dan percaya dengan montir bertanda verifikasi resmi.</div>
+        <div>✔ Hak proteksi tarif pasti & saldo langsung masuk rekening / dompet digital.</div>
+      </div>
+
+      <button type="button" onclick="loadMockDocsForTesting()" class="btn-primary-block" style="background: linear-gradient(135deg, #10b981, #059669); font-size: 0.78rem; padding: 9px 12px; border-radius: 8px; font-weight: 800;">
+        ⚡ Pakai Contoh Pas Foto & KTP (Simulasi Cepat 1-Detik)
       </button>
 
       <div class="upload-card-group">
