@@ -842,6 +842,7 @@ let partnerFormData = {
 };
 
 let uploadedDocs = {
+  photo: null,
   ktp: null,
   nib: null,
   cert: null,
@@ -876,6 +877,11 @@ function handleFileUpload(docType, event) {
 }
 
 function handleFinalPartnerSubmit() {
+  if (!uploadedDocs.photo) {
+    alert('Mohon unggah Pas Foto Montir (Foto Profil) untuk verifikasi armada.');
+    return;
+  }
+
   if (!uploadedDocs.ktp) {
     alert('Mohon unggah Foto e-KTP Asli untuk verifikasi identitas mitra.');
     return;
@@ -884,23 +890,24 @@ function handleFinalPartnerSubmit() {
   const refId = 'MITRA-' + Math.floor(100000 + Math.random() * 900000);
   const waText = `Halo Admin MontirSiaga.com, saya ingin mendaftar sebagai Mitra Bengkel/Montir Siaga:\n\n` +
     `📋 No. Registrasi: ${refId}\n` +
-    `👤 Nama: ${partnerFormData.name}\n` +
+    `👤 Nama Montir: ${partnerFormData.name}\n` +
     `📱 WhatsApp: ${partnerFormData.phone}\n` +
     `🏢 Bengkel: ${partnerFormData.workshop}\n` +
     `📜 Tipe Legalitas: ${partnerFormData.certType}\n` +
-    `🪪 Foto KTP: Terlampir (${uploadedDocs.ktp ? uploadedDocs.ktp.name : '-'})\n` +
-    `📄 Dokumen Pendukung: ${uploadedDocs.nib ? 'NIB/SKU Ada' : 'Menyusul'}, ${uploadedDocs.cert ? 'Sertifikat Ada' : 'Menyusul'}\n\n` +
-    `Mohon segera diproses verifikasinya. Terima kasih!`;
+    `📸 Pas Foto Montir: Terlampir (${uploadedDocs.photo ? uploadedDocs.photo.name : '-'})\n` +
+    `🪪 Foto e-KTP: Terlampir (${uploadedDocs.ktp ? uploadedDocs.ktp.name : '-'})\n` +
+    `📄 Dokumen Pendukung: ${uploadedDocs.nib ? 'NIB Ada' : 'Menyusul'}, ${uploadedDocs.cert ? 'Sertifikat BNSP Ada' : 'Menyusul'}, ${uploadedDocs.workshop ? 'Foto Bengkel Ada' : 'Menyusul'}\n\n` +
+    `Mohon segera diverifikasi untuk aktivasi akun siaga. Terima kasih!`;
 
   const waUrl = `https://wa.me/6287781047453?text=${encodeURIComponent(waText)}`;
 
-  alert(`✅ Pendaftaran Kemitraan Berhasil Dikirim!\n\nNomor Registrasi: ${refId}\nDokumen KTP & Pendukung Anda telah direkam. Anda akan diarahkan ke WhatsApp Admin Verifikasi MontirSiaga.`);
+  alert(`✅ Berkas Pendaftaran & Foto Montir Berhasil Dikirim!\n\nNomor Registrasi: ${refId}\nPas Foto Montir & Dokumen KTP Anda telah diverifikasi sistem. Anda akan diarahkan ke WhatsApp Admin Verifikasi.`);
   
   window.open(waUrl, '_blank');
   
   // Reset state
   partnerStep = 1;
-  uploadedDocs = { ktp: null, nib: null, cert: null, workshop: null };
+  uploadedDocs = { photo: null, ktp: null, nib: null, cert: null, workshop: null };
   switchTab('home');
 }
 
@@ -949,7 +956,7 @@ function renderPartnerInfoStep() {
         </div>
 
         <button type="submit" class="btn-primary-block" style="margin-top: 8px;">
-          Kirim Pendaftaran Kemitraan 🤝
+          Lanjut ke Upload Foto & Dokumen ➔
         </button>
       </form>
     </div>
@@ -960,17 +967,43 @@ function renderPartnerUploadStep() {
   return `
     <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="font-size: 1.15rem; font-weight: 800;">Upload Dokumen Verifikasi</h3>
+        <h3 style="font-size: 1.15rem; font-weight: 800;">Upload Foto & Dokumen</h3>
         <span class="section-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7; padding:2px 8px; font-size:0.7rem; border-radius:99px; font-weight:800;">Langkah 2/2</span>
       </div>
       
       <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
-        Unggah foto e-KTP dan dokumen legalitas agar akun mitra Anda dapat diverifikasi oleh tim MontirSiaga.
+        Unggah foto montir, foto e-KTP, dan dokumen legalitas agar akun mitra Anda aktif dan terverifikasi.
       </p>
 
       <div class="upload-card-group">
         
-        <!-- 1. Upload Foto e-KTP -->
+        <!-- 1. Upload Pas Foto Montir / Wajah Profil -->
+        <div class="upload-card ${uploadedDocs.photo ? 'uploaded' : ''}">
+          <div class="upload-header">
+            <div class="upload-title">
+              <span>📸</span>
+              <span>Pas Foto Montir / Foto Profil (Wajib) *</span>
+            </div>
+            <span class="upload-status ${uploadedDocs.photo ? 'verified' : ''}">
+              ${uploadedDocs.photo ? '✔ Terunggah' : 'Belum Ada'}
+            </span>
+          </div>
+          <label class="upload-dropzone">
+            <span>📷 Ambil Foto / Upload Wajah Montir</span>
+            <input type="file" accept="image/*" onchange="handleFileUpload('photo', event)" style="display:none;">
+          </label>
+          ${uploadedDocs.photo ? `
+            <div class="upload-preview-container">
+              <img src="${uploadedDocs.photo.dataUrl}" class="upload-preview-img" style="width:48px; height:48px; border-radius:50%; object-fit:cover;" alt="Foto Montir">
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">
+                <div>Foto Profil Montir Siap Ditampilkan</div>
+                <div style="color:var(--text-muted); font-size:0.68rem;">${uploadedDocs.photo.name} (${uploadedDocs.photo.size})</div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- 2. Upload Foto e-KTP -->
         <div class="upload-card ${uploadedDocs.ktp ? 'uploaded' : ''}">
           <div class="upload-header">
             <div class="upload-title">
@@ -996,7 +1029,7 @@ function renderPartnerUploadStep() {
           ` : ''}
         </div>
 
-        <!-- 2. Dokumen NIB / SKU Bengkel -->
+        <!-- 3. Dokumen NIB / SKU Bengkel -->
         <div class="upload-card ${uploadedDocs.nib ? 'uploaded' : ''}">
           <div class="upload-header">
             <div class="upload-title">
@@ -1020,7 +1053,7 @@ function renderPartnerUploadStep() {
           ` : ''}
         </div>
 
-        <!-- 3. Sertifikat BNSP / Ijazah Keahlian -->
+        <!-- 4. Sertifikat BNSP / Ijazah Keahlian -->
         <div class="upload-card ${uploadedDocs.cert ? 'uploaded' : ''}">
           <div class="upload-header">
             <div class="upload-title">
@@ -1044,7 +1077,7 @@ function renderPartnerUploadStep() {
           ` : ''}
         </div>
 
-        <!-- 4. Foto Bengkel / Motor & Toolbox -->
+        <!-- 5. Foto Bengkel / Motor & Toolbox -->
         <div class="upload-card ${uploadedDocs.workshop ? 'uploaded' : ''}">
           <div class="upload-header">
             <div class="upload-title">
