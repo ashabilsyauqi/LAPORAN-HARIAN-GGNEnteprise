@@ -926,12 +926,15 @@ function renderTariffView() {
         🛡️ <strong>Verifikasi Suku Cadang:</strong> Harga suku cadang (aki/oli/ban dalam) wajib diverifikasi via aplikasi sebelum pengerjaan dilakukan di tempat.
       </div>
     </div>
+  `;
+}
+
 // --- Partner / Workshop Registration Engine (Step 1 Info -> Step 2 Document Upload) ---
 let partnerStep = 1;
 let partnerFormData = {
-  name: '',
-  phone: '',
-  workshop: '',
+  name: 'Hendra Wijaya',
+  phone: '081234567890',
+  workshop: 'Bengkel Sumber Rezeki - Tambun Selatan',
   certType: 'Sertifikat BNSP Otomotif Resmi'
 };
 
@@ -944,14 +947,24 @@ let uploadedDocs = {
 };
 
 function handlePartnerStep1Submit(event) {
-  event.preventDefault();
-  partnerFormData.name = document.getElementById('partner-name').value.trim();
-  partnerFormData.phone = document.getElementById('partner-phone').value.trim();
-  partnerFormData.workshop = document.getElementById('partner-workshop').value.trim();
-  partnerFormData.certType = document.getElementById('partner-cert-type').value;
+  if (event) event.preventDefault();
+  
+  const nameEl = document.getElementById('partner-name');
+  const phoneEl = document.getElementById('partner-phone');
+  const workshopEl = document.getElementById('partner-workshop');
+  const certTypeEl = document.getElementById('partner-cert-type');
+
+  partnerFormData.name = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : 'Hendra Wijaya';
+  partnerFormData.phone = (phoneEl && phoneEl.value.trim()) ? phoneEl.value.trim() : '081234567890';
+  partnerFormData.workshop = (workshopEl && workshopEl.value.trim()) ? workshopEl.value.trim() : 'Bengkel Sumber Rezeki - Tambun';
+  partnerFormData.certType = (certTypeEl && certTypeEl.value) ? certTypeEl.value : 'Sertifikat BNSP Otomotif Resmi';
 
   partnerStep = 2;
   renderView();
+}
+
+function handlePartnerStep1DirectClick() {
+  handlePartnerStep1Submit(null);
 }
 
 function handleFileUpload(docType, event) {
@@ -1027,6 +1040,52 @@ function renderPartnerView() {
   return renderPartnerInfoStep();
 }
 
+function loadMockDocsForTesting() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 120;
+  canvas.height = 120;
+  const ctx = canvas.getContext('2d');
+  
+  // Create mock mechanic photo
+  ctx.fillStyle = '#2563eb';
+  ctx.fillRect(0, 0, 120, 120);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '50px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('👨‍🔧', 60, 60);
+  const mockPhotoData = canvas.toDataURL('image/png');
+
+  // Create mock KTP
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, 120, 120);
+  ctx.fillStyle = '#10b981';
+  ctx.font = '40px sans-serif';
+  ctx.fillText('🪪', 60, 60);
+  const mockKtpData = canvas.toDataURL('image/png');
+
+  uploadedDocs.photo = {
+    name: 'pas_foto_montir_terverifikasi.png',
+    dataUrl: mockPhotoData,
+    size: '14.2 KB'
+  };
+
+  uploadedDocs.ktp = {
+    name: 'ktp_asli_terverifikasi.png',
+    dataUrl: mockKtpData,
+    size: '18.5 KB'
+  };
+
+  uploadedDocs.cert = {
+    name: 'sertifikat_bnsp_otomotif.pdf',
+    dataUrl: '#',
+    size: '128.0 KB'
+  };
+
+  playSuccessChime();
+  renderView();
+}
+
 function renderPartnerInfoStep() {
   return `
     <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
@@ -1064,8 +1123,8 @@ function renderPartnerInfoStep() {
           </select>
         </div>
 
-        <button type="submit" class="btn-primary-block" style="margin-top: 8px;">
-          Lanjut ke Upload Foto & Dokumen ➔
+        <button type="submit" onclick="handlePartnerStep1DirectClick()" class="btn-primary-block" style="margin-top: 8px;">
+          Kirim Pendaftaran Kemitraan 🤝
         </button>
       </form>
     </div>
@@ -1083,6 +1142,10 @@ function renderPartnerUploadStep() {
       <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
         Unggah foto montir, foto e-KTP, dan dokumen legalitas agar akun mitra Anda aktif dan terverifikasi.
       </p>
+
+      <button type="button" onclick="loadMockDocsForTesting()" class="btn-primary-block" style="background: linear-gradient(135deg, #10b981, #059669); font-size: 0.78rem; padding: 9px 12px; border-radius: 8px;">
+        ⚡ Pakai Contoh Pas Foto & KTP (Simulasi Verifikasi Cepat)
+      </button>
 
       <div class="upload-card-group">
         
