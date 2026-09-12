@@ -832,40 +832,119 @@ function renderTariffView() {
         🛡️ <strong>Verifikasi Suku Cadang:</strong> Harga suku cadang (aki/oli/ban dalam) wajib diverifikasi via aplikasi sebelum pengerjaan dilakukan di tempat.
       </div>
     </div>
-  `;
+// --- Partner / Workshop Registration Engine (Step 1 Info -> Step 2 Document Upload) ---
+let partnerStep = 1;
+let partnerFormData = {
+  name: '',
+  phone: '',
+  workshop: '',
+  certType: 'Sertifikat BNSP Otomotif Resmi'
+};
+
+let uploadedDocs = {
+  ktp: null,
+  nib: null,
+  cert: null,
+  workshop: null
+};
+
+function handlePartnerStep1Submit(event) {
+  event.preventDefault();
+  partnerFormData.name = document.getElementById('partner-name').value.trim();
+  partnerFormData.phone = document.getElementById('partner-phone').value.trim();
+  partnerFormData.workshop = document.getElementById('partner-workshop').value.trim();
+  partnerFormData.certType = document.getElementById('partner-cert-type').value;
+
+  partnerStep = 2;
+  renderView();
 }
 
-// --- Partner / Workshop Registration Tab ---
+function handleFileUpload(docType, event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    uploadedDocs[docType] = {
+      name: file.name,
+      dataUrl: e.target.result,
+      size: (file.size / 1024).toFixed(1) + ' KB'
+    };
+    renderView();
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleFinalPartnerSubmit() {
+  if (!uploadedDocs.ktp) {
+    alert('Mohon unggah Foto e-KTP Asli untuk verifikasi identitas mitra.');
+    return;
+  }
+
+  const refId = 'MITRA-' + Math.floor(100000 + Math.random() * 900000);
+  const waText = `Halo Admin MontirSiaga.com, saya ingin mendaftar sebagai Mitra Bengkel/Montir Siaga:\n\n` +
+    `📋 No. Registrasi: ${refId}\n` +
+    `👤 Nama: ${partnerFormData.name}\n` +
+    `📱 WhatsApp: ${partnerFormData.phone}\n` +
+    `🏢 Bengkel: ${partnerFormData.workshop}\n` +
+    `📜 Tipe Legalitas: ${partnerFormData.certType}\n` +
+    `🪪 Foto KTP: Terlampir (${uploadedDocs.ktp ? uploadedDocs.ktp.name : '-'})\n` +
+    `📄 Dokumen Pendukung: ${uploadedDocs.nib ? 'NIB/SKU Ada' : 'Menyusul'}, ${uploadedDocs.cert ? 'Sertifikat Ada' : 'Menyusul'}\n\n` +
+    `Mohon segera diproses verifikasinya. Terima kasih!`;
+
+  const waUrl = `https://wa.me/6287781047453?text=${encodeURIComponent(waText)}`;
+
+  alert(`✅ Pendaftaran Kemitraan Berhasil Dikirim!\n\nNomor Registrasi: ${refId}\nDokumen KTP & Pendukung Anda telah direkam. Anda akan diarahkan ke WhatsApp Admin Verifikasi MontirSiaga.`);
+  
+  window.open(waUrl, '_blank');
+  
+  // Reset state
+  partnerStep = 1;
+  uploadedDocs = { ktp: null, nib: null, cert: null, workshop: null };
+  switchTab('home');
+}
+
 function renderPartnerView() {
+  if (partnerStep === 2) {
+    return renderPartnerUploadStep();
+  }
+  return renderPartnerInfoStep();
+}
+
+function renderPartnerInfoStep() {
   return `
     <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
-      <h3 style="font-size: 1.15rem; font-weight: 800;">Gabung Kemitraan Bengkel & Montir</h3>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">Gabung Kemitraan Bengkel & Montir</h3>
+        <span class="section-badge" style="background:rgba(37,99,235,0.2); color:#60a5fa; padding:2px 8px; font-size:0.7rem; border-radius:99px; font-weight:800;">Langkah 1/2</span>
+      </div>
+      
+      <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
         Dapatkan order darurat berkala dengan bagi hasil 80% langsung cair per pekerjaan.
       </p>
 
-      <form onsubmit="event.preventDefault(); alert('Terima kasih! Pendaftaran mitra bengkel berhasil direkam. Tim verifikasi MontirSiaga akan menghubungi Anda dalam 1x24 jam.'); switchTab('home');" class="price-sheet" style="display:flex; flex-direction:column; gap:10px;">
+      <form onsubmit="handlePartnerStep1Submit(event)" class="price-sheet" style="display:flex; flex-direction:column; gap:12px;">
         <div>
           <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">Nama Lengkap Montir / Pemilik Bengkel *</label>
-          <input type="text" placeholder="Contoh: Hendra Wijaya" required style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:8px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
+          <input type="text" id="partner-name" value="${partnerFormData.name}" placeholder="Contoh: Hendra Wijaya" required style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:10px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
         </div>
 
         <div>
           <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">Nomor WhatsApp Aktif *</label>
-          <input type="tel" placeholder="081234567890" required style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:8px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
+          <input type="tel" id="partner-phone" value="${partnerFormData.phone}" placeholder="081234567890" required style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:10px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
         </div>
 
         <div>
           <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">Nama Bengkel / Wilayah Operasi (Radius 5 km) *</label>
-          <input type="text" placeholder="Bengkel Sumber Rezeki - Tambun Selatan" required style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:8px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
+          <input type="text" id="partner-workshop" value="${partnerFormData.workshop}" placeholder="Bengkel Sumber Rezeki - Tambun Selatan" required style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:10px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
         </div>
 
         <div>
           <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">Legalitas / Sertifikasi (NIB / Sertifikat BNSP) *</label>
-          <select style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:8px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
-            <option>Sertifikat BNSP Otomotif Resmi</option>
-            <option>NIB Bengkel Resmi Mandiri</option>
-            <option>Pengalaman Kerja Bengkel &gt; 3 Tahun</option>
+          <select id="partner-cert-type" style="width:100%; background:var(--bg-app); border:1px solid var(--border-light); color:white; padding:10px 12px; border-radius:8px; margin-top:4px; font-size:0.85rem;">
+            <option ${partnerFormData.certType === 'Sertifikat BNSP Otomotif Resmi' ? 'selected' : ''}>Sertifikat BNSP Otomotif Resmi</option>
+            <option ${partnerFormData.certType === 'NIB Bengkel Resmi Mandiri' ? 'selected' : ''}>NIB Bengkel Resmi Mandiri</option>
+            <option ${partnerFormData.certType === 'Pengalaman Kerja Bengkel > 3 Tahun' ? 'selected' : ''}>Pengalaman Kerja Bengkel &gt; 3 Tahun</option>
           </select>
         </div>
 
@@ -873,6 +952,132 @@ function renderPartnerView() {
           Kirim Pendaftaran Kemitraan 🤝
         </button>
       </form>
+    </div>
+  `;
+}
+
+function renderPartnerUploadStep() {
+  return `
+    <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">Upload Dokumen Verifikasi</h3>
+        <span class="section-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7; padding:2px 8px; font-size:0.7rem; border-radius:99px; font-weight:800;">Langkah 2/2</span>
+      </div>
+      
+      <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+        Unggah foto e-KTP dan dokumen legalitas agar akun mitra Anda dapat diverifikasi oleh tim MontirSiaga.
+      </p>
+
+      <div class="upload-card-group">
+        
+        <!-- 1. Upload Foto e-KTP -->
+        <div class="upload-card ${uploadedDocs.ktp ? 'uploaded' : ''}">
+          <div class="upload-header">
+            <div class="upload-title">
+              <span>🪪</span>
+              <span>Foto e-KTP Asli (Wajib) *</span>
+            </div>
+            <span class="upload-status ${uploadedDocs.ktp ? 'verified' : ''}">
+              ${uploadedDocs.ktp ? '✔ Terunggah' : 'Belum Ada'}
+            </span>
+          </div>
+          <label class="upload-dropzone">
+            <span>📷 Pilih / Foto e-KTP</span>
+            <input type="file" accept="image/*" onchange="handleFileUpload('ktp', event)" style="display:none;">
+          </label>
+          ${uploadedDocs.ktp ? `
+            <div class="upload-preview-container">
+              <img src="${uploadedDocs.ktp.dataUrl}" class="upload-preview-img" alt="KTP Preview">
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">
+                <div>${uploadedDocs.ktp.name}</div>
+                <div style="color:var(--text-muted); font-size:0.68rem;">${uploadedDocs.ktp.size}</div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- 2. Dokumen NIB / SKU Bengkel -->
+        <div class="upload-card ${uploadedDocs.nib ? 'uploaded' : ''}">
+          <div class="upload-header">
+            <div class="upload-title">
+              <span>📜</span>
+              <span>Dokumen NIB / SKU Bengkel</span>
+            </div>
+            <span class="upload-status ${uploadedDocs.nib ? 'verified' : ''}">
+              ${uploadedDocs.nib ? '✔ Terunggah' : 'Opsional'}
+            </span>
+          </div>
+          <label class="upload-dropzone">
+            <span>📄 Upload File NIB / Surat Usaha</span>
+            <input type="file" accept="image/*,.pdf" onchange="handleFileUpload('nib', event)" style="display:none;">
+          </label>
+          ${uploadedDocs.nib ? `
+            <div class="upload-preview-container">
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">
+                <div>✔ ${uploadedDocs.nib.name} (${uploadedDocs.nib.size})</div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- 3. Sertifikat BNSP / Ijazah Keahlian -->
+        <div class="upload-card ${uploadedDocs.cert ? 'uploaded' : ''}">
+          <div class="upload-header">
+            <div class="upload-title">
+              <span>🏅</span>
+              <span>Sertifikat BNSP / Ijazah Keahlian</span>
+            </div>
+            <span class="upload-status ${uploadedDocs.cert ? 'verified' : ''}">
+              ${uploadedDocs.cert ? '✔ Terunggah' : 'Opsional'}
+            </span>
+          </div>
+          <label class="upload-dropzone">
+            <span>📄 Upload Sertifikat Keahlian</span>
+            <input type="file" accept="image/*,.pdf" onchange="handleFileUpload('cert', event)" style="display:none;">
+          </label>
+          ${uploadedDocs.cert ? `
+            <div class="upload-preview-container">
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">
+                <div>✔ ${uploadedDocs.cert.name} (${uploadedDocs.cert.size})</div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- 4. Foto Bengkel / Motor & Toolbox -->
+        <div class="upload-card ${uploadedDocs.workshop ? 'uploaded' : ''}">
+          <div class="upload-header">
+            <div class="upload-title">
+              <span>🏍️</span>
+              <span>Foto Bengkel / Motor & Toolbox</span>
+            </div>
+            <span class="upload-status ${uploadedDocs.workshop ? 'verified' : ''}">
+              ${uploadedDocs.workshop ? '✔ Terunggah' : 'Opsional'}
+            </span>
+          </div>
+          <label class="upload-dropzone">
+            <span>📷 Foto Armada / Toolbox</span>
+            <input type="file" accept="image/*" onchange="handleFileUpload('workshop', event)" style="display:none;">
+          </label>
+          ${uploadedDocs.workshop ? `
+            <div class="upload-preview-container">
+              <img src="${uploadedDocs.workshop.dataUrl}" class="upload-preview-img" alt="Armada Preview">
+              <div style="font-size:0.72rem; color:#10b981; font-weight:700;">
+                <div>${uploadedDocs.workshop.name}</div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+      </div>
+
+      <button class="btn-success-block" onclick="handleFinalPartnerSubmit()" style="margin-top: 8px;">
+        Kirim Berkas Verifikasi Kemitraan 🚀
+      </button>
+
+      <button class="btn-action btn-cancel" onclick="partnerStep = 1; renderView();" style="width: 100%;">
+        ← Kembali Edit Data
+      </button>
     </div>
   `;
 }
@@ -891,3 +1096,4 @@ function bindEventHandlers() {
     });
   });
 }
+

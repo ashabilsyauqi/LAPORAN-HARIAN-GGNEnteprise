@@ -534,6 +534,93 @@ body {
   color: var(--amber-warning);
 }
 
+/* Document Upload & Verification Dropzone Styling */
+.upload-card-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.upload-card {
+  background: var(--bg-card);
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.upload-card.uploaded {
+  border-style: solid;
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upload-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.upload-status.verified {
+  color: #10b981;
+}
+
+.upload-dropzone {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.upload-dropzone:hover {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.upload-preview-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.upload-preview-img {
+  width: 60px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #10b981;
+}
+
 /* Fallback Escalation Hotline Screen */
 .hotline-card {
   width: 100%;
