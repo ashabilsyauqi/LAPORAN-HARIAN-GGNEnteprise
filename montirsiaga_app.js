@@ -752,7 +752,7 @@ function renderCompletedInvoiceView() {
       <div style="font-size: 3rem; margin: 10px 0;">🎉</div>
       <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;">Kendala Teratasi!</h3>
       <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-        Terima kasih telah menggunakan MontirSiaga.com. Panik hilang, perjalanan kembali lancar!
+        Terima kasih telah menggunakan MontirSiaga.com. Montir datang, panik hilang, perjalanan kembali lancar!
       </p>
 
       <div class="price-sheet" style="text-align: left;">

@@ -15,7 +15,7 @@ const caseStudiesData = [
     client: "MontirSiaga Indonesia",
     live_url: "montirsiaga.html",
     live_url_display: "Buka MontirSiaga App",
-    client_id_desc: "Platform tanggap darurat otomotif on-demand dengan filosofi 'Panik Hilang, Montir Datang' untuk penanganan mogok di jalan raya & jalan tol.",
+    client_id_desc: "Platform tanggap darurat otomotif on-demand dengan filosofi 'Montir Datang, Panik Hilang' untuk penanganan mogok di jalan raya & jalan tol.",
     client_en_desc: "On-demand emergency roadside assistance platform connecting stranded motorists with certified local mechanics in minutes.",
     tag: "Mobile App (Android/iOS/PWA)",
     impact_id: "Respon montir dalam 15-30 detik, radar geofencing 5 km, bagi hasil 80% montir mandiri",
