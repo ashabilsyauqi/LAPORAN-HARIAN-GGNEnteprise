@@ -33,6 +33,62 @@ const APP_STATE = {
   soundEnabled: true
 };
 
+// --- Web Audio API Emergency Sound Synthesizer ---
+let audioCtx = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      audioCtx = new AudioContext();
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playSirenSound() {
+  try {
+    playTone(880, 'sawtooth', 0.18, 0.12);
+    setTimeout(() => playTone(660, 'sawtooth', 0.18, 0.12), 160);
+    setTimeout(() => playTone(880, 'sawtooth', 0.22, 0.12), 320);
+  } catch(e) {}
+}
+
+function playCountdownBeep() {
+  playTone(587.33, 'sine', 0.08, 0.07);
+}
+
+function playSuccessChime() {
+  playTone(523.25, 'triangle', 0.12, 0.1);
+  setTimeout(() => playTone(659.25, 'triangle', 0.12, 0.1), 100);
+  setTimeout(() => playTone(783.99, 'triangle', 0.25, 0.12), 200);
+}
+
+function playAlertAlarm() {
+  playTone(900, 'square', 0.15, 0.08);
+  setTimeout(() => playTone(1200, 'square', 0.2, 0.08), 150);
+}
+
 // Preset Options Config
 const PRESETS = [
   { id: 'tire', title: 'Ban Bocor / Kempes', icon: '🛞', desc: 'Tambal ban di tempat / ganti ban cadangan', baseFee: 45000, serviceFee: 35000 },
@@ -140,6 +196,7 @@ function initLeafletMap() {
 
 // --- Trigger 1-Click SOS Action ---
 function triggerOneClickSOS() {
+  playSirenSound();
   APP_STATE.flowStep = 'PRESET';
   renderView();
   startPresetCountdown();
@@ -155,6 +212,7 @@ function startPresetCountdown() {
 
   APP_STATE.presetInterval = setInterval(() => {
     APP_STATE.presetTimer -= 1;
+    playCountdownBeep();
     const el = document.getElementById('preset-countdown-val');
     if (el) el.textContent = APP_STATE.presetTimer;
 
@@ -260,6 +318,7 @@ function updatePipelineUI() {
 
 // --- Found & Dispatched Mechanic ---
 function dispatchFoundMechanic() {
+  playSuccessChime();
   APP_STATE.flowStep = 'DISPATCHED';
   APP_STATE.assignedMechanic = SAMPLE_MECHANICS[0];
   APP_STATE.etaMinutes = 7;
@@ -717,8 +776,31 @@ function renderCompletedInvoiceView() {
 
 // --- Mechanic Mode Incoming Job Simulator ---
 function renderMechanicModeView() {
+  let partnerProfile = null;
+  try {
+    const saved = localStorage.getItem('montirsiaga_verified_partner');
+    if (saved) partnerProfile = JSON.parse(saved);
+  } catch (e) {}
+
+  const partnerName = partnerProfile ? partnerProfile.name : "Rahmat Hidayat, S.T.";
+  const workshopName = partnerProfile ? partnerProfile.workshop : "Bengkel Mandiri Jaya Motor";
+  const photoHtml = (partnerProfile && partnerProfile.photo) 
+    ? `<img src="${partnerProfile.photo}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;" alt="Mitra Montir">`
+    : `<div style="font-size: 1.8rem;">👨‍🔧</div>`;
+
   return `
     <div class="dispatch-screen">
+      <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px;">
+        ${photoHtml}
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <strong style="font-size: 0.92rem; color: #ffffff;">${partnerName}</strong>
+            <span style="background: #10b981; color: #000; font-size: 0.65rem; font-weight: 800; padding: 1px 6px; border-radius: 99px;">TERVERIFIKASI</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${workshopName}</div>
+        </div>
+      </div>
+
       <div style="display: flex; align-items: center; justify-content: space-between;">
         <span class="section-badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; padding: 4px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 800;">
           🟢 Status: SIAGA AKTIF
@@ -903,6 +985,21 @@ function handleFinalPartnerSubmit() {
 
   alert(`✅ Berkas Pendaftaran & Foto Montir Berhasil Dikirim!\n\nNomor Registrasi: ${refId}\nPas Foto Montir & Dokumen KTP Anda telah diverifikasi sistem. Anda akan diarahkan ke WhatsApp Admin Verifikasi.`);
   
+  // Persist partner in localStorage for active mechanic mode
+  try {
+    localStorage.setItem('montirsiaga_verified_partner', JSON.stringify({
+      name: partnerFormData.name,
+      phone: partnerFormData.phone,
+      workshop: partnerFormData.workshop,
+      certType: partnerFormData.certType,
+      photo: uploadedDocs.photo ? uploadedDocs.photo.dataUrl : null,
+      refId: refId,
+      registeredAt: new Date().toLocaleDateString('id-ID')
+    }));
+  } catch (e) {
+    console.error("Local storage error:", e);
+  }
+
   window.open(waUrl, '_blank');
   
   // Reset state

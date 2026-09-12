@@ -7,6 +7,29 @@
 // --- Data Models ---
 const caseStudiesData = [
   {
+    id: "cs-montirsiaga",
+    category: "mobile",
+    categories: ["mobile", "webapp"],
+    title_id: "MontirSiaga.com - Platform Mobile Tanggap Darurat Mogok 1-Click SOS",
+    title_en: "MontirSiaga.com - 1-Click SOS On-Demand Roadside Assistance Mobile App",
+    client: "MontirSiaga Indonesia",
+    live_url: "montirsiaga.html",
+    live_url_display: "Buka MontirSiaga App",
+    client_id_desc: "Platform tanggap darurat otomotif on-demand dengan filosofi 'Panik Hilang, Montir Datang' untuk penanganan mogok di jalan raya & jalan tol.",
+    client_en_desc: "On-demand emergency roadside assistance platform connecting stranded motorists with certified local mechanics in minutes.",
+    tag: "Mobile App (Android/iOS/PWA)",
+    impact_id: "Respon montir dalam 15-30 detik, radar geofencing 5 km, bagi hasil 80% montir mandiri",
+    impact_en: "15-30s mechanic response, 5 km geofencing radar, 80% direct earnings for independent mechanics",
+    desc_id: "Pengembangan mobile app 1-Click SOS dengan preset kendala cepat 3 detik, radar geofencing 2-ring, live tracking GPS montir bergerak, eskalasi derek tol 14080 otomatis, dan verifikasi upload KTP/BNSP mitra.",
+    desc_en: "Full mobile app engineering featuring 1-Click SOS, 3-second rapid presets, 2-ring geofencing radar, live mechanic GPS tracking, and toll towing escalation.",
+    challenge_id: "Pengendara mogok kerap panik dan butuh kepastian cepat tanpa proses input form yang rumit, serta kebutuhan standarisasi keahlian montir bersertifikat resmi.",
+    challenge_en: "Stranded drivers in panic need immediate dispatch without complex forms, alongside guaranteed certified mechanic credentials.",
+    solution_id: "Dutaglobaltech merancang mobile app berkecepatan tinggi dengan auto-GPS locking, radar multi-ring, live ETA Leaflet map, dan sistem verifikasi KTP/BNSP digital.",
+    solution_en: "Dutaglobaltech engineered a high-speed mobile application with auto-GPS locking, multi-ring radar, live ETA map tracking, and digital credential verification.",
+    tech_stack: ["Flutter/PWA", "Leaflet Maps", "Node.js", "WebSocket", "PostgreSQL", "BNSP Auth"],
+    badge_color: "from-red-500 to-amber-500"
+  },
+  {
     id: "cs-snaprint",
     category: "webapp",
     categories: ["webapp", "enterprise"],
